@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+src/SimbioReader/__init__.py
+src/SimbioReader/exceptions.py
+src/SimbioReader/simbioreader.py
+src/SimbioReader.egg-info/PKG-INFO
+src/SimbioReader.egg-info/SOURCES.txt
+src/SimbioReader.egg-info/dependency_links.txt
+src/SimbioReader.egg-info/requires.txt
+src/SimbioReader.egg-info/top_level.txt
