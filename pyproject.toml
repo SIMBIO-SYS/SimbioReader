@@ -25,6 +25,10 @@ Repository = "https://github.com/SIMBIO-SYS/SimbioReader"
 [project.optional-dependencies]
 docs = ["sphinx"]
 
+[project.scripts]
+simbioPhases = "SimbioReader.externals:simbioPhases"
+hricFilters = "SimbioReader.externals:hricFilters"
+stcFilters = "SimbioReader.externals:stcFilters"
 
 [build-system]
 requires = ["setuptools"]
