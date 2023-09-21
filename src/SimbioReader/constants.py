@@ -15,6 +15,6 @@ class FMODE:
     APPEND = 'a'
 
 
-VERSION = (0,1,0,'d',4)
+VERSION = (0,1,0,'f',1)
 
 DATAMODEL='1.15.0.0'
