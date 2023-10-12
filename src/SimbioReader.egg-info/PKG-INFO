@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: SimbioReader
-Version: 0.1.0
+Version: 0.1.1
 Summary: Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo
 Author-email: Romolo Politi <Romolo.Politi@inaf.it>
 License: GNU GPL ver3
@@ -13,6 +13,7 @@ License-File: LICENSE
 Requires-Dist: numpy
 Requires-Dist: pandas
 Requires-Dist: rich
+Requires-Dist: update_checker
 Requires-Dist: importlib-metadata; python_version > "3.10"
 Provides-Extra: docs
 Requires-Dist: sphinx; extra == "docs"

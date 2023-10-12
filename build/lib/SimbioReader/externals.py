@@ -16,3 +16,9 @@ def simbioPhases():
                     ['name'], phases[item]['start'], phases[item]['stop'])
         
     console.print(tb)
+    
+def hricFilters():
+    pass
+
+def stcFilters():
+    pass
