@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.1.2
+
+- update phases
+
 ## 0.1.1
 
 - fix requirements
