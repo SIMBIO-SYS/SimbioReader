@@ -92,6 +92,13 @@ phases={
         "phase": "cruise",
         "LPName": "Cruise"
     },
+    "ssmm_load":{
+        "start": "2023-05-30 11:00:00",
+        "stop": "2023-06-01 18:00:00",
+        "name": "ssmm_load",
+        "phase": "cruise",
+        "LPName": "Cruise"
+    },
     "None":{
         "start" : "2021-11-23 00:00:01",
         "stop"  : "2028-12-31 23:59:59",
