@@ -1,5 +1,8 @@
 # SimbioReader Changelog
 
+## 0.1.4
+- Disabled auto update
+
 ## 0.1.2
 
 - update phases
