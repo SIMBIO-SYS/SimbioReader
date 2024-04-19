@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.1.7
+
+- add info ICO # 11
+
 ## 0.1.6
 
 - enabled check for updates
