@@ -1,6 +1,6 @@
 [project]
 name = "SimbioReader"
-version = "0.1.4-dev1"
+version = "0.1.5-dev1"
 description="Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
     "numpy",

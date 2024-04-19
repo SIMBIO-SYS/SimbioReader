@@ -110,12 +110,12 @@ class SimbioReader:
             self.console=console
         else:
             self.console=console
-        if updateCheck:
-            checker = UpdateChecker()
-            result = checker.check('SimbioReader', version.short())
-            if result:
-                # TODO: Check this part after the delivery on pypi.org
-                self.console.print(result)
+        # if updateCheck:
+        #     checker = UpdateChecker()
+        #     result = checker.check('SimbioReader', version.short())
+        #     if result:
+        #         # TODO: Check this part after the delivery on pypi.org
+        #         self.console.print(result)
         if type(fileName) is not Path:
             fileName = Path(fileName).resolve()
         if 'stc' in fileName.stem:

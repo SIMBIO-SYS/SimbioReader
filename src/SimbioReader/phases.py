@@ -99,8 +99,15 @@ phases={
         "phase": "cruise",
         "LPName": "Cruise"
     },
+    "ico10": {
+        "start": "2023-11-05 23:30:00",
+        "stop": "2023-11-06 02:00:00",
+        "name": "ssmm_load",
+        "phase": "cruise",
+        "LPName": "Cruise"
+    },
     "None":{
-        "start" : "2021-11-23 00:00:01",
+        "start" : "2023-11-06 02:00:01",
         "stop"  : "2028-12-31 23:59:59",
         "name"  : "None",
         "phase" : "None",
