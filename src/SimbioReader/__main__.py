@@ -2,7 +2,7 @@ import logging
 
 from os import path
 from pathlib import Path
-from re import sub
+
 from xml.dom.minidom import parse, Element
 import copy
 from datetime import datetime
@@ -20,7 +20,7 @@ from update_checker import UpdateChecker
 
 from SimbioReader.constants import FMODE, MSG, CONTEXT_SETTINGS, progEpilog, data_types, datamodel
 from SimbioReader.exceptions import SizeError
-from SimbioReader.tools import getElement, getValue
+from SimbioReader.tools import getElement, getValue, snake_case, camel_case
 from SimbioReader.filters_tools import Filter
 from SimbioReader.version import version
 import rich_click as click
@@ -30,16 +30,7 @@ from rich_click import rich_config
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.FOOTER_TEXT = progEpilog
 
-def camel_case(s):
-    s = sub(r"(_|-)+", " ", s).title().replace(" ", "")
-    return ''.join([s[0].lower(), s[1:]])
 
-
-def snake_case(s):
-    return '_'.join(
-        sub('([A-Z][a-z]+)', r' \1',
-        sub('([A-Z]+)', r' \1',
-        s.replace('-', ' '))).split()).lower()
 
 
 __version__ = version.full()
@@ -116,7 +107,24 @@ class Detector:
         return Panel(dt,title='Detector',border_style='yellow',expand=False)
     
 class SubFrame:
-    
+    """
+    A class representing a subframe of a SIMBIO-SYS image.
+
+    This class extracts and initializes various attributes related to a subframe
+    of a SIMBIO-SYS image, such as the first line, first sample, number of lines,
+    number of samples, and field of view.
+
+    Args:
+        dat (Element): An XML Element containing the subframe information.
+
+    Attributes:
+        first_line (int): The first line number of the subframe.
+        first_sample (int): The first sample number of the subframe.
+        lines (int): The number of lines in the subframe.
+        samples (int): The number of samples in the subframe.
+        line_fov (float): The line field of view of the subframe.
+        sample_fov (float): The sample field of view of the subframe.
+    """
     def __init__(self, dat:Element) -> None:
         subFrame = getElement(dat, 'img:Subframe')
         self.first_line = int(getValue(subFrame,'img:first_line'))
@@ -125,8 +133,47 @@ class SubFrame:
         self.samples = int(getValue(subFrame,'img:samples'))
         self.line_fov = float(getValue(subFrame,'img:line_fov'))
         self.sample_fov = float(getValue(subFrame,'img:sample_fov'))
+    
+    def __str__(self):
+        """
+        Returns a string representation of the Subframe object.
+
+        Returns:
+            str: A string in the format 'SubFrame object'.
+        """
+        return f"SubFrame object"
+    
+    def __repr__(self) -> str:
+        """
+        Returns a string representation for debugging purposes.
+
+        Returns:
+            str: A string in the format 'SubFrame object'.
+        """
+        return self.__str__()
+    
 
 class DataStructure:
+    """
+    A class representing the data structure of a SIMBIO-SYS file.
+
+    This class extracts and initializes various attributes related to the data 
+    structure of a SIMBIO-SYS file, such as creation time, file size, and axes 
+    configuration, based on an XML Element.
+
+    Args:
+        dat (Element): An XML Element containing the data structure information.
+        channel (str): The channel identifier (e.g., 'HRIC', 'STC', 'VIHI').
+
+    Attributes:
+        creation_time (datetime): The creation time of the file.
+        file_size (int): The size of the file.
+        md5 (str): The MD5 checksum of the file.
+        axes (int): The number of axes in the data structure.
+        band (int): The band information (default is 1).
+        data_type (str): The type of data (e.g., 'UnsignedLSB2', 'IEEE754LSBSingle').
+
+    """
     
     def __init__(self, dat:Element, channel:str):
         fao=getElement(dat,'File_Area_Observational')
@@ -150,13 +197,31 @@ class DataStructure:
             self.band = 1
         
         
-    def __str__(self):
+    def __str__(self)->str:
+        """
+        Returns a string representation of the Datastructure.
+
+        Returns:
+            str: A string in the format 'DataStructure Object'.
+        """
         return f"DataStructure object"
     
     def __repr__(self) -> str:
+        """
+        Returns a string representation for debugging purposes.
+
+        Returns:
+            str: A string in the format 'DataStructure Object'.
+        """
         return self.__str__()
     
     def Show(self):
+        """
+        Displays the data structure information in a formatted table.
+
+        Returns:
+            Panel: A rich Panel object containing the formatted table of data structure information.
+        """
         sep=' = '
         dt=Table.grid()
         dt.add_column(style='yellow',justify='right')
@@ -171,14 +236,59 @@ class DataStructure:
         return Panel(dt,title='Data Structure',border_style='yellow',expand=False)
         
 
-# @dataclass
 class SimbioReader:
-    ''' Read a Simbio file'''
+    """
+        SimbioReader class for reading and processing SIMBIO-SYS data files.
+
+        This class provides methods to read SIMBIO-SYS data files (STC, HRIC, VIHI channels),
+        extract metadata, and access image data. It also offers functionalities
+        for displaying information and saving image previews.
+
+        Args:
+            fileName (Path): Path to the Simbio data file.
+            log (logging.Logger, optional): Logging object for recording messages. Defaults to None.
+            debug (bool, optional): Flag to enable debug messages. Defaults to False.
+            verbose (bool, optional): Flag to enable verbose messages. Defaults to False.
+            console (Console, optional): Console object for printing messages. Defaults to None.
+            updateCheck (bool, optional): Flag to check for updates on class initialization. Defaults to True.
+
+        Attributes:
+            fileName (Path): Path to the Simbio data file.
+            log (logging.Logger, optional): Logging object for recording messages. Defaults to None.
+            debug (bool, optional): Flag to enable debug messages. Defaults to False.
+            verbose (bool, optional): Flag to enable verbose messages. Defaults to False.
+            console (Console, optional): Console object for printing messages. Defaults to None.
+            updateCheck (bool, optional): Flag to check for updates on class initialization. Defaults to True.
+            channel (str): Channel type of the Simbio data (STC, HRIC, VIHI).
+            pdsLabel (Path, optional): Path to the PDS4 label file.
+            hk (HK, optional): Instance of the HK class containing housekeeping data (if available).
+            title (str): Title of the Simbio data acquisition.
+            dataModelVersion (str): Data model version of the Simbio data.
+            startTime (datetime): Start time of the Simbio data acquisition.
+            stopTime (datetime): Stop time of the Simbio data acquisition.
+            level (str): Processing level of the Simbio data.
+            tarName (str): Name of the target observed in the Simbio data.
+            tarType (str): Type of the target observed in the Simbio data.
+            startScet (str): Start spacecraft clock count of the Simbio data acquisition.
+            stopScet (str): Stop spacecraft clock count of the Simbio data acquisition.
+            phaseName (str): Mission phase name associated with the Simbio data acquisition.
+            exposure (float): Exposure duration of the Simbio data acquisition (in seconds).
+            firstLine (int): First line number of the image data.
+            firstSample (int): First sample number of the image data.
+            lines (int): Number of lines in the image data.
+            samples (int): Number of samples in the image data.
+            lineFov (float): Line field of view of the image data (in units).
+            sampleFov (float): Sample field of view of the image data (in units).
+            filter (Filter, optional): Instance of the Filter class containing filter information (if applicable).
+            data_structure (DataStructure): Instance of the DataStructure class containing information about the data structure.
+            img (np.ndarray): NumPy array containing the image data.
+        """
     
 
     def __init__(self, fileName: Path, log: logging = None, 
                  debug: bool = False, verbose: bool = False,
                  console:Console=None, updateCheck:bool = True):
+
         if console is None:
             # from rich.console import Console
             self.console=Console()
@@ -227,6 +337,14 @@ class SimbioReader:
         self.read()
 
     def read(self):
+        """Reads and processes the SIMBIO-SYS file, extracting metadata and image data.
+
+        Raises:
+            ValueError: If the file is not a valid SIMBIO-SYS file, PDS4 label is missing,
+                        or data file is not found.
+            SizeError: If the computed file size based on image data and data type
+                        does not match the actual file size.
+        """
         message = f"Reading {self.fileName}"
         if self.log:
             self.log.info(message)
@@ -334,8 +452,19 @@ class SimbioReader:
             self.console.print(f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}")
             # print(f"Size of the old image array: {self.img.size}")
 
-    def Show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, all_info:bool=False):
-        # print(self.__dict__)
+    def Show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, all_info:bool=False)->Columns:
+        """Displays information about the loaded SIMBIO-SYS file.
+
+        Args:
+            hk (bool, optional): If True, displays the housekeeping data. Defaults to False.
+            detector (bool, optional): If True, displays the detector information. Defaults to False.
+            data_structure (bool, optional): If True, displays the data structure information. Defaults to False.
+            all_info (bool, optional): If True, displays all available information (equivalent to setting
+                                        hk, detector, and data_structure to True). Defaults to False.
+
+        Returns:
+            Columns: A rich console object containing the formatted information tables.
+        """
         sep=' = '
         sep2 = ' : '
         if all_info:
@@ -415,14 +544,37 @@ class SimbioReader:
         return Columns(show_list, title=self.fileName.stem)
         pass
 
-    def __str__(self):
+    def __str__(self)-> str:
+        """
+        Returns a string representation of the object.
+
+        Returns:
+            str: A string in the format 'SimbioReader object <version> - from file <fileName>'.
+        """
         return f"SimbioReader object {version} - from file {self.fileName.stem}"
     
     def __repr__(self) -> str:
+        """
+        Returns a string representation for debugging purposes.
+
+        Returns:
+            str: A string in the format 'SimbioReader object <version> - from file <fileName>'.
+        """
         return self.__str__()
  
         
     def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None):
+        """Saves a preview image of the loaded data.
+
+        Args:
+            img_type: The desired image format. Supported formats are 'png', 'tif', and 'jpg'. Defaults to 'png'.
+            quality: The quality of the saved image (applicable for 'png' and 'jpg' formats only). Ranges from 0 (worst) to 100 (best). Defaults to 100.
+            out_folder: The output folder path where the preview image will be saved. Defaults to the same directory as the original Simbio file.
+
+        Raises:
+            ValueError: If the provided image format is not supported.
+            TypeError: If the `out_folder` argument is not a `Path` object.
+        """
   
         if outFolder is None:
             dest = self.fileName.parent
@@ -443,17 +595,22 @@ class SimbioReader:
         # print(self.img[0,0])
         pass
     
-    def image(self):
+    def image(self)->im:
+        """Returns a PIL Image object representing the loaded image data.
+
+        This method returns a Pillow (PIL Fork) Image object containing the image data
+        loaded from the Simbio file. The image data is assumed to be a single-band
+        or multi-band array, depending on the channel type.
+
+        Returns:
+            A PIL Image object representing the loaded image data.
+
+        Raises:
+            ValueError: If the loaded image data cannot be converted to a PIL Image
+            object due to unsupported data type or shape.
+        """
         data = im.fromarray(self.img)
         return data
-
-# def common_options(func):
-#     """Common options for the commands"""
-#     @wraps(func)
-    
-#     def wrapper(*args, **kwargs):
-#         return func(*args, **kwargs)
-#     return wrapper
 
 
 def sh_version(ctx, self, value):

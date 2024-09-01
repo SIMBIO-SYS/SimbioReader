@@ -56,5 +56,5 @@ def test_subpase_get_by_date():
     assert test01.extended_name == 'Instrument Check-Out #1'
     
 def test_get_test_by_name():
-    test01 = Test(name='Hric performance',subphase='ico9')
+    test01 = Test('Hric performance',subphase='ico9')
     assert test01.name == 'HRIC Performance Test'

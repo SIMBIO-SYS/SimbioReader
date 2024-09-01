@@ -15,7 +15,7 @@ For more information about SIMBIO-SYS you can visit the official [ESA SIMBIO-SYS
 
 To install the reader you can use the command:
 
-```shell
+```console
 $ python3 -m pip install SimbioReader
 ```
 
@@ -40,7 +40,6 @@ In the package are included two command line tools:
 
 ```console
 simbioReader sim_raw_sc_vihi_internal_cruise_ico6_2021-11-22_001.dat
-
 ```
 
 will show the main information about the product.
@@ -57,8 +56,23 @@ For any details you can use the option **--help**.
 
 Using the option **--version** will be shown the software version and the datamodel version implemented in it.
 
-## simbioInfo
+### simbioInfo
 
+***simbioInfo*** tool is a command line interface (cli) wiith three subcommands:
+
+- **filters** Show the definition of filter(s) of a specific channel
+- **phases** Show the past mission phase(s);
+- **subphases** Show the past mission subphase(s);
+- **tests** Show the past SIMBIO-SYS performed test(s)
+
+#### filters
+
+The subcommand **filter** has an argument, the channel and an option ***--name***.
+
+If the user provides only the channel, all the filters specific to that channel will be shown. 
+If the user adds the -name option, only the selected filter will be displayed, if found.
+
+A description of argument and options coul be required using the option ***--help***
 
 
 

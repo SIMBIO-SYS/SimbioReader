@@ -30,7 +30,7 @@ docs = ["sphinx"]
 
 [project.scripts]
 simbioReader = "SimbioReader.__main__:cli"
-simbioInfo = "SimbioReader.simbioInfo:cli"
+simbioInfo = "SimbioReader.infocli:cli"
 
 
 [build-system]

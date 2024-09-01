@@ -13,10 +13,16 @@ class Filter:
             flt=stcFilters
         else:
             raise ValueError("Invalid channel.")
-        for item, item_data in flt.items():
-            if item_data['name'] == name:
-                for key, value in item_data.items():
-                    setattr(self, key, value)      
+        itm = [elem for elem in flt.values() if elem['name']==name]
+        if len(itm)==0:
+            raise ValueError("No filters found.")
+        elif len(itm)>1:
+            raise ValueError("Multiple filters found. Please provide a detailed filter name.")
+        elif len(itm)==1:
+            itm=itm[0]
+  
+        for key, value in itm.items():
+            setattr(self, key, value)      
         if 'name' not in self.__dict__:
             raise ValueError("Filter not found.")
         
@@ -29,16 +35,12 @@ class Filter:
     def show(self):
         """Show the filter data in a table"""
         tb = Table.grid()
-        sep= '='
+        tb.add_column(style='yellow')
+        sep= ' = '
         for key, value in self.__dict__.items():
-            tb.add_row(key, sep, value)
-        tb.add_column('Filter Name')
-        tb.add_column('Description')
-        tb.add_column('Type')
-        tb.add_column('Value')
-        tb.add_row(self.name,self.desc,self.type,self.value)
+            tb.add_row(key.title(), sep, value)
         return Panel(tb,title='Filter',
-                     border_style='yellow', expand=True)
+                     border_style='yellow', expand=False)
         
     
 
