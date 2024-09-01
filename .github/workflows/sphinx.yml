@@ -9,20 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - uses: actions/checkout@v4
-    - name: Build HTML
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+
+    - name: Install Sphinx & Dependencies
+      run: pip install sphinx sphinx_markdown_builder sphinx_rtd_theme
+    - name: Build Documentation
       run: cd "$GITHUB_WORKSPACE/doc" && make html
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+
+    - uses: actions/upload-artifact@v3
       with:
-        name: html-docs
-        path: docs/build/html/
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/build/html
+        name: Documentation
+        path: "$GITHUB_WORKSPACE/doc/_build/html/"
