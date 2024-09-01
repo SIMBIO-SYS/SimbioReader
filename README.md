@@ -2,7 +2,7 @@
 ![Language Python 3.12](https://img.shields.io/badge/python-3.12-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![Upload Python Package](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml)
-[![Tests Workflow](https://github.com/RomoloPoliti-INAF/SimGen/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
+[![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
 
 # SimbioReader
 
