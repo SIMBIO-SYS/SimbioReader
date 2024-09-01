@@ -1,4 +1,4 @@
-from SimbioReader.phases_tools import get_phase, get_subphase,get_subphases_by_phase,Test
+from SimbioReader.simbioInfo import get_phase, get_subphase,get_subphases_by_phase,Test
 from datetime import datetime
 
 def test_pahse_get_by_name():
