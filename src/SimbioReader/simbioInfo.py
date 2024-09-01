@@ -95,6 +95,10 @@ def tests(ctx,all: bool = None, date: str = None, name: str = None, phase: str =
         try:
             console.print(Test(name, subphase=subphase).show())
         except:
+            if not subphase:
+                console.print(f"{MSG.WARNING}Test {name.title()} not found. Please try to specific a subphase.")
+                ctx.exit()
+            console.print(f"{MSG.WARNING}Test {name.title()} for subphase {subphase.upper()} not found.")
             console.print(Test.show_all(key=name))
     elif phase:
         console.print(Test.show_all(phase=phase))
