@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimbioReader.simbioInfo &mdash; SimbioReader 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SimbioReader
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simbioreader.html">SimbioReader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simbioinfo.html">simbioInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SimbioReader</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">SimbioReader.simbioInfo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for SimbioReader.simbioInfo</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">rich.console</span> <span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
+
+<span class="kn">from</span> <span class="nn">SimbioReader.phases</span> <span class="kn">import</span> <span class="n">phases</span>
+<span class="kn">from</span> <span class="nn">SimbioReader.subphases</span> <span class="kn">import</span> <span class="n">subphases</span>
+<span class="kn">from</span> <span class="nn">SimbioReader.tests</span> <span class="kn">import</span> <span class="n">tests</span>
+
+<span class="n">dateFormat</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span>
+<span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Phase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Phase">[docs]</a>
+<span class="k">class</span> <span class="nc">Phase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a phase, defined by a name or a date.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): The name of the phase.</span>
+<span class="sd">        start (datetime): The start time of the phase.</span>
+<span class="sd">        end (datetime): The end time of the phase.</span>
+<span class="sd">        extended_name (str): The extended name of the phase (LPName).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span><span class="n">datetime</span><span class="o">|</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Phase object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str, optional): The name of the phase. Defaults to None.</span>
+<span class="sd">            dt (datetime | str, optional): The date used to determine the phase. Defaults to None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If neither name nor dt is provided, or if no phase is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">phase_data</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">phase_data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phase </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">phase_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_phase_by_date</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">phase_data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No phase found for the given date.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must provide a phase name or a date.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended_name</span> <span class="o">=</span> <span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;LPName&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_find_phase_by_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds a phase by a given date.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dt (datetime): The date to find the corresponding phase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict | None: The phase data if found, otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">phase_name</span><span class="p">,</span> <span class="n">phase_data</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">phase_data</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the phase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the phase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Phase </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the official string representation of the phase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the phase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Phase.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Phase.show">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table of all phases with their names and start/end times.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying all phases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Phase Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phase_name</span><span class="p">,</span> <span class="n">phase_data</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">phase_name</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;LPName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">phase_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+</div>
+
+
+<span class="c1"># Funzione di utilità per ottenere una fase</span>
+
+
+<div class="viewcode-block" id="get_phase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.get_phase">[docs]</a>
+<span class="k">def</span> <span class="nf">get_phase</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span><span class="n">datetime</span><span class="o">|</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Phase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility function to obtain a Phase object by name or date.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str, optional): The name of the phase. Defaults to None.</span>
+<span class="sd">        dt (datetime | str, optional): The date used to determine the phase. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Phase: The corresponding Phase object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Phase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="SubPhase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.SubPhase">[docs]</a>
+<span class="k">class</span> <span class="nc">SubPhase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a subphase, which is a subdivision of a phase.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): The name of the subphase.</span>
+<span class="sd">        start (datetime): The start time of the subphase.</span>
+<span class="sd">        end (datetime): The end time of the subphase.</span>
+<span class="sd">        phase (Phase): The parent phase of the subphase.</span>
+<span class="sd">        extended_name (str): The extended name of the subphase (LPName).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span> <span class="p">,</span> <span class="n">dt</span><span class="p">:</span><span class="n">datetime</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a SubPhase object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str, optional): The name of the subphase. Defaults to None.</span>
+<span class="sd">            dt (datetime | str, optional): The date used to determine the subphase. Defaults to None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If neither name nor dt is provided, or if no subphase is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">subphase_data</span> <span class="o">=</span> <span class="n">subphases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subphase_data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SubPhase </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">subphase_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_subphase_by_date</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subphase_data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No subphase found for the given date.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must provide a subphase name or a date.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">Phase</span><span class="p">(</span><span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended_name</span> <span class="o">=</span> <span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;LPName&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_find_subphase_by_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds a subphase by a given date.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dt (datetime): The date to find the corresponding subphase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict | None: The subphase data if found, otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">subphase_name</span><span class="p">,</span> <span class="n">subphase_data</span> <span class="ow">in</span> <span class="n">subphases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">subphase_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">subphase_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">subphase_data</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the subphase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the subphase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SubPhase </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the official string representation of the subphase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the subphase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="SubPhase.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table of all subphases with their names, phases, and start/end times.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying all subphases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;SubPhase Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Extended Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phase_name</span><span class="p">,</span> <span class="n">phase_data</span> <span class="ow">in</span> <span class="n">subphases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">phase_name</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">phase_name</span><span class="p">,</span>
+                       <span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;LPName&#39;</span><span class="p">],</span>
+                       <span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">],</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+</div>
+
+
+<div class="viewcode-block" id="get_subphase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.get_subphase">[docs]</a>
+<span class="k">def</span> <span class="nf">get_subphase</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span><span class="n">datetime</span><span class="o">|</span><span class="nb">str</span> <span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SubPhase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility function to obtain a SubPhase object by name or date.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str, optional): The name of the subphase. Defaults to None.</span>
+<span class="sd">        dt (datetime | str, optional): The date used to determine the subphase. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        SubPhase: The corresponding SubPhase object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SubPhase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_subphases_by_phase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.get_subphases_by_phase">[docs]</a>
+<span class="k">def</span> <span class="nf">get_subphases_by_phase</span><span class="p">(</span><span class="n">phase_name</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">|</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of subphases for a given phase.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        phase_name (str): The name of the phase.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[str] | str: A list of subphases if more than one, or a single subphase name if only one.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no subphases are found for the given phase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elem</span><span class="o">=</span><span class="p">[</span><span class="n">subphase_name</span> <span class="k">for</span> <span class="n">subphase_name</span><span class="p">,</span> <span class="n">subphase_data</span> <span class="ow">in</span> <span class="n">subphases</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">subphase_data</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">phase_name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No subphases found for the phase </span><span class="si">{</span><span class="n">phase_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">elem</span></div>
+
+    
+<div class="viewcode-block" id="compare_str">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.compare_str">[docs]</a>
+<span class="k">def</span> <span class="nf">compare_str</span><span class="p">(</span><span class="n">str1</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">str2</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compares two strings to see if the first string (or its components if split by spaces) is contained within the second string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        str1 (str): The first string to compare.</span>
+<span class="sd">        str2 (str): The second string to compare against.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if str1 is contained within str2, otherwise False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">str1</span><span class="p">:</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">str1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">piece</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">str2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">str1</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">str2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+     
+<div class="viewcode-block" id="Test">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Test">[docs]</a>
+<span class="k">class</span> <span class="nc">Test</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a test, associated with a specific subphase.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): The name of the test.</span>
+<span class="sd">        start (datetime): The start time of the test.</span>
+<span class="sd">        end (datetime): The end time of the test.</span>
+<span class="sd">        subphase (str): The subphase associated with the test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span><span class="n">datetime</span><span class="o">|</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subphase</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Test object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str, optional): The name of the test. Defaults to None.</span>
+<span class="sd">            dt (datetime | str, optional): The date used to determine the test. Defaults to None.</span>
+<span class="sd">            subphase (str, optional): The subphase associated with the test. Required if name is provided. Defaults to None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If neither name nor dt is provided, or if no test is found, or if multiple tests are found without a detailed name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">test_data</span> <span class="o">=</span> <span class="n">tests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">test_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subphase</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;To search a Test by name a subphase name is required.&quot;</span><span class="p">)</span>
+                <span class="n">sub_list</span> <span class="o">=</span> <span class="n">get_test_by_subphase</span><span class="p">(</span><span class="n">subphase</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_list</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    
+                    <span class="n">itm</span><span class="o">=</span><span class="p">[</span><span class="n">tests</span><span class="p">[</span><span class="n">testname</span><span class="p">]</span> <span class="k">for</span> <span class="n">testname</span> <span class="ow">in</span> <span class="n">sub_list</span> <span class="k">if</span> <span class="n">compare_str</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tests</span><span class="p">[</span><span class="n">testname</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiple tests found for the subphase </span><span class="si">{</span><span class="n">subphase</span><span class="si">}</span><span class="s2">. Please provide detaile the test name.&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">test_data</span> <span class="o">=</span> <span class="n">itm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">dt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_test_by_date</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">test_data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No test found for the given date.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must provide a test name or a date.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subphase</span> <span class="o">=</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">]</span>
+        
+    <span class="k">def</span> <span class="nf">_find_test_by_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds a test by a given date.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dt (datetime): The date to find the corresponding test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict | None: The test data if found, otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test_data</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">test_data</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the test.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Test </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subphase</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the official string representation of the test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The string representation of the test.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="Test.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Test.show">[docs]</a>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table showing the details of this test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying the test details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Test Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;SubPhase&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">subphase</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+
+    
+<div class="viewcode-block" id="Test.show_all">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Test.show_all">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">show_all</span><span class="p">(</span><span class="n">phase</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">subphase</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">key</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">date</span><span class="p">:</span><span class="n">datetime</span><span class="o">|</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table showing all tests that match the provided filters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            phase (str, optional): The phase to filter tests by. Defaults to None.</span>
+<span class="sd">            subphase (str, optional): The subphase to filter tests by. Defaults to None.</span>
+<span class="sd">            key (str, optional): A keyword to search within test names. Defaults to None.</span>
+<span class="sd">            date (datetime | str, optional): A date to filter tests by. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying the filtered tests.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Test Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;SubPhase&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test_data</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">subphase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">subphase</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">compare_str</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
+                <span class="k">continue</span>    
+
+            <span class="k">if</span> <span class="n">date</span> <span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">start</span> <span class="o">&lt;=</span><span class="n">date</span> <span class="o">&lt;=</span><span class="n">end</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">get_subphases_by_phase</span><span class="p">(</span><span class="n">phase</span><span class="p">):</span>
+                    <span class="k">continue</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                       <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">],</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
+                       <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+</div>
+
+
+<div class="viewcode-block" id="get_test_by_subphase">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.get_test_by_subphase">[docs]</a>
+<span class="k">def</span> <span class="nf">get_test_by_subphase</span><span class="p">(</span><span class="n">subphase</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of tests for a given subphase.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subphase (str): The name of the subphase.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[str] | None: A list of test names, or None if no tests are found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elem</span><span class="o">=</span> <span class="p">[</span><span class="n">test_name</span> <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test_data</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">subphase</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">elem</span></div>
+
+        
+
+<div class="viewcode-block" id="Filter">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Filter">[docs]</a>
+<span class="k">class</span> <span class="nc">Filter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a filter for a specific channel, either &#39;HRIC&#39; or &#39;STC&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        channel (str): The channel associated with the filter.</span>
+<span class="sd">        name (str): The name of the filter.</span>
+<span class="sd">        Other attributes dynamically assigned based on filter data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Filter object based on the specified channel and filter name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            channel (str): The channel for which the filter is associated. Must be &#39;HRIC&#39; or &#39;STC&#39;.</span>
+<span class="sd">            name (str): The name of the filter to initialize.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the channel is invalid, or if no/multiple filters are found with the given name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hric&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">SimbioReader.filters</span> <span class="kn">import</span> <span class="n">hricFilters</span>
+            <span class="n">flt</span> <span class="o">=</span> <span class="n">hricFilters</span>
+        <span class="k">elif</span> <span class="n">channel</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;stc&quot;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">SimbioReader.filters</span> <span class="kn">import</span> <span class="n">stcFilters</span>
+            <span class="n">flt</span> <span class="o">=</span> <span class="n">stcFilters</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid channel.&quot;</span><span class="p">)</span>
+        <span class="n">itm</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">flt</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No filters found.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Multiple filters found. Please provide a detailed filter name.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">itm</span> <span class="o">=</span> <span class="n">itm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">itm</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filter not found.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Filter object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string in the format &#39;Filter &lt;name&gt;&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Filter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation for debugging purposes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string in the format &#39;Filter &lt;name&gt;&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Filter.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Filter.show">[docs]</a>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Panel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the filter&#39;s data in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A rich Panel object containing a table with the filter&#39;s attributes and values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+        <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39; = &#39;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">sep</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Filter&#39;</span><span class="p">,</span>
+                     <span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="show_filters">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.show_filters">[docs]</a>
+<span class="k">def</span> <span class="nf">show_filters</span><span class="p">(</span><span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays all filters for a specified channel in a table.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        channel (str): The channel for which to show filters. Must be &#39;HRIC&#39; or &#39;STC&#39;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the channel is invalid.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Table: A rich Table object with all filters for the specified channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hric&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">SimbioReader.filters</span> <span class="kn">import</span> <span class="n">hricFilters</span>
+        <span class="n">flt</span> <span class="o">=</span> <span class="n">hricFilters</span>
+    <span class="k">elif</span> <span class="n">channel</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;stc&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">SimbioReader.filters</span> <span class="kn">import</span> <span class="n">stcFilters</span>
+        <span class="n">flt</span> <span class="o">=</span> <span class="n">stcFilters</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid channel.&quot;</span><span class="p">)</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+    <span class="n">elem</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">flt</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Description&quot;</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="n">mask</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">flt</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+
+    <span class="k">return</span> <span class="n">tb</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Romolo Politi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

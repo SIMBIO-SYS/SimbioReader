@@ -49,7 +49,13 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simbioreader.html">SimbioReader</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simbioinfo.html">simbioInfo</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.camel_case"><code class="docutils literal notranslate"><span class="pre">camel_case()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.getElement"><code class="docutils literal notranslate"><span class="pre">getElement()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.getValue"><code class="docutils literal notranslate"><span class="pre">getValue()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.snake_case"><code class="docutils literal notranslate"><span class="pre">snake_case()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 </ul>
 
@@ -80,6 +86,90 @@
   <section id="tools">
 <h1>Tools<a class="headerlink" href="#tools" title="Link to this heading"></a></h1>
 <p>In the package are avaliable some tools to help the user to work with XML files and strings.</p>
+<dl class="py function" id="module-SimbioReader.tools">
+<dt class="sig sig-object py" id="SimbioReader.tools.camel_case">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">camel_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#camel_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.camel_case" title="Link to this definition"></a></dt>
+<dd><p>Converts a given string to camelCase.</p>
+<p>The function transforms a string by removing underscores or hyphens,
+capitalizing the first letter of each word except the first one,
+and then joining them together to form a camelCase string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – The input string, typically in snake_case or kebab-case.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted string in camelCase.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">camel_case</span><span class="p">(</span><span class="s1">&#39;hello_world&#39;</span><span class="p">)</span>
+<span class="go">&#39;helloWorld&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">camel_case</span><span class="p">(</span><span class="s1">&#39;hello-world&#39;</span><span class="p">)</span>
+<span class="go">&#39;helloWorld&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.getElement">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">getElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Element</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#getElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.getElement" title="Link to this definition"></a></dt>
+<dd><p>Get a Block of a dom</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>xml.dom</em>) – The full Object</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The name of the tag to extract</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(xml.dom) The node tree extracted</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.getValue">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">getValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodeList</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#getValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.getValue" title="Link to this definition"></a></dt>
+<dd><p>Get the value from a tag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nodelist</strong> – The xml block to evaluate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the tag</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.snake_case">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">snake_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#snake_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.snake_case" title="Link to this definition"></a></dt>
+<dd><p>Converts a given string to snake_case.</p>
+<p>The function transforms a camelCase or PascalCase string to snake_case,
+replacing capital letters with underscores followed by the lowercase equivalent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – The input string, typically in camelCase or PascalCase.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted string in snake_case.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">snake_case</span><span class="p">(</span><span class="s1">&#39;helloWorld&#39;</span><span class="p">)</span>
+<span class="go">&#39;hello_world&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snake_case</span><span class="p">(</span><span class="s1">&#39;HelloWorld&#39;</span><span class="p">)</span>
+<span class="go">&#39;hello_world&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
 
