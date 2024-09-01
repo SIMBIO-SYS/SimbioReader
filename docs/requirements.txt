@@ -1,1 +1,8 @@
 sphinx_rtd_theme 
+numpy
+pillow
+click
+rich
+rich_click
+pandas
+update_checker
