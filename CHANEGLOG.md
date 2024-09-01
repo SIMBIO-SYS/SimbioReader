@@ -1,5 +1,11 @@
 # SimbioReader Changelog
 
+## 0.2.0
+
+- create the file __main__.py
+- implemented subcommands to display phases, subphases and tests 
+
+
 ## 0.1.8
 
 - Fix bugs

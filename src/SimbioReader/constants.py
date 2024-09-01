@@ -15,6 +15,15 @@ class FMODE:
     APPEND = 'a'
 
 
-VERSION = (0,1,7,'d',1)
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+progEpilog = "- For any information or suggestion please contact " \
+    "[bold magenta]Romolo.Politi@inaf.it[/bold magenta]"
 
-DATAMODEL='1.15.0.0'
+VERSION = (0,2,0,'d',1)
+
+datamodel='1.15.0.0'
+
+data_types = {
+    "UnsignedLSB2": {'envi':2,'bits':16},
+    "IEEE754LSBSingle":{'envi':4,'bits':32},
+}

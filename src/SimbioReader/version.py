@@ -33,7 +33,7 @@ class Vers:
         return nVer
 
     def short(self):
-        return f"{self.major}.{self.minor}"
+        return f"{self.major}.{self.minor}.{self.bug}"
     
     def __str__(self):
         return self.full()

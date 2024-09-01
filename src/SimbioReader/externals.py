@@ -1,7 +1,7 @@
 
 from rich.table import Table
-from SimbioReader.console import console
-from SimbioReader.phases  import phases
+# from SimbioReader.console import console
+from SimbioReader.phases_tools  import phases
 
 
 def simbioPhases():
@@ -15,7 +15,7 @@ def simbioPhases():
             tb.add_row(phases[item]['LPName'], phases[item]
                     ['name'], phases[item]['start'], phases[item]['stop'])
         
-    console.print(tb)
+    return tb
     
 def hricFilters():
     pass

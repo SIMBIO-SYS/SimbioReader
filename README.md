@@ -1,5 +1,11 @@
-# SimbioReader
+![Version 0.2.0](https://img.shields.io/badge/version-0.2.0-blue?style=plastic)
+![Language Python 3.12](https://img.shields.io/badge/python-3.12-orange?style=plastic&logo=python)
+![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![Upload Python Package](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml)
+
+
+# SimbioReader
+
 
 SimbioReader is the official Python reader for the data of the Spectrometer And Imagers For Mpo Bepicolombo Integrated Observatory System on board the ESA mission BepiColombo.
 
@@ -24,11 +30,38 @@ dat = SimbioReader("sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat")
 ```
 
 ## Command line tools
-in the package are included some command line toos:
 
-+ **simbioPhases** show all the phases of the mission BepiColombo, with all the sub-phases of SIMBIO-SYS;
-+ **hricFilters** show all the filters avaible for the SIMBIO-SYS channel HRIC;
-+ **stcFilters** show all the filters avaible for the SIMBIO-SYS channel STC;
+In the package are included two command line tools:
+
++ **simbioReader** show the info of a specific SIMBIO-SYS data product;
++ **simbioInfo** show the information about phases, subphases and test of SIMBIO-SYS;
+
+### simbioReader
+
+```console
+simbioReader sim_raw_sc_vihi_internal_cruise_ico6_2021-11-22_001.dat
+
+```
+
+will show the main information about the product.
+
+Are avalaible some options:
+
+- **--all** will display all the avilable information
+- **--hk** wil display also the housekeeping
+- **--detector** will display all the detector information
+- **--data-structure** will display the data structure of the file
+- **--filter** will display the information about the used filter if the data come from HRIC or STC, otherwise the option will be ignored
+
+For any details you can use the option **--help**.
+
+Using the option **--version** will be shown the software version and the datamodel version implemented in it.
+
+## simbioInfo
+
+
+
+
 
 ## Class Description
 

@@ -1,1 +1,2 @@
-from SimbioReader.simbioreader import SimbioReader
+from SimbioReader.__main__ import SimbioReader
+from SimbioReader.__main__ import __version__

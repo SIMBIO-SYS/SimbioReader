@@ -1,4 +1,0 @@
-[console_scripts]
-hricFilters = SimbioReader.externals:hricFilters
-simbioPhases = SimbioReader.externals:simbioPhases
-stcFilters = SimbioReader.externals:stcFilters
