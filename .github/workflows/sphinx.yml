@@ -19,9 +19,16 @@ jobs:
     - name: Install Sphinx & Dependencies
       run: pip install sphinx sphinx_markdown_builder sphinx_rtd_theme
     - name: Build Documentation
-      run: cd "$GITHUB_WORKSPACE/doc" && make html
+      run: cd "$GITHUB_WORKSPACE/docs" && make html
 
     - uses: actions/upload-artifact@v3
       with:
         name: Documentation
-        path: "$GITHUB_WORKSPACE/doc/_build/html/"
+        path: "$GITHUB_WORKSPACE/docs/build/html/"
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
