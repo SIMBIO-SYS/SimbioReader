@@ -17,7 +17,7 @@ jobs:
         python-version: '3.x'
 
     - name: Install Sphinx & Dependencies
-      run: pip install sphinx sphinx_rtd_theme
+      run: pip install sphinx sphinx_rtd_theme numpy pillow click rich rich_click pandas update_checker
     - name: Build Documentation
       run: cd "$GITHUB_WORKSPACE/docs" && make html
 
