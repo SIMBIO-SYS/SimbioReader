@@ -86,30 +86,6 @@ stcFilters={
         "line"         : "64",
         "sample"       : "128"
     },
-    "cust0":{
-        "name"         : "PAN-L",
-        "desc"         : "Fraction of the CCD used by the PAN-L filter",
-        "id"           : "L_P700",
-        "bandwidth"    : "204.3",
-        "centerFilter" : "699.5",
-        "interframeDel": "0.8",
-        "fistLine"     : "1227",
-        "firstSample"  : "576",
-        "line"         : "384",
-        "sample"       : "896"
-    },
-    "cust1":{
-        "name"         : "PAN-L",
-        "desc"         : "Fraction of the CCD used by the PAN-L filter",
-        "id"           : "L_P700",
-        "bandwidth"    : "204.3",
-        "centerFilter" : "699.5",
-        "interframeDel": "0.8",
-        "fistLine"     : "1227",
-        "firstSample"  : "576",
-        "line"         : "384",
-        "sample"       : "896"
-    },
 }
 hricFilters={
     "fpan":{

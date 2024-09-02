@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.2.2 2024-09-02
+
+- Update filter database definition
+
 ## 0.2.1 2024-09-02
 
 - fix bug in the Filter definition
