@@ -1,9 +1,14 @@
 # SimbioReader Changelog
 
+## 0.2.1 2024-09-02
+
+- fix bug in the Filter definition
+
 ## 0.2.0
 
 - create the file __main__.py
-- implemented subcommands to display phases, subphases and tests 
+- implemented simbioInfo and the subcommands to display phases, subphases and tests 
+- implemented documentation
 
 
 ## 0.1.8

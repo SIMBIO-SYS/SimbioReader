@@ -478,7 +478,7 @@ class SimbioReader:
         
         if self.channel != 'VIHI':
             flt = getElement(discArea, 'img:Optical_Filter')
-            self.filter=Filter(getValue(flt,'img:filter_name'))
+            self.filter=Filter(channel=self.channel,name=getValue(flt,'img:filter_name'))
         
         
         self.data_stucture = DataStructure(doc, self.channel)
