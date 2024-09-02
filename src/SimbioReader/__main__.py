@@ -1,14 +1,13 @@
+import copy
 import logging
-
+from datetime import datetime
 from os import path
 from pathlib import Path
-
-from xml.dom.minidom import parse, Element
-import copy
-from datetime import datetime
+from xml.dom.minidom import Element, parse
 
 import numpy as np
 import pandas as pd
+import rich_click as click
 from PIL import Image as im
 from rich import print
 from rich.columns import Columns
@@ -16,15 +15,16 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich_click import rich_config
 from update_checker import UpdateChecker
 
-from SimbioReader.constants import FMODE, MSG, CONTEXT_SETTINGS, progEpilog, data_types, datamodel
+from SimbioReader.constants import (CONTEXT_SETTINGS, FMODE, MSG, data_types,
+                                    datamodel, progEpilog)
 from SimbioReader.exceptions import SizeError
-from SimbioReader.tools import getElement, getValue, snake_case, camel_case
 from SimbioReader.filters_tools import Filter
+from SimbioReader.tools import camel_case, getElement, getValue, snake_case
 from SimbioReader.version import version
-import rich_click as click
-from rich_click import rich_config
+
 # from functools import wraps
 
 click.rich_click.USE_RICH_MARKUP = True
@@ -60,8 +60,26 @@ def hdr_readr(file_name:Path):
 
 
 class HK:
+    """
+    A class representing housekeeping data for a SIMBIO-SYS image.
+
+    This class initializes various attributes from a pandas DataFrame containing
+    housekeeping data and provides methods to display this information.
+
+    Args:
+        df (pd.DataFrame): A pandas DataFrame containing housekeeping data.
+
+    Attributes:
+        df (pd.DataFrame): The DataFrame containing housekeeping data.
+    """
     
     def __init__(self,df:pd.DataFrame):
+        """
+        Initializes the HK object by extracting information from the DataFrame.
+
+        Args:
+            df (pd.DataFrame): A pandas DataFrame containing housekeeping data.
+        """
         self.df=df
         for i in df.columns:
             if type(df[i].values[0]) is str:
@@ -70,7 +88,13 @@ class HK:
                 val = df[i].values[0]
             setattr(self, i.strip().lower(), val)
             
-    def Show(self):
+    def Show(self) -> Panel:
+        """
+        Displays the housekeeping information in a formatted table.
+
+        Returns:
+            Panel: A Panel object containing the formatted housekeeping information.
+        """
         sep=' = '
         dt=Table.grid()
         dt.add_column(style='yellow',justify='right')
@@ -79,23 +103,73 @@ class HK:
         for i in self.df.columns:
             dt.add_row(' '.join(i.split('_')).title(),sep,f"{self.df[i].values[0]}".strip())
         return Panel(dt,title='HouseKeeping',border_style='yellow',expand=False)
+    
+    def __str__(self)->str:
+        """
+        Returns a string representation of the HK object.
+
+        Returns:
+            str: A string representation of the HK object.
+        """
+        return f"HK object"
+    
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the HK object for debugging.
+
+        Returns:
+            str: A string representation of the HK object.
+        """
+        return self.__str__()
         
-        # define special columns
+
 
 class Detector:
+    """
+    A class representing a detector in a SIMBIO-SYS image.
+
+    This class extracts and initializes various attributes related to a detector
+    in a SIMBIO-SYS image, such as the first line, first sample, and number of lines.
+
+    Args:
+        dat (Element): An XML Element containing the detector information.
+
+    Attributes:
+        first_line (int): The first line number of the detector.
+        first_sample (int): The first sample number of the detector.
+        lines (int): The number of lines in the detector.
+    """
     def __init__(self,dat:Element) -> None:
         detector = getElement(dat, 'img:Detector')
         self.first_line = int(getValue(detector,'img:first_line'))
         self.first_sample = int(getValue(detector,'img:first_sample'))
         self.lines = int(getValue(detector,'img:lines'))
     
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Detector object.
+
+        Returns:
+            str: A string representation of the Detector object.
+        """
         return f"Detector object"
     
     def __repr__(self) -> str:
+        """
+        Returns a string representation of the Detector object for debugging.
+
+        Returns:
+            str: A string representation of the Detector object.
+        """
         return self.__str__()
     
-    def Show(self):
+    def Show(self)-> Panel:
+        """
+        Displays the detector information in a formatted table.
+
+        Returns:
+            Panel: A Panel object containing the formatted detector information.
+        """
         sep=' = '
         dt=Table.grid()
         dt.add_column(style='yellow',justify='right')

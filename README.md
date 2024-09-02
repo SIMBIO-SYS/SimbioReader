@@ -74,7 +74,112 @@ If the user adds the -name option, only the selected filter will be displayed, i
 
 A description of argument and options coul be required using the option ***--help***
 
+##### Examples
 
+```console
+simbioInfo filters hric
+```
+
+will show all the filters of the channel HRIC
+
+```console
+simbioInfo flters hric -n pan-l
+```
+
+will show the *HRIC* filter with the name *PAN-L*
+
+
+
+#### phases
+
+The subcommand **phases** will display a table of all or filtered past mission phases.
+
+The options are:
+
+- **--all** Show all the past mission phases;
+- **--date** Show all the phases for the given date;
+- **--name** Show the phase with the given name.
+
+##### Examples
+
+```console
+simbioInfo phases --all
+```
+will show all the past mission phases.
+
+
+```console
+simbioInfo phases --date 2024-04-08
+```
+
+will show the phase that include the day *2024-04-08*
+
+```console
+simbioInfo phases --name necp
+```
+will show the phase with the name *necp*
+
+#### subphases
+
+The subcommand **subphases** will display a table of all or filtered past mission subphases.
+
+The options are:
+
+- **--all** Show all the past mission subphases;
+- **--date** Show all the subphases for the given date;
+- **--name** Show the subphase with the given name.
+
+##### Examples
+
+```console
+simbioInfo subphases --all
+```
+will show all the past mission subphases.
+
+```console
+simbioInfo subphases --date 2024-04-08
+```
+
+will show the subphase that include the day *2024-04-08*, the **ico11**.
+
+```console
+simbioInfo subphases --name ico9
+```
+will show the phase with the name *ico9*
+
+#### tests
+
+The subcommand **tests** will display a table of all or filtered SIMBIO-SYS tests.
+
+The options are:
+
+- **--all** Show all the past SIMBIO-SYS tests;
+- **--date** Show all the SIMBIO-SYS tests for the given date;
+- **--name** Show the SIMBIO-SYS tests with the given name;
+- **--phase** Show the SIMBIO-SYS tests for the specific phase;
+- **--subphase** Show the SIMBIO-SYS tests for the specific subphase.
+
+> [!NOTE] 
+> The tests name are not unique. Please use the option **--subphase** togeter the option **--name**
+
+##### Examples
+
+```console
+simbioInfo tests --all
+```
+
+will show all the SIMBIO-SYS tests.
+
+```console
+simbioInfo tests -d 2024-04-08\ 2:00:00  
+````
+
+will show the test that SIMBIO-SYS was performing at 2:00:00 on 2024-04-08, the *Interference Test* in the subphase *ico11*
+
+```console
+simbioInfo tests --name hric\ functional --subphase ico9
+```
+will show the test with the name that contain the string *hric functional* performed during the subphase *ico9*
 
 
 ## Class Description

@@ -9,3 +9,7 @@ The SimbioReader is a package to read PDS4 Label and data file for SIMBIO-SYS in
 .. autoclass:: SimbioReader.DataStructure
 
 .. autoclass:: SimbioReader.SubFrame
+
+.. autoclass:: SimbioReader.Detector
+
+.. autoclass:: SimbioReader.HK

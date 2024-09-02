@@ -32,26 +32,41 @@ def common_options_sub(func):
     """Common options for the commands"""
     @wraps(func)
     @click.option('-a', '--all', is_flag=True, help='Show all the phases', default=False)
-    @click.option('-d', '--date', type=str, help='Show the phase for the given date', default=None)
-    @click.option('-n', '--name', type=str, help='Show the phase for the given name', default=None)
+    @click.option('-d', '--date', type=str, help='Show the phases for the given date', default=None)
+    @click.option('-n', '--name', type=str, help='Show the phase with the given name', default=None)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
 
 @cli.command()
 @common_options_sub
-def phases(all: bool, date: str, name: str):
+@click.pass_context
+def phases(ctx,all: bool, date: str, name: str):
     """Display required phase(s)"""
     from SimbioReader.simbioInfo import get_phase, Phase
+    from dateutil.parser import parse
     console = Console()
     if not date and not name:
         all = True
+
+    if date:
+        try:
+            ndt = parse(date, ignoretz=True)
+        except Exception as e:
+            console.print(f"{MSG.ERROR}Cant convert to date the string: {str(e)}")
+            all = True
     if all:
-        console.print(Phase.show())
+        console.print(Phase.show_all())
     elif date:
-        console.print(get_phase(dt=date).show())
+        try:
+            console.print(get_phase(dt=date).show())
+        except ValueError as e:
+            ctx.fail(str(e))
     elif name:
-        console.print(get_phase(name=name).show())
+        try:
+            console.print(get_phase(name=name).show())
+        except ValueError as e:
+            ctx.fail(str(e))
 
 
 @cli.command()
@@ -59,11 +74,19 @@ def phases(all: bool, date: str, name: str):
 def subphases(all: bool, date: str, name: str):
     """Display required subphase(s)"""
     from SimbioReader.simbioInfo import get_subphase, SubPhase
+    from dateutil.parser import parse
     console = Console()
     if not date and not name:
         all = True
+    if date:
+        try:
+            ndt = parse(date, ignoretz=True)
+        except Exception as e:
+            console.print(
+                f"{MSG.ERROR}Cant convert to date the string: {str(e)}")
+            all = True
     if all:
-        console.print(SubPhase.show())
+        console.print(SubPhase.show_all())
     elif date:
         console.print(get_subphase(dt=date).show())
     elif name:
@@ -109,7 +132,8 @@ def tests(ctx,all: bool = None, date: str = None, name: str = None, phase: str =
 @cli.command("filters")
 @click.argument('channel', required=True)
 @click.option('-n', '--name', type=str, help='Show the filter for the given name', default=None)
-def filters_act(channel: str,name:str):
+@click.pass_context
+def filters_act(ctx, channel: str,name:str):
     """Display the filters for the given channel"""
     from SimbioReader.simbioInfo import show_filters
     console = Console()
@@ -119,7 +143,7 @@ def filters_act(channel: str,name:str):
             fil=Filter(channel,name)
             console.print(fil.show())
         except ValueError as e:
-            console.print(f"{MSG.WARNING}{str(e)}")
+            ctx.fail(str(e))
     else:
         console.print(show_filters(channel))
 

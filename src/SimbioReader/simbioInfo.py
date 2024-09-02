@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
-from rich.panel import Panel
 from datetime import datetime
 
 from dateutil.parser import parse
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 
 from SimbioReader.phases import phases
@@ -38,7 +38,7 @@ class Phase:
         if name:
             phase_data = phases.get(name)
             if not phase_data:
-                raise ValueError(f"Phase {name} not found.")
+                raise ValueError(f"Phase '{name}' not found.")
         elif dt:
             if isinstance(dt, str):
                 dt = parse(dt,ignoretz=True)
@@ -47,7 +47,7 @@ class Phase:
                 raise ValueError("No phase found for the given date.")
         else:
             raise ValueError("You must provide a phase name or a date.")
-
+        
         self.name = phase_data["name"]
         self.start = parse(phase_data["start"],ignoretz=True)
         self.end = parse(phase_data["end"],ignoretz=True)
@@ -89,7 +89,7 @@ class Phase:
         return self.__str__()
 
     @staticmethod
-    def show()->Table:
+    def show_all()->Table:
         """
         Displays a table of all phases with their names and start/end times.
 
@@ -106,6 +106,22 @@ class Phase:
             tb.add_row(f"{phase_data['LPName']} ({phase_name})",
                        parse(phase_data['start']).strftime(dateFormat),
                        parse(phase_data['end']).strftime(dateFormat))
+        return tb
+    
+    def show(self):
+        """
+        Displays a table showing the details of this phase.
+
+        Returns:
+            rich.table.Table: A table displaying the phase details.
+        """
+        tb = Table(style="yellow")
+        tb.add_column('Phase Name')
+        tb.add_column('Start Time')
+        tb.add_column('End Time')
+        tb.add_row(f"{self.extended_name} ({self.name})",
+                   self.start.strftime(dateFormat),
+                   self.end.strftime(dateFormat))
         return tb
 
 # Funzione di utilità per ottenere una fase
@@ -205,7 +221,7 @@ class SubPhase:
         return self.__str__()
     
     @staticmethod
-    def show() -> Table:
+    def show_all() -> Table:
         """
         Displays a table of all subphases with their names, phases, and start/end times.
 
@@ -226,6 +242,26 @@ class SubPhase:
                        phase_data['phase'],
                        parse(phase_data['start']).strftime(dateFormat),
                        parse(phase_data['end']).strftime(dateFormat))
+        return tb
+    
+    def show(self) -> Table:
+        """
+        Displays a table showing the details of this subphase.
+
+        Returns:
+            rich.table.Table: A table displaying the subphase details.
+        """
+        tb = Table(style="yellow")
+        tb.add_column('SubPhase Name')
+        tb.add_column('Extended Name')
+        tb.add_column('Phase')
+        tb.add_column('Start Time')
+        tb.add_column('End Time')
+        tb.add_row(self.name,
+                   self.extended_name,
+                   self.phase.name,
+                   self.start.strftime(dateFormat),
+                   self.end.strftime(dateFormat))
         return tb
 
 def get_subphase(name:str=None, dt:datetime|str =None)->SubPhase:
@@ -346,8 +382,9 @@ class Test:
             dict | None: The test data if found, otherwise None.
         """
         for test_name, test_data in tests.items():
-            start = parse(test_data["end"], ignoretz=True)
+            start = parse(test_data["start"], ignoretz=True)
             end = parse(test_data["end"], ignoretz=True)
+            # console.print(f"Start: {start}, End: {end}, Date: {dt}")
             if start <= dt <= end:
                 return test_data
         return None
@@ -404,6 +441,7 @@ class Test:
         tb.add_column('SubPhase')
         tb.add_column('Start Time')
         tb.add_column('End Time')
+        console.print(f"Phase: {phase}, SubPhase: {subphase}, Key: {key}, Date: {date}")
         if date:
             if isinstance(date, str):
                 date = parse(date, ignoretz=True)
@@ -411,8 +449,9 @@ class Test:
             if subphase and not test_data['subphase'].lower() == subphase.lower():
                 continue
 
-            if not date and not compare_str(key, test_data['name']):
-                continue    
+            if not date and key:
+                if not compare_str(key, test_data['name']):
+                    continue    
 
             if date :
                 start = parse(test_data['start'], ignoretz=True)
@@ -476,9 +515,9 @@ class Filter:
             flt = stcFilters
         else:
             raise ValueError("Invalid channel.")
-        itm = [elem for elem in flt.values() if elem['name'] == name]
+        itm = [elem for elem in flt.values() if elem['name'].lower() == name.lower()]
         if len(itm) == 0:
-            raise ValueError("No filters found.")
+            raise ValueError(f"No filter found with the name {name}.")
         elif len(itm) > 1:
             raise ValueError(
                 "Multiple filters found. Please provide a detailed filter name.")
