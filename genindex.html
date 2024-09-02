@@ -44,10 +44,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simbioreader.html">SimbioReader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simbioinfo.html">simbioInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reaference</a></li>
 </ul>
 
         </div>
@@ -142,13 +141,17 @@
 </li>
       <li><a href="simbioreader.html#SimbioReader.DataStructure.data_type">data_type (SimbioReader.DataStructure attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.dataModelVersion">dataModelVersion (SimbioReader.SimbioReader attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simbioreader.html#SimbioReader.DataStructure">DataStructure (class in SimbioReader)</a>
 </li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.debug">debug (SimbioReader.SimbioReader attribute)</a>
+</li>
+      <li><a href="simbioreader.html#SimbioReader.Detector">Detector (class in SimbioReader)</a>
+</li>
+      <li><a href="simbioreader.html#SimbioReader.HK.df">df (SimbioReader.HK attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -188,12 +191,20 @@
 </li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.filter">filter (SimbioReader.SimbioReader attribute)</a>
 </li>
+      <li><a href="simbioreader.html#SimbioReader.Detector.first_line">first_line (SimbioReader.Detector attribute)</a>
+
+      <ul>
+        <li><a href="simbioreader.html#SimbioReader.SubFrame.first_line">(SimbioReader.SubFrame attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="simbioreader.html#SimbioReader.SubFrame.first_line">first_line (SimbioReader.SubFrame attribute)</a>
+      <li><a href="simbioreader.html#SimbioReader.Detector.first_sample">first_sample (SimbioReader.Detector attribute)</a>
+
+      <ul>
+        <li><a href="simbioreader.html#SimbioReader.SubFrame.first_sample">(SimbioReader.SubFrame attribute)</a>
 </li>
-      <li><a href="simbioreader.html#SimbioReader.SubFrame.first_sample">first_sample (SimbioReader.SubFrame attribute)</a>
-</li>
+      </ul></li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.firstLine">firstLine (SimbioReader.SimbioReader attribute)</a>
 </li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.firstSample">firstSample (SimbioReader.SimbioReader attribute)</a>
@@ -224,6 +235,10 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="simbioreader.html#SimbioReader.HK">HK (class in SimbioReader)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.hk">hk (SimbioReader.SimbioReader attribute)</a>
 </li>
   </ul></td>
@@ -252,9 +267,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="simbioreader.html#SimbioReader.SimbioReader.lines">lines (SimbioReader.SimbioReader attribute)</a>
+      <li><a href="simbioreader.html#SimbioReader.Detector.lines">lines (SimbioReader.Detector attribute)</a>
 
       <ul>
+        <li><a href="simbioreader.html#SimbioReader.SimbioReader.lines">(SimbioReader.SimbioReader attribute)</a>
+</li>
         <li><a href="simbioreader.html#SimbioReader.SubFrame.lines">(SimbioReader.SubFrame attribute)</a>
 </li>
       </ul></li>
@@ -336,27 +353,39 @@
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.savePreview">savePreview() (SimbioReader.SimbioReader method)</a>
 </li>
       <li><a href="simbioreader.html#SimbioReader.DataStructure.Show">Show() (SimbioReader.DataStructure method)</a>
+
+      <ul>
+        <li><a href="simbioreader.html#SimbioReader.Detector.Show">(SimbioReader.Detector method)</a>
 </li>
+        <li><a href="simbioreader.html#SimbioReader.HK.Show">(SimbioReader.HK method)</a>
+</li>
+      </ul></li>
       <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Filter.show">show() (SimbioReader.simbioInfo.Filter method)</a>
 
       <ul>
-        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Phase.show">(SimbioReader.simbioInfo.Phase static method)</a>
+        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Phase.show">(SimbioReader.simbioInfo.Phase method)</a>
 </li>
-        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show">(SimbioReader.simbioInfo.SubPhase static method)</a>
+        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show">(SimbioReader.simbioInfo.SubPhase method)</a>
 </li>
         <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Test.show">(SimbioReader.simbioInfo.Test method)</a>
 </li>
       </ul></li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader.Show">Show() (SimbioReader.SimbioReader method)</a>
 </li>
-      <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Test.show_all">show_all() (SimbioReader.simbioInfo.Test static method)</a>
+      <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Phase.show_all">show_all() (SimbioReader.simbioInfo.Phase static method)</a>
+
+      <ul>
+        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show_all">(SimbioReader.simbioInfo.SubPhase static method)</a>
 </li>
+        <li><a href="simbioinfo.html#SimbioReader.simbioInfo.Test.show_all">(SimbioReader.simbioInfo.Test static method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simbioinfo.html#SimbioReader.simbioInfo.show_filters">show_filters() (in module SimbioReader.simbioInfo)</a>
 </li>
       <li><a href="simbioreader.html#SimbioReader.SimbioReader">SimbioReader (class in SimbioReader)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     SimbioReader.simbioInfo
 

@@ -44,10 +44,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../simbioreader.html">SimbioReader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../simbioinfo.html">simbioInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tools.html">Tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reaference</a></li>
 </ul>
 
         </div>
@@ -75,17 +74,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for SimbioReader.__main__</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">from</span> <span class="nn">xml.dom.minidom</span> <span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">Element</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">xml.dom.minidom</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">parse</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">rich_click</span> <span class="k">as</span> <span class="nn">click</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">im</span>
 <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="nb">print</span>
 <span class="kn">from</span> <span class="nn">rich.columns</span> <span class="kn">import</span> <span class="n">Columns</span>
@@ -93,15 +91,16 @@
 <span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
 <span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
 <span class="kn">from</span> <span class="nn">rich.text</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">rich_click</span> <span class="kn">import</span> <span class="n">rich_config</span>
 <span class="kn">from</span> <span class="nn">update_checker</span> <span class="kn">import</span> <span class="n">UpdateChecker</span>
 
-<span class="kn">from</span> <span class="nn">SimbioReader.constants</span> <span class="kn">import</span> <span class="n">FMODE</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="n">CONTEXT_SETTINGS</span><span class="p">,</span> <span class="n">progEpilog</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="n">datamodel</span>
+<span class="kn">from</span> <span class="nn">SimbioReader.constants</span> <span class="kn">import</span> <span class="p">(</span><span class="n">CONTEXT_SETTINGS</span><span class="p">,</span> <span class="n">FMODE</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span>
+                                    <span class="n">datamodel</span><span class="p">,</span> <span class="n">progEpilog</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">SimbioReader.exceptions</span> <span class="kn">import</span> <span class="n">SizeError</span>
-<span class="kn">from</span> <span class="nn">SimbioReader.tools</span> <span class="kn">import</span> <span class="n">getElement</span><span class="p">,</span> <span class="n">getValue</span><span class="p">,</span> <span class="n">snake_case</span><span class="p">,</span> <span class="n">camel_case</span>
 <span class="kn">from</span> <span class="nn">SimbioReader.filters_tools</span> <span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span> <span class="nn">SimbioReader.tools</span> <span class="kn">import</span> <span class="n">camel_case</span><span class="p">,</span> <span class="n">getElement</span><span class="p">,</span> <span class="n">getValue</span><span class="p">,</span> <span class="n">snake_case</span>
 <span class="kn">from</span> <span class="nn">SimbioReader.version</span> <span class="kn">import</span> <span class="n">version</span>
-<span class="kn">import</span> <span class="nn">rich_click</span> <span class="k">as</span> <span class="nn">click</span>
-<span class="kn">from</span> <span class="nn">rich_click</span> <span class="kn">import</span> <span class="n">rich_config</span>
+
 <span class="c1"># from functools import wraps</span>
 
 <span class="n">click</span><span class="o">.</span><span class="n">rich_click</span><span class="o">.</span><span class="n">USE_RICH_MARKUP</span> <span class="o">=</span> <span class="kc">True</span>
@@ -136,9 +135,29 @@
     <span class="k">return</span> <span class="n">img_data</span>
 
 
+<div class="viewcode-block" id="HK">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK">[docs]</a>
 <span class="k">class</span> <span class="nc">HK</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing housekeeping data for a SIMBIO-SYS image.</span>
+
+<span class="sd">    This class initializes various attributes from a pandas DataFrame containing</span>
+<span class="sd">    housekeeping data and provides methods to display this information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): A pandas DataFrame containing housekeeping data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame containing housekeeping data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the HK object by extracting information from the DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): A pandas DataFrame containing housekeeping data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">=</span><span class="n">df</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
@@ -147,7 +166,15 @@
                 <span class="n">val</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">val</span><span class="p">)</span>
             
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HK.Show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK.Show">[docs]</a>
+    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the housekeeping information in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A Panel object containing the formatted housekeeping information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; = &#39;</span>
         <span class="n">dt</span><span class="o">=</span><span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
         <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
@@ -155,24 +182,80 @@
         <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span><span class="n">sep</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;HouseKeeping&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        
-        <span class="c1"># define special columns</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;HouseKeeping&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the HK object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the HK object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;HK object&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the HK object for debugging.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the HK object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
+        
+
+
+<div class="viewcode-block" id="Detector">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector">[docs]</a>
 <span class="k">class</span> <span class="nc">Detector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing a detector in a SIMBIO-SYS image.</span>
+
+<span class="sd">    This class extracts and initializes various attributes related to a detector</span>
+<span class="sd">    in a SIMBIO-SYS image, such as the first line, first sample, and number of lines.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dat (Element): An XML Element containing the detector information.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        first_line (int): The first line number of the detector.</span>
+<span class="sd">        first_sample (int): The first sample number of the detector.</span>
+<span class="sd">        lines (int): The number of lines in the detector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">detector</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="s1">&#39;img:Detector&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_line&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_sample&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:lines&#39;</span><span class="p">))</span>
     
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Detector object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the Detector object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Detector object&quot;</span>
     
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Detector object for debugging.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the Detector object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
     
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Detector.Show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector.Show">[docs]</a>
+    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the detector information in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A Panel object containing the formatted detector information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; = &#39;</span>
         <span class="n">dt</span><span class="o">=</span><span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
         <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
@@ -181,7 +264,9 @@
         <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;First Line&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_line</span><span class="p">))</span>
         <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;First Sample&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span><span class="p">))</span>
         <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Lines&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Detector&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Detector&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
     
 <div class="viewcode-block" id="SubFrame">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SubFrame">[docs]</a>

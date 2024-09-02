@@ -21,6 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reaference" href="reference.html" />
     <link rel="prev" title="Tools" href="tools.html" /> 
 </head>
 
@@ -46,14 +47,28 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simbioreader.html">SimbioReader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simbioinfo.html">simbioInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#simbioreader">simbioReader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#simbioinfo-filters">simbioInfo filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simbioinfo-filters">simbioInfo filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#simbioinfo-phases">simbioInfo phases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simbioinfo-subphases">simbioInfo subphases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simbioinfo-tests">simbioInfo tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reaference</a></li>
 </ul>
 
         </div>
@@ -102,16 +117,106 @@
 </section>
 <section id="simbioinfo-filters">
 <h2>simbioInfo filters<a class="headerlink" href="#simbioinfo-filters" title="Link to this heading"></a></h2>
-<p>The subcommand <strong>filter</strong> has an argument, the channel and an option <strong>--name</strong>.</p>
-<p>If the user provides only the channel, all the filters specific to that channel will be shown.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>HRIC
-</pre></div>
-</div>
-<p>If the user adds the -name option, only the selected filter will be displayed, if found.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>HRIC<span class="w"> </span>--name<span class="w"> </span>PAN-L
-</pre></div>
-</div>
+<p>The subcommand <strong>filter</strong> has an argument, the channel and an option <em>--name</em>.</p>
+<p>If the user provides only the channel, all the filters specific to that channel will be shown.
+If the user adds the -name option, only the selected filter will be displayed, if found.</p>
 <p>A description of argument and options coul be required using the option <strong>--help</strong></p>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>hric
+</pre></div>
+</div>
+<p>will show all the filters of the channel HRIC</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>hric<span class="w"> </span>--name<span class="w"> </span>pan-l
+</pre></div>
+</div>
+<p>will show the <em>HRIC</em> filter with the name <em>PAN-L</em></p>
+<p>A description of argument and options coul be required using the option <strong>--help</strong></p>
+</section>
+</section>
+<section id="simbioinfo-phases">
+<h2>simbioInfo phases<a class="headerlink" href="#simbioinfo-phases" title="Link to this heading"></a></h2>
+<p>The subcommand <strong>phases</strong> will display a table of all or filtered past mission phases.</p>
+<p>The options are:</p>
+<ul class="simple">
+<li><p><strong>--all</strong> Show all the past mission phases;</p></li>
+<li><p><strong>--date</strong> Show all the phases for the given date;</p></li>
+<li><p><strong>--name</strong> Show the phase with the given name.</p></li>
+</ul>
+<section id="id1">
+<h3>Examples<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--all
+</pre></div>
+</div>
+<p>will show all the past mission phases.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-081
+</pre></div>
+</div>
+<p>will show the phase that include the day <em>2024-04-08</em>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--name<span class="w"> </span>necp
+</pre></div>
+</div>
+<p>will show the phase with the name <em>necp</em>.</p>
+<p>A description of argument and options coul be required using the option <strong>--help</strong></p>
+</section>
+</section>
+<section id="simbioinfo-subphases">
+<h2>simbioInfo subphases<a class="headerlink" href="#simbioinfo-subphases" title="Link to this heading"></a></h2>
+<p>The subcommand <strong>subphases</strong> will display a table of all or filtered past mission subphases.</p>
+<p>The options are:</p>
+<ul class="simple">
+<li><p><strong>--all</strong> Show all the past mission subphases;</p></li>
+<li><p><strong>--date</strong> Show all the subphases for the given date;</p></li>
+<li><p><strong>--name</strong> Show the subphase with the given name.</p></li>
+</ul>
+<section id="id2">
+<h3>Examples<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>subphases<span class="w"> </span>--all
+</pre></div>
+</div>
+<p>will show all the past mission subphases.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-081
+</pre></div>
+</div>
+<p>will show the phase that include the day <em>2024-04-08</em>, the <strong>ico11</strong> subphase.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>subphases<span class="w"> </span>--name<span class="w"> </span>ico9
+</pre></div>
+</div>
+<p>will show the phase with the name <em>ico9</em>.</p>
+<p>A description of argument and options coul be required using the option <strong>--help</strong></p>
+</section>
+</section>
+<section id="simbioinfo-tests">
+<h2>simbioInfo tests<a class="headerlink" href="#simbioinfo-tests" title="Link to this heading"></a></h2>
+<p>The subcommand <strong>tests</strong> will display a table of all or filtered SIMBIO-SYS tests.</p>
+<p>The options are:</p>
+<ul class="simple">
+<li><p><strong>--all</strong> Show all the past SIMBIO-SYS tests;</p></li>
+<li><p><strong>--date</strong> Show all the SIMBIO-SYS tests for the given date;</p></li>
+<li><p><strong>--name</strong> Show the SIMBIO-SYS tests with the given name;</p></li>
+<li><p><strong>--phase</strong> Show the SIMBIO-SYS tests for the specific phase;</p></li>
+<li><p><strong>--subphase</strong> Show the SIMBIO-SYS tests for the specific subphase.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The tests name are not unique. Please use the option <strong>--subphase</strong> togeter the option <strong>--name</strong></p>
+</div>
+<section id="id3">
+<h3>Examples<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>tests<span class="w"> </span>--all
+</pre></div>
+</div>
+<p>will show all the SIMBIO-SYS tests.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>tests<span class="w"> </span>-d<span class="w"> </span><span class="m">2024</span>-04-08<span class="se">\ </span><span class="m">2</span>:00:00
+</pre></div>
+</div>
+<p>will show the test that SIMBIO-SYS was performing at 2:00:00 on 2024-04-08, the <em>Interference Test</em> in the subphase <em>ico11</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>tests<span class="w"> </span>--name<span class="w"> </span>hric<span class="se">\ </span>functional<span class="w"> </span>--subphase<span class="w"> </span>ico9
+</pre></div>
+</div>
+<p>will show the test with the name that contain the string <em>hric functional</em> performed during the subphase <em>ico9</em></p>
+<p>A description of argument and options coul be required using the option <strong>--help</strong></p>
+</section>
 </section>
 </section>
 
@@ -120,6 +225,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tools.html" class="btn btn-neutral float-left" title="Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference.html" class="btn btn-neutral float-right" title="Reaference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

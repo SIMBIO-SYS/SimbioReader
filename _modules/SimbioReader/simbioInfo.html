@@ -44,10 +44,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../simbioreader.html">SimbioReader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../simbioinfo.html">simbioInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tools.html">Tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reaference</a></li>
 </ul>
 
         </div>
@@ -76,11 +75,11 @@
              
   <h1>Source code for SimbioReader.simbioInfo</h1><div class="highlight"><pre>
 <span></span><span class="ch">#! /usr/bin/env python3</span>
-<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="kn">import</span> <span class="n">parse</span>
 <span class="kn">from</span> <span class="nn">rich.console</span> <span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
 <span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
 
 <span class="kn">from</span> <span class="nn">SimbioReader.phases</span> <span class="kn">import</span> <span class="n">phases</span>
@@ -117,7 +116,7 @@
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">phase_data</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">phase_data</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phase </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phase &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">dt</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">dt</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -126,7 +125,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No phase found for the given date.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must provide a phase name or a date.&quot;</span><span class="p">)</span>
-
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span><span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -167,10 +166,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Phase.show">
-<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Phase.show">[docs]</a>
+<div class="viewcode-block" id="Phase.show_all">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Phase.show_all">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">show</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">Table</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">show_all</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">Table</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Displays a table of all phases with their names and start/end times.</span>
 
@@ -187,6 +186,25 @@
             <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;LPName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">phase_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                        <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
                        <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+
+    
+<div class="viewcode-block" id="Phase.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.Phase.show">[docs]</a>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table showing the details of this phase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying the phase details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Phase Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">extended_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">tb</span></div>
 </div>
 
@@ -292,10 +310,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
     
-<div class="viewcode-block" id="SubPhase.show">
-<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show">[docs]</a>
+<div class="viewcode-block" id="SubPhase.show_all">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show_all">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">show</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">show_all</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Displays a table of all subphases with their names, phases, and start/end times.</span>
 
@@ -316,6 +334,29 @@
                        <span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">],</span>
                        <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
                        <span class="n">parse</span><span class="p">(</span><span class="n">phase_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tb</span></div>
+
+    
+<div class="viewcode-block" id="SubPhase.show">
+<a class="viewcode-back" href="../../simbioinfo.html#SimbioReader.simbioInfo.SubPhase.show">[docs]</a>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a table showing the details of this subphase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rich.table.Table: A table displaying the subphase details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;SubPhase Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Extended Name&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">extended_name</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dateFormat</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">tb</span></div>
 </div>
 
@@ -449,8 +490,9 @@
 <span class="sd">            dict | None: The test data if found, otherwise None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test_data</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># console.print(f&quot;Start: {start}, End: {end}, Date: {dt}&quot;)</span>
             <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">test_data</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -512,6 +554,7 @@
         <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;SubPhase&#39;</span><span class="p">)</span>
         <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;Start Time&#39;</span><span class="p">)</span>
         <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;End Time&#39;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phase: </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">, SubPhase: </span><span class="si">{</span><span class="n">subphase</span><span class="si">}</span><span class="s2">, Key: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">, Date: </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">date</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -519,8 +562,9 @@
             <span class="k">if</span> <span class="n">subphase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;subphase&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">subphase</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">compare_str</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
-                <span class="k">continue</span>    
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span> <span class="ow">and</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_str</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
+                    <span class="k">continue</span>    
 
             <span class="k">if</span> <span class="n">date</span> <span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">ignoretz</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -591,9 +635,9 @@
             <span class="n">flt</span> <span class="o">=</span> <span class="n">stcFilters</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid channel.&quot;</span><span class="p">)</span>
-        <span class="n">itm</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">flt</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+        <span class="n">itm</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">flt</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No filters found.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No filter found with the name </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">itm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Multiple filters found. Please provide a detailed filter name.&quot;</span><span class="p">)</span>
