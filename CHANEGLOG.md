@@ -1,5 +1,13 @@
 # SimbioReader Changelog
 
+## 0.4.0 2025-03-31
+
+- update to the datamodel 1M00
+
+## 0.3.1 2025-01-19
+
+- update subphases
+
 ## 0.2.2 2024-09-02
 
 - Update filter database definition

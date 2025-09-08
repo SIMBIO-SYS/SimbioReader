@@ -19,7 +19,7 @@ from rich_click import rich_config
 from update_checker import UpdateChecker
 
 from SimbioReader.constants import (CONTEXT_SETTINGS, FMODE, MSG, data_types,
-                                    datamodel, progEpilog)
+                                    datamodel, progEpilog, label_types)
 from SimbioReader.exceptions import SizeError
 from SimbioReader.filters_tools import Filter
 from SimbioReader.tools import camel_case, getElement, getValue, snake_case
@@ -31,12 +31,10 @@ click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.FOOTER_TEXT = progEpilog
 
 
-
-
 __version__ = version.full()
 
-    
-def hdr_readr(file_name:Path):
+
+def hdr_readr(file_name: Path):
     with open(file_name, FMODE.READ) as f:
         lines = f.readlines()
     img_data = {}
@@ -72,22 +70,22 @@ class HK:
     Attributes:
         df (pd.DataFrame): The DataFrame containing housekeeping data.
     """
-    
-    def __init__(self,df:pd.DataFrame):
+
+    def __init__(self, df: pd.DataFrame):
         """
         Initializes the HK object by extracting information from the DataFrame.
 
         Args:
             df (pd.DataFrame): A pandas DataFrame containing housekeeping data.
         """
-        self.df=df
+        self.df = df
         for i in df.columns:
             if type(df[i].values[0]) is str:
                 val = df[i].values[0].strip()
             else:
                 val = df[i].values[0]
             setattr(self, i.strip().lower(), val)
-            
+
     def Show(self) -> Panel:
         """
         Displays the housekeeping information in a formatted table.
@@ -95,16 +93,17 @@ class HK:
         Returns:
             Panel: A Panel object containing the formatted housekeeping information.
         """
-        sep=' = '
-        dt=Table.grid()
-        dt.add_column(style='yellow',justify='right')
+        sep = ' = '
+        dt = Table.grid()
+        dt.add_column(style='yellow', justify='right')
         dt.add_column()
-        dt.add_column(style='cyan',justify='left')
+        dt.add_column(style='cyan', justify='left')
         for i in self.df.columns:
-            dt.add_row(' '.join(i.split('_')).title(),sep,f"{self.df[i].values[0]}".strip())
-        return Panel(dt,title='HouseKeeping',border_style='yellow',expand=False)
-    
-    def __str__(self)->str:
+            dt.add_row(' '.join(i.split('_')).title(), sep,
+                       f"{self.df[i].values[0]}".strip())
+        return Panel(dt, title='HouseKeeping', border_style='yellow', expand=False)
+
+    def __str__(self) -> str:
         """
         Returns a string representation of the HK object.
 
@@ -112,7 +111,7 @@ class HK:
             str: A string representation of the HK object.
         """
         return f"HK object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation of the HK object for debugging.
@@ -121,7 +120,6 @@ class HK:
             str: A string representation of the HK object.
         """
         return self.__str__()
-        
 
 
 class Detector:
@@ -139,12 +137,13 @@ class Detector:
         first_sample (int): The first sample number of the detector.
         lines (int): The number of lines in the detector.
     """
-    def __init__(self,dat:Element) -> None:
+
+    def __init__(self, dat: Element) -> None:
         detector = getElement(dat, 'img:Detector')
-        self.first_line = int(getValue(detector,'img:first_line'))
-        self.first_sample = int(getValue(detector,'img:first_sample'))
-        self.lines = int(getValue(detector,'img:lines'))
-    
+        self.first_line = int(getValue(detector, 'img:first_line'))
+        self.first_sample = int(getValue(detector, 'img:first_sample'))
+        self.lines = int(getValue(detector, 'img:lines'))
+
     def __str__(self) -> str:
         """
         Returns a string representation of the Detector object.
@@ -153,7 +152,7 @@ class Detector:
             str: A string representation of the Detector object.
         """
         return f"Detector object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation of the Detector object for debugging.
@@ -162,24 +161,25 @@ class Detector:
             str: A string representation of the Detector object.
         """
         return self.__str__()
-    
-    def Show(self)-> Panel:
+
+    def Show(self) -> Panel:
         """
         Displays the detector information in a formatted table.
 
         Returns:
             Panel: A Panel object containing the formatted detector information.
         """
-        sep=' = '
-        dt=Table.grid()
-        dt.add_column(style='yellow',justify='right')
+        sep = ' = '
+        dt = Table.grid()
+        dt.add_column(style='yellow', justify='right')
         dt.add_column()
-        dt.add_column(style='cyan',justify='left')
-        dt.add_row('First Line',sep,str(self.first_line))
-        dt.add_row('First Sample',sep,str(self.first_sample))
-        dt.add_row('Lines',sep,str(self.lines))
-        return Panel(dt,title='Detector',border_style='yellow',expand=False)
-    
+        dt.add_column(style='cyan', justify='left')
+        dt.add_row('First Line', sep, str(self.first_line))
+        dt.add_row('First Sample', sep, str(self.first_sample))
+        dt.add_row('Lines', sep, str(self.lines))
+        return Panel(dt, title='Detector', border_style='yellow', expand=False)
+
+
 class SubFrame:
     """
     A class representing a subframe of a SIMBIO-SYS image.
@@ -199,15 +199,16 @@ class SubFrame:
         line_fov (float): The line field of view of the subframe.
         sample_fov (float): The sample field of view of the subframe.
     """
-    def __init__(self, dat:Element) -> None:
+
+    def __init__(self, dat: Element) -> None:
         subFrame = getElement(dat, 'img:Subframe')
-        self.first_line = int(getValue(subFrame,'img:first_line'))
-        self.first_sample = int(getValue(subFrame,'img:first_sample'))
-        self.lines = int(getValue(subFrame,'img:lines'))
-        self.samples = int(getValue(subFrame,'img:samples'))
-        self.line_fov = float(getValue(subFrame,'img:line_fov'))
-        self.sample_fov = float(getValue(subFrame,'img:sample_fov'))
-    
+        self.first_line = int(getValue(subFrame, 'img:first_line'))
+        self.first_sample = int(getValue(subFrame, 'img:first_sample'))
+        self.lines = int(getValue(subFrame, 'img:lines'))
+        self.samples = int(getValue(subFrame, 'img:samples'))
+        self.line_fov = float(getValue(subFrame, 'img:line_fov'))
+        self.sample_fov = float(getValue(subFrame, 'img:sample_fov'))
+
     def __str__(self):
         """
         Returns a string representation of the Subframe object.
@@ -216,7 +217,7 @@ class SubFrame:
             str: A string in the format 'SubFrame object'.
         """
         return f"SubFrame object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation for debugging purposes.
@@ -225,7 +226,7 @@ class SubFrame:
             str: A string in the format 'SubFrame object'.
         """
         return self.__str__()
-    
+
 
 class DataStructure:
     """
@@ -248,30 +249,31 @@ class DataStructure:
         data_type (str): The type of data (e.g., 'UnsignedLSB2', 'IEEE754LSBSingle').
 
     """
-    
-    def __init__(self, dat:Element, channel:str):
-        fao=getElement(dat,'File_Area_Observational')
-        fl=getElement(fao,'File')
-        self.creation_time = datetime.strptime(getValue(fl,'creation_date_time'),"%Y-%m-%d")
-        self.file_size = int(getValue(fl,'file_size'))
-        self.md5 = getValue(fl,'md5_checksum')
-        self.axes = int(getValue(fao,'axes'))
-        self.band= None
+
+    def __init__(self, dat: Element, channel: str):
+        fao = getElement(dat, 'File_Area_Observational')
+        fl = getElement(fao, 'File')
+        self.creation_time = datetime.strptime(
+            getValue(fl, 'creation_date_time'), "%Y-%m-%d")
+        self.file_size = int(getValue(fl, 'file_size'))
+        self.md5 = getValue(fl, 'md5_checksum')
+        self.axes = int(getValue(fao, 'axes'))
+        self.band = None
         if self.axes == 3 and channel != 'VIHI':
             raise ValueError("The number of axes is wrong for the channel")
         for i in range(self.axes):
-            axis = getElement(fao,'Axis_Array',i)
-            setattr(self,getValue(axis,'axis_name').lower(),int(getValue(axis,'elements')))
+            axis = getElement(fao, 'Axis_Array', i)
+            setattr(self, getValue(axis, 'axis_name').lower(),
+                    int(getValue(axis, 'elements')))
         if self.axes == 3:
-            dat=getElement(fao,'Array_3D_Spectrum')
+            dat = getElement(fao, 'Array_3D_Spectrum')
         elif self.axes == 2:
-            dat=getElement(fao,'Array_2D_Image')
-        self.data_type = getValue(dat,'data_type')
+            dat = getElement(fao, 'Array_2D_Image')
+        self.data_type = getValue(dat, 'data_type')
         if self.band is None:
             self.band = 1
-        
-        
-    def __str__(self)->str:
+
+    def __str__(self) -> str:
         """
         Returns a string representation of the Datastructure.
 
@@ -279,7 +281,7 @@ class DataStructure:
             str: A string in the format 'DataStructure Object'.
         """
         return f"DataStructure object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation for debugging purposes.
@@ -288,7 +290,7 @@ class DataStructure:
             str: A string in the format 'DataStructure Object'.
         """
         return self.__str__()
-    
+
     def Show(self):
         """
         Displays the data structure information in a formatted table.
@@ -296,19 +298,19 @@ class DataStructure:
         Returns:
             Panel: A rich Panel object containing the formatted table of data structure information.
         """
-        sep=' = '
-        dt=Table.grid()
-        dt.add_column(style='yellow',justify='right')
+        sep = ' = '
+        dt = Table.grid()
+        dt.add_column(style='yellow', justify='right')
         dt.add_column()
-        dt.add_column(style='cyan',justify='left')
+        dt.add_column(style='cyan', justify='left')
         for item in self.__dict__:
-            dt.add_row(item,sep,str(self.__dict__[item]))
+            dt.add_row(item, sep, str(self.__dict__[item]))
         # dt.add_row('Creation Time',sep,datetime.strftime(self.creation_time,"%Y-%m-%d"))
         # dt.add_row('File Size',sep,str(self.file_size))
         # dt.add_row('MD5 Checksum',sep,self.md5)
         # dt.add_row('Axes',sep,str(self.axes))
-        return Panel(dt,title='Data Structure',border_style='yellow',expand=False)
-        
+        return Panel(dt, title='Data Structure', border_style='yellow', expand=False)
+
 
 class SimbioReader:
     """
@@ -357,24 +359,20 @@ class SimbioReader:
             data_structure (DataStructure): Instance of the DataStructure class containing information about the data structure.
             img (np.ndarray): NumPy array containing the image data.
         """
-    
 
-    def __init__(self, fileName: Path, log: logging = None, 
+    def __init__(self, fileName: Path, log: logging = None,
                  debug: bool = False, verbose: bool = False,
-                 console:Console=None, updateCheck:bool = True):
+                 console: Console = Console(), updateCheck: bool = True):
 
-        if console is None:
-            # from rich.console import Console
-            self.console=Console()
-        else:
-            self.console=console
+        self.console = console
+
         if updateCheck:
             checker = UpdateChecker()
             result = checker.check('SimbioReader', version.short())
             if result:
                 # TODO: Check this part after the delivery on pypi.org
                 self.console.print(result)
-                
+
         self._dateformat = "%Y-%m-%dT%H:%M:%S.%fZ"
         if not isinstance(fileName, Path):
             fileName = Path(fileName).resolve()
@@ -386,28 +384,49 @@ class SimbioReader:
             self.channel = "VIHI"
         else:
             raise ValueError('The file is not a Simbio file')
-        
+
         self.fileName = fileName.absolute()
         self.log = log
         self.debug = debug
         self.verbose = verbose
-        if self.fileName.suffix in ['.dat','.qub']:
-            if self.fileName.with_suffix('.xml').exists():
-                self.pdsLabel=self.fileName.with_suffix('.xml')
+        self.folder = False
+        if self.fileName.is_dir():
+            if self.log:
+                self.log.info(
+                    f"{MSG.INFO}The file is a directory ({self.channel})")
+            if self.verbose:
+                self.console.print(
+                    f"{MSG.INFO}The file is a directory ({self.channel})")
+            self.folder = True
+
+        if self.fileName.suffix in ['.dat', '.qub']:
+            lst = []
+            for ext in label_types:
+                lst.extend(self.fileName.parent.glob(f'*.{ext[1:]}'))
+            # lst =[]
+            if len(lst) == 1:
+                self.pdsLabel = lst[0]
             else:
-                raise ValueError("The PDS4 label is not present. it's impossible read the data file")
+                raise ValueError(
+                    "The PDS4 label is not present. it's impossible read the data file")
+            # if self.fileName.with_suffix('.xml').exists():
+            #     self.pdsLabel=self.fileName.with_suffix('.xml')
+            # else:
+            #     raise ValueError("The PDS4 label is not present. it's impossible read the data file")
         if self.fileName.suffix == '.qub' and self.channel != 'VIHI':
-            raise ValueError("The file is not a Simbio file or the filename is not well formatted")
-        if self.fileName.suffix == '.xml':
+            raise ValueError(
+                "The file is not a Simbio file or the filename is not well formatted")
+        if self.fileName.suffix in label_types:  # '.xml':
             if self.fileName.with_suffix('.dat').exists():
-                self.pdsLabel=copy.copy(self.fileName)
-                self.fileName=self.fileName.with_suffix('.dat')
+                self.pdsLabel = copy.copy(self.fileName)
+                self.fileName = self.fileName.with_suffix('.dat')
             elif self.fileName.with_suffix('.qub').exists():
-                self.pdsLabel=copy.copy(self.fileName)
-                self.fileName=self.fileName.with_suffix('.qub')
+                self.pdsLabel = copy.copy(self.fileName)
+                self.fileName = self.fileName.with_suffix('.qub')
             else:
-                raise ValueError("The PDS4 data file is not present. it's impossible read the data file")
-        
+                raise ValueError(
+                    "The PDS4 data file is not present. it's impossible read the data file")
+
         self.read()
 
     def read(self):
@@ -424,50 +443,63 @@ class SimbioReader:
             self.log.info(message)
         if self.verbose:
             self.console.print(f"{MSG.INFO}{message}")
-                
-        # Check the existence of the ausiliary files        
-        if not self.fileName.with_suffix('.csv').exists():
-            message = f"The HK file do not exists"
-            if self.log:
-                self.log.warning(message)
-            if self.verbose:
-                self.console.print(f"{MSG.WARNING}{message}")
+
+        # Check the existence of the ausiliary files
+        if self.folder:
+            csv = list(self.fileName.glob('*.csv'))
+            if len(list(csv)) == 1:
+                df = pd.read_csv(csv[0], sep=",", header=0)
+                self.hk = HK(df)
+            pass
         else:
-            if self.verbose:
-                self.console.print(f"{MSG.INFO}Read the HK from the csv")
-            df = pd.read_csv(self.fileName.with_suffix('.csv'), sep=',', header=0)
-            self.hk = HK(df)
-            
-        doc= parse(self.pdsLabel.as_posix())
+            if not self.fileName.with_suffix('.csv').exists():
+                message = f"The HK file do not exists"
+                if self.log:
+                    self.log.warning(message)
+                if self.verbose:
+                    self.console.print(f"{MSG.WARNING}{message}")
+            else:
+                if self.verbose:
+                    self.console.print(f"{MSG.INFO}Read the HK from the csv")
+                df = pd.read_csv(self.fileName.with_suffix(
+                    '.csv'), sep=',', header=0)
+                self.hk = HK(df)
+
+        doc = parse(self.pdsLabel.as_posix())
         idArea = getElement(doc, 'Identification_Area')
         self.title = getValue(idArea, 'title')
         self.dataModelVersion = getValue(idArea, 'information_model_version')
         # TODO: Check on the datamodel version
-        
+
         obsArea = getElement(doc, 'Observation_Area')
         timeCoords = getElement(obsArea, 'Time_Coordinates')
-        self.startTime = datetime.strptime(getValue(timeCoords, 'start_date_time'),self._dateformat)
-        self.stopTime = datetime.strptime(getValue(timeCoords, 'stop_date_time'),self._dateformat)
-        
+        self.startTime = datetime.strptime(
+            getValue(timeCoords, 'start_date_time'), self._dateformat)
+        self.stopTime = datetime.strptime(
+            getValue(timeCoords, 'stop_date_time'), self._dateformat)
+
         primResSum = getElement(obsArea, 'Primary_Result_Summary')
         self.level = getValue(primResSum, 'processing_level')
-        
+
         targetInfo = getElement(obsArea, 'Target_Identification')
         self.tarName = getValue(targetInfo, 'name')
         self.tarType = getValue(targetInfo, 'type')
-        
+
         missionArea = getElement(doc, 'Mission_Area')
         missionInfo = getElement(missionArea, 'psa:Mission_Information')
-        self.startScet = getValue(missionInfo, 'psa:spacecraft_clock_start_count')
-        self.stopScet = getValue(missionInfo, 'psa:spacecraft_clock_stop_count')
+        self.startScet = getValue(
+            missionInfo, 'psa:spacecraft_clock_start_count')
+        self.stopScet = getValue(
+            missionInfo, 'psa:spacecraft_clock_stop_count')
+        phase=getElement(missionArea, 'psa:Mission_Phase')
         self.phaseName = getValue(
-            missionInfo, 'psa:mission_phase_name')
-        
+            phase, 'psa:name')
+
         discArea = getElement(doc, 'Discipline_Area')
-        
+
         expInfo = getElement(discArea, 'img:Exposure')
         self.exposure = float(getValue(expInfo, 'img:exposure_duration'))/1000.
-        
+
         subFrame = getElement(discArea, 'img:Subframe')
         self.firstLine = int(getValue(subFrame, 'img:first_line'))
         self.firstSample = int(getValue(subFrame, 'img:first_sample'))
@@ -475,19 +507,19 @@ class SimbioReader:
         self.samples = int(getValue(subFrame, 'img:samples'))
         self.lineFov = float(getValue(subFrame, 'img:line_fov'))
         self.sampleFov = float(getValue(subFrame, 'img:sample_fov'))
-        
+
         if self.channel != 'VIHI':
             flt = getElement(discArea, 'img:Optical_Filter')
-            self.filter=Filter(channel=self.channel,name=getValue(flt,'img:filter_name'))
-        
-        
+            self.filter = Filter(channel=self.channel,
+                                 name=getValue(flt, 'img:filter_name'))
+
         self.data_stucture = DataStructure(doc, self.channel)
-        self.samples=self.data_stucture.sample
-        self.lines=self.data_stucture.line
-        self.bands=self.data_stucture.band
-        
+        self.samples = self.data_stucture.sample
+        self.lines = self.data_stucture.line
+        self.bands = self.data_stucture.band
+
         self.detector = Detector(doc)
-        
+
         if self.data_stucture.data_type == "UnsignedLSB2":
             dtype = np.int16
         elif self.data_stucture.data_type == "IEEE754LSBSingle":
@@ -496,37 +528,43 @@ class SimbioReader:
         if self.verbose:
             self.console.print(f"{MSG.INFO}Loading: {self.fileName}")
             if self.data_stucture.axes == 3:
-                self.console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}")
-                imgSize = self.samples*self.lines*self.bands*data_types[self.data_stucture.data_type]['bits']
+                self.console.print(
+                    f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}")
+                imgSize = self.samples*self.lines*self.bands * \
+                    data_types[self.data_stucture.data_type]['bits']
             else:
-                self.console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}")
-                imgSize = self.samples*self.lines*data_types[self.data_stucture.data_type]['bits']
-            
-            self.console.print(f"{MSG.INFO}File size: {self.fileName.stat().st_size*8}")
+                self.console.print(
+                    f"{MSG.INFO}Image size: {self.samples}x{self.lines}")
+                imgSize = self.samples*self.lines * \
+                    data_types[self.data_stucture.data_type]['bits']
+
+            self.console.print(
+                f"{MSG.INFO}File size: {self.fileName.stat().st_size*8}")
             self.console.print(
                 f"{MSG.INFO}Computed File Size: {imgSize}")
             if self.fileName.stat().st_size*8 != imgSize:
                 raise SizeError(self.fileName.stat().st_size *
-                                8,imgSize)
-        #print(img_data['samples'],img_data['lines'],img_data['bands'])
+                                8, imgSize)
+        # print(img_data['samples'],img_data['lines'],img_data['bands'])
         if self.data_stucture.axes == 3:
             self.img = np.fromfile(self.fileName, dtype=dtype,
-                               count=self.samples*self.lines*self.bands)
+                                   count=self.samples*self.lines*self.bands)
         else:
             self.img = np.fromfile(self.fileName, dtype=dtype,
                                    count=self.samples*self.lines)
-        if self.data_stucture.axes == 3: 
-            if self.lines==1:
-                self.img.shape = ( self.samples,self.bands)
+        if self.data_stucture.axes == 3:
+            if self.lines == 1:
+                self.img.shape = (self.samples, self.bands)
             else:
-                self.img.shape = (self.lines,self.samples, self.bands )
+                self.img.shape = (self.lines, self.samples, self.bands)
         else:
             self.img.shape = (self.samples, self.lines)
         if self.verbose:
-            self.console.print(f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}")
+            self.console.print(
+                f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}")
             # print(f"Size of the old image array: {self.img.size}")
 
-    def Show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, all_info:bool=False)->Columns:
+    def Show(self, hk: bool = False, detector: bool = False, data_structure: bool = False, all_info: bool = False) -> Columns:
         """Displays information about the loaded SIMBIO-SYS file.
 
         Args:
@@ -539,86 +577,88 @@ class SimbioReader:
         Returns:
             Columns: A rich console object containing the formatted information tables.
         """
-        sep=' = '
+        sep = ' = '
         sep2 = ' : '
         if all_info:
-            hk=True
-            detector=True
-            data_structure=True
-        
-        info=Table.grid()
+            hk = True
+            detector = True
+            data_structure = True
+
+        info = Table.grid()
         info.add_column(style='yellow', justify='right')
         info.add_column()
         info.add_column(style='cyan', justify='left')
-        info.add_row('Title',sep2,self.title)
+        info.add_row('Title', sep2, self.title)
         info.add_row('DataModel Version', sep2, self.dataModelVersion)
-        info.add_row('Start Acquisition', sep2, datetime.strftime(self.startTime,self._dateformat))
-        info.add_row('Stop Acquisition', sep2, datetime.strftime(self.stopTime, self._dateformat))
-        info.add_row('Start Acquisition SCET',sep2, self.startScet)
+        info.add_row('Start Acquisition', sep2, datetime.strftime(
+            self.startTime, self._dateformat))
+        info.add_row('Stop Acquisition', sep2, datetime.strftime(
+            self.stopTime, self._dateformat))
+        info.add_row('Start Acquisition SCET', sep2, self.startScet)
         info.add_row("Stop Acquisition SCET", sep2, self.stopScet)
         info.add_row("Phase Name", sep2, self.phaseName)
-        
-        infoT=Table.grid()
+
+        infoT = Table.grid()
         infoT.add_column()
-        infoT.add_row(Panel(info,title='General Info',border_style='yellow',expand=False))
-        
-        g=Table.grid()
+        infoT.add_row(Panel(info, title='General Info',
+                      border_style='yellow', expand=False))
+
+        g = Table.grid()
         g.add_column()
-        g.add_row(Panel(Text(self.channel, justify='center', style='magenta'), border_style='yellow', title="Channel"))
+        g.add_row(Panel(Text(self.channel, justify='center',
+                  style='magenta'), border_style='yellow', title="Channel"))
         g.add_row(Panel(Text(self.level.upper(), justify='center',
                   style='magenta'), border_style='yellow', title="Level"))
-        
-        tbs=Table.grid()
-        tbs.add_column(style='yellow',justify='right')
+
+        tbs = Table.grid()
+        tbs.add_column(style='yellow', justify='right')
         tbs.add_column()
-        tbs.add_column(style='cyan',justify='left')
-        tbs.add_row('Samples',sep,str(self.samples))
-        tbs.add_row('Lines',sep,str(self.lines))
+        tbs.add_column(style='cyan', justify='left')
+        tbs.add_row('Samples', sep, str(self.samples))
+        tbs.add_row('Lines', sep, str(self.lines))
         if self.channel == 'VIHI':
-            tbs.add_row('Bands',sep,str(self.bands))
+            tbs.add_row('Bands', sep, str(self.bands))
         tbs.add_section()
         tbs.add_row("First Line", sep, str(self.firstLine))
         tbs.add_row("First Sample", sep, str(self.firstSample))
-        tbs.add_row('Line FOV',sep, str(self.lineFov))
+        tbs.add_row('Line FOV', sep, str(self.lineFov))
         tbs.add_row('Sample FOV', sep, str(self.sampleFov))
-        
+
         # g.add_row(Panel(tbs, title='Image Info',
         #           border_style='yellow', expand=True))
-        
-        t=Table.grid()
+
+        t = Table.grid()
         t.add_column(style='yellow', justify='right')
         t.add_column()
         t.add_column(style='cyan', justify='left')
-        t.add_row("Name",sep2,self.tarName)
+        t.add_row("Name", sep2, self.tarName)
         t.add_row("Type", sep2, self.tarType)
-        
+
         g.add_row(Panel(t, title='Target Info',
                   border_style='yellow'))
-        
+
         g.add_row(Panel(tbs, title='Image Info',
                   border_style='yellow', expand=True))
-        
- 
 
         # phk=Panel(hk,title='HouseKeeping',border_style='yellow',expand=False)
         show_list = [g, infoT]
-        if hk :
+        if hk:
             show_list.append(self.hk.Show())
-        
+
         if detector:
             g.add_row(self.detector.Show())
-            
+
         if data_structure:
             infoT.add_row(self.data_stucture.Show())
-            
+
         if self.channel != 'VIHI':
-            
+
             infoT.add_row(self.filter.show())
-   
+
         return Columns(show_list, title=self.fileName.stem)
         pass
 
-    def __str__(self)-> str:
+    def __str__(self) -> str:
         """
         Returns a string representation of the object.
 
@@ -626,7 +666,7 @@ class SimbioReader:
             str: A string in the format 'SimbioReader object <version> - from file <fileName>'.
         """
         return f"SimbioReader object {version} - from file {self.fileName.stem}"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation for debugging purposes.
@@ -635,9 +675,8 @@ class SimbioReader:
             str: A string in the format 'SimbioReader object <version> - from file <fileName>'.
         """
         return self.__str__()
- 
-        
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None):
+
+    def savePreview(self, img_type: str = 'png', quality: int = 100, outFolder: Path = None):
         """Saves a preview image of the loaded data.
 
         Args:
@@ -649,27 +688,27 @@ class SimbioReader:
             ValueError: If the provided image format is not supported.
             TypeError: If the `out_folder` argument is not a `Path` object.
         """
-  
+
         if outFolder is None:
             dest = self.fileName.parent
         else:
             if type(outFolder) is not Path:
                 outFolder = Path(outFolder)
-            dest=outFolder
-        if img_type in ['png','tif']:
+            dest = outFolder
+        if img_type in ['png', 'tif']:
             data = im.fromarray(self.img)
             # print(data.getpixel((50, 50)))
             data.save(f"{dest}/{self.fileName.stem}.{img_type}",
                       quality=quality)
         elif img_type == 'jpg':
-            data = im.fromarray(self.img,mode='L')
+            data = im.fromarray(self.img, mode='L')
             # print(data.getpixel((50,50)))
             data.save(f"{dest}/{self.fileName.stem}.{img_type}",
                       quality=quality)
         # print(self.img[0,0])
         pass
-    
-    def image(self)->im:
+
+    def image(self) -> im:
         """Returns a PIL Image object representing the loaded image data.
 
         This method returns a Pillow (PIL Fork) Image object containing the image data
@@ -705,19 +744,13 @@ def sh_version(ctx, self, value):
 @click.option('--filter', 'filter_flag', is_flag=True, help='Show the filters for the given channel', default=False)
 @click.option('-d', '--debug', is_flag=True, help='Debug mode', default=False)
 @click.option('-v', '--verbose', is_flag=True, help='Verbose mode', default=False)
-@click.option('--version', is_flag=True, help='Show the version and exit', default=False,callback=sh_version)
-def cli(file: str=None, hk: bool = False, detector: bool=False, data_structure: bool = False, all_info: bool = False, 
-        filter_flag : bool =False, debug: bool = False, verbose: bool = False, version:bool = False):
+@click.option('--version', is_flag=True, help='Show the version and exit', default=False, callback=sh_version)
+def cli(file: str = None, hk: bool = False, detector: bool = False, data_structure: bool = False, all_info: bool = False,
+        filter_flag: bool = False, debug: bool = False, verbose: bool = False, version: bool = False):
     console = Console()
     dat = SimbioReader(file, console=console, debug=debug, verbose=verbose)
     console.print(dat.Show(hk=hk, detector=detector,
                   data_structure=data_structure, all_info=all_info))
-    
-
-
-
-
-
 
 
 # def common_options_sub(func):
@@ -744,7 +777,7 @@ def cli(file: str=None, hk: bool = False, detector: bool=False, data_structure: 
 #         console.print(get_phase(dt=date).show())
 #     elif name:
 #         console.print(get_phase(name=name).show())
-        
+
 
 # @cli.command()
 # @common_options_sub
@@ -760,7 +793,7 @@ def cli(file: str=None, hk: bool = False, detector: bool=False, data_structure: 
 #         console.print(get_subphase(dt=date).show())
 #     elif name:
 #         console.print(get_subphase(name=name).show())
-        
+
 
 # @cli.command()
 # @click.option('-a', '--all', is_flag=True, help='Show all the phases', default=False)
@@ -785,7 +818,7 @@ def cli(file: str=None, hk: bool = False, detector: bool=False, data_structure: 
 #         console.print(Test.show_all(phase=phase))
 #     elif subphase:
 #         console.print(Test.show_all(subphase=subphase))
-        
+
 # @cli.command("filters")
 # @click.argument('channel', required=True)
 # def filters_act(channel:str):
@@ -793,8 +826,7 @@ def cli(file: str=None, hk: bool = False, detector: bool=False, data_structure: 
 #     from SimbioReader.filters_tools import show_filters
 #     console = Console()
 #     console.print(show_filters(channel))
-    
-    
+
 
 if __name__ == "__main__":
     cli()

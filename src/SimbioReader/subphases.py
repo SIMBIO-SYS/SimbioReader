@@ -111,8 +111,15 @@ subphases = {
         "phase": "cruise",
         "LPName": "Instrument Check-Out #11"
     },
+    "msb06": {
+        "start": "2025-01-08 00:00:00",
+        "end": "2025-01-08 23:59:59",
+        "name": "msb06",
+        "phase": "cruise",
+        "LPName": "MSB #6"
+    },
     "None": {
-        "start": "2024-04-08 04:00:01",
+        "start": "2025-01-09 00:00:00",
         "end": "2028-12-31 23:59:59",
         "name": "None",
         "phase": "None",

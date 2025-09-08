@@ -19,7 +19,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 progEpilog = "- For any information or suggestion please contact " \
     "[bold magenta]Romolo.Politi@inaf.it[/bold magenta]"
 
-VERSION = (0,2,2,'d',1)
+VERSION = (0,4,3,'d',1)
 
 datamodel='1.15.0.0'
 
@@ -27,3 +27,5 @@ data_types = {
     "UnsignedLSB2": {'envi':2,'bits':16},
     "IEEE754LSBSingle":{'envi':4,'bits':32},
 }
+
+label_types = ['.xml','.lblx']

@@ -1,39 +1,39 @@
-[project]
-name = "SimbioReader"
-version = "0.2.2"
-description="Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
-dependencies = [
-    "numpy",
-    "pandas",
-    "rich",
-    "rich_click",
-    "update_checker",
-    "pillow",
-    'importlib-metadata; python_version>"3.10"',
+[tool.poetry]
+name = "simbioreader"
+version = "0.4.3"
+description = "Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
+authors = [
+    "Romolo Politi <romolo.politi@inaf.it>",
+    "Emanuele Simioni <emanuele.simioni@inaf.it>",
+    "Michele Zusi <michele.zusi@inaf.it>",
 ]
-
-authors = [{name="Romolo Politi", email ="Romolo.Politi@inaf.it" }]
-license = {text = "GNU GPL ver3"} 
+license = "GNU GPL ver3"
 readme = "README.md"
-
 keywords = ["data reader", "Space Mission", "BepiColombo", "SIMBIO-SYS"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
+repository = "https://github.com/SIMBIO-SYS/SimbioReader"
+documentation = "https://simbioreader.readthedocs.io/en/latest/"
+packages = [{ include = "SimbioReader", from = "src" }]
 
-[project.urls]
-Repository = "https://github.com/SIMBIO-SYS/SimbioReader"
+[tool.poetry.dependencies]
+python = ">=3.10"
+numpy = "^2.1.3"
+pandas = "^2.2.3"
+rich-click = "^1.8.4"
+pillow = ">=10.0.0"
+update-checker = "^0.18.0"
 
-[project.optional-dependencies]
-docs = ["sphinx"]
-
-[project.scripts]
+[tool.poetry.scripts]
 simbioReader = "SimbioReader.__main__:cli"
 simbioInfo = "SimbioReader.infocli:cli"
 
 
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
