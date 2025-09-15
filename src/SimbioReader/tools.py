@@ -1,5 +1,7 @@
 import xml.dom.minidom as md
 from re import sub
+from pathlib import Path
+import copy
 
 def getValue(nodeList: md.Element, label: str) -> str:
     """Get the value from a tag
@@ -83,3 +85,58 @@ def snake_case(text)->str:
         sub('([A-Z][a-z]+)', r' \1',
             sub('([A-Z]+)', r' \1',
                 text.replace('-', ' '))).split()).lower()
+
+
+def gen_filename(old_filename:Path)->str:
+    new_filename=copy.copy(old_filename.stem)
+    # new_filename=new_filename.split('__')[0]
+    if 'raw' in new_filename:
+        new_filename=new_filename.replace('raw','browse_raw')
+    else:
+        new_filename=new_filename.replace('_cal_','_browse_cal_')
+    return new_filename
+
+def updateXML(xml: md.Element, label: str, value: str | int | float, idx: int = 0) -> None:
+    a = xml.getElementsByTagName(label)[idx]
+    a.firstChild.nodeValue = value
+    
+
+
+def getFromXml(xml:md.Element, label, idx=0):
+    a = xml.getElementsByTagName(label)[idx]
+    return a.firstChild.nodeValue
+
+def lidGenerator(self, old_lid: str , file_name: Path, calib:bool=False)-> str:
+    parts = old_lid.split(':')
+    if calib:
+        parts[-2] = 'data_calibrated'
+    parts[-1] = file_name.stem.split('__')[0]
+    newLid = ':'.join(parts)
+    return newLid
+
+def lidUpdate(tree, fileName, calib: bool = False):
+    # conf.log.debug("LID update", verbosity=3)
+    oldLid = getFromXml(tree, "logical_identifier")
+    # parts = oldLid.split(':')
+    # if calib:
+    #     parts[-2] = 'data_calibrated'
+    # parts[-1] = fileName.stem.split('__')[0]
+    # newLid = ':'.join(parts)
+    newLid =lidGenerator(oldLid,fileName, calib)
+    updateXML(tree, "logical_identifier", newLid)
+
+def new_lvid(old:str, file_name: Path, file_version:str):
+    parts=old.split('::')
+    new_main=parts[0].split(':')
+    newLVID=f"{':'.join(new_main[0:-1])}:{file_name.stem.split('__')[0]}::{file_version}"
+    return newLVID
+
+
+def lvidUpdate(tree:str, file_name: Path, file_version:str):
+    oldLVID = getFromXml(tree, "lidvid_reference")
+    newLVID=new_lvid(oldLVID, file_name, file_version)
+    updateXML(tree, "lidvid_reference", newLVID)
+    pass
+
+def pretty_print(dom):
+    return '\n'.join([line for line in dom.toprettyxml(indent=' '*4).split('\n') if line.strip()])

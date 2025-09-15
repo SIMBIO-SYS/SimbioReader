@@ -1,16 +1,17 @@
 [project]
 name = "SimbioReader"
-version = "0.2.2"
+version = "0.3.0"
 description="Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
-    "numpy",
-    "pandas",
-    "rich",
-    "rich_click",
-    "update_checker",
-    "pillow",
-    'importlib-metadata; python_version>"3.10"',
+
+    "numpy (>=2.3.3,<3.0.0)",
+    "pandas (>=2.3.2,<3.0.0)",
+    "rich-click (>=1.8.9,<2.0.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "update-checker (>=0.18.0,<0.19.0)",
+    "importlib-metadata (>=8.7.0,<9.0.0)",
 ]
+requires-python = ">=3.11"
 
 authors = [{name="Romolo Politi", email ="Romolo.Politi@inaf.it" }]
 license = {text = "GNU GPL ver3"} 
@@ -36,4 +37,7 @@ simbioInfo = "SimbioReader.infocli:cli"
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
 

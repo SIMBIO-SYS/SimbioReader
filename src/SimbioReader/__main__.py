@@ -4,6 +4,7 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from xml.dom.minidom import Element, parse
+from shutil import copyfile
 
 import numpy as np
 import pandas as pd
@@ -22,7 +23,7 @@ from SimbioReader.constants import (CONTEXT_SETTINGS, FMODE, MSG, data_types,
                                     datamodel, progEpilog)
 from SimbioReader.exceptions import SizeError
 from SimbioReader.filters_tools import Filter
-from SimbioReader.tools import camel_case, getElement, getValue, snake_case
+from SimbioReader.tools import (getElement, getValue, snake_case,gen_filename, lidUpdate, updateXML, lvidUpdate, pretty_print)
 from SimbioReader.version import version
 
 # from functools import wraps
@@ -636,20 +637,24 @@ class SimbioReader:
         """
         return self.__str__()
  
+
         
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None):
+    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None, template:Path=None, description:str = "This is the first version."):
         """Saves a preview image of the loaded data.
 
         Args:
             img_type: The desired image format. Supported formats are 'png', 'tif', and 'jpg'. Defaults to 'png'.
             quality: The quality of the saved image (applicable for 'png' and 'jpg' formats only). Ranges from 0 (worst) to 100 (best). Defaults to 100.
             out_folder: The output folder path where the preview image will be saved. Defaults to the same directory as the original Simbio file.
+            template: name of the PDS4 template that will be generated. If None no template will be written. If the template is not none the img_type
+                    is forced to png
 
         Raises:
             ValueError: If the provided image format is not supported.
             TypeError: If the `out_folder` argument is not a `Path` object.
         """
-  
+        if template:
+            img_type = 'png'
         if outFolder is None:
             dest = self.fileName.parent
         else:
@@ -659,8 +664,42 @@ class SimbioReader:
         if img_type in ['png','tif']:
             data = im.fromarray(self.img)
             # print(data.getpixel((50, 50)))
-            data.save(f"{dest}/{self.fileName.stem}.{img_type}",
-                      quality=quality)
+            new_filename=gen_filename(self.fileName)
+            # data_filename=self.fileName.stem
+            # new_filename=copy.copy(data_filename)
+            # if 'raw' in data_filename:
+            #     new_filename.replace('raw','browse_raw')
+            image_file= f"{dest}/{new_filename}.{img_type}"
+            data.save(image_file, quality=quality)
+            if template:
+                if not isinstance(template,Path):
+                    template = Path(template)
+                if not template.exists():
+                    raise FileNotFoundError(f"The template {template.name} was not found")
+                new_label=f"{dest}/{new_filename}.lblx"
+                copyfile(template,new_label)
+                from xml.dom.minidom import parse, parseString, Element
+                import hashlib
+                tree = parse(new_label)
+                lidUpdate(tree, new_label)
+                creatTime=datetime.now()
+                updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
+                file_version=new_filename.split('__')[1].split('.')[0]
+                file_version=file_version.replace('_','.')
+                updateXML(tree,"version_id",file_version, idx=0)
+                updateXML(tree,"version_id",file_version, idx=1)
+                updateXML(tree,"description",description, idx=0)
+                lvidUpdate(tree,self.fileName, file_version)
+                image_file= Path(image_file)
+                updateXML(tree, 'file_name', image_file.name, idx=0)
+                updateXML(tree, 'creation_date_time',
+                    creatTime.strftime("%Y-%m-%d"), idx=0)
+                updateXML(tree, 'file_size', image_file.stat().st_size, idx=0)
+                updateXML(tree, 'md5_checksum', hashlib.md5(
+                    open(image_file, 'rb').read()).hexdigest(), idx=0)
+                dom2 = parseString(pretty_print(tree))
+                with open(new_label, "w") as xmlFile:
+                    dom2.writexml(xmlFile, encoding="utf-8")
         elif img_type == 'jpg':
             data = im.fromarray(self.img,mode='L')
             # print(data.getpixel((50,50)))

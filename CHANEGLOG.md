@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.3.0 2025-09-15
+
+- Generation of the PDS label for the browse image
+
 ## 0.2.2 2024-09-02
 
 - Update filter database definition

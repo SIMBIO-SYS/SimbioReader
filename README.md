@@ -1,8 +1,9 @@
-![Version 0.2.2](https://img.shields.io/badge/version-0.2.2-blue?style=plastic)
-![Language Python 3.12](https://img.shields.io/badge/python-3.12-orange?style=plastic&logo=python)
+![Version 0.3.0](https://img.shields.io/badge/version-0.3.0-blue?style=plastic)
+![Language Python 3.13](https://img.shields.io/badge/python-3.13-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![Upload Python Package](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
+[![Documentation Status](https://readthedocs.org/projects/simbioreader/badge/?version=latest)](https://simbioreader.readthedocs.io/en/latest/?badge=latest)
 
 # SimbioReader
 
