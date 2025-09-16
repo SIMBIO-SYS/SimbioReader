@@ -393,13 +393,13 @@ class SimbioReader:
         self.debug = debug
         self.verbose = verbose
         if self.fileName.suffix in ['.dat','.qub']:
-            if self.fileName.with_suffix('.xml').exists():
+            if self.fileName.with_suffix('.lblx').exists():
                 self.pdsLabel=self.fileName.with_suffix('.xml')
             else:
                 raise ValueError("The PDS4 label is not present. it's impossible read the data file")
         if self.fileName.suffix == '.qub' and self.channel != 'VIHI':
             raise ValueError("The file is not a Simbio file or the filename is not well formatted")
-        if self.fileName.suffix == '.xml':
+        if self.fileName.suffix == '.lblx':
             if self.fileName.with_suffix('.dat').exists():
                 self.pdsLabel=copy.copy(self.fileName)
                 self.fileName=self.fileName.with_suffix('.dat')
