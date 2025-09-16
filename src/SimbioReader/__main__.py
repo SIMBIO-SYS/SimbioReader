@@ -394,7 +394,7 @@ class SimbioReader:
         self.verbose = verbose
         if self.fileName.suffix in ['.dat','.qub']:
             if self.fileName.with_suffix('.lblx').exists():
-                self.pdsLabel=self.fileName.with_suffix('.xml')
+                self.pdsLabel=self.fileName.with_suffix('.lblx')
             else:
                 raise ValueError("The PDS4 label is not present. it's impossible read the data file")
         if self.fileName.suffix == '.qub' and self.channel != 'VIHI':
