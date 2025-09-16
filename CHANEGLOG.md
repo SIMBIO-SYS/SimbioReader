@@ -1,6 +1,6 @@
 # SimbioReader Changelog
 
-## 0.3.0 2025-09-15
+## 0.5.0 2025-09-15
 
 - Generation of the PDS label for the browse image
 

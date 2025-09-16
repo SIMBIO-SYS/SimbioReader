@@ -19,9 +19,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 progEpilog = "- For any information or suggestion please contact " \
     "[bold magenta]Romolo.Politi@inaf.it[/bold magenta]"
 
-VERSION = (0,3,0,'d',1)
+VERSION = (0,5,1,'d',1)
 
-datamodel='1.15.0.0'
+datamodel='1.22.0.0'
 
 data_types = {
     "UnsignedLSB2": {'envi':2,'bits':16},
