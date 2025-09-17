@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.5 2025-09-17
+
+- fixed bug in lidGenartor
+
 ## 0.5.4 2025-09-17
 
 - fixed the datamodel keys for the phase

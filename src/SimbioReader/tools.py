@@ -106,7 +106,7 @@ def getFromXml(xml:md.Element, label, idx=0):
     a = xml.getElementsByTagName(label)[idx]
     return a.firstChild.nodeValue
 
-def lidGenerator(self, old_lid: str , file_name: Path, calib:bool=False)-> str:
+def lidGenerator(old_lid: str , file_name: Path, calib:bool=False)-> str:
     parts = old_lid.split(':')
     if calib:
         parts[-2] = 'data_calibrated'
@@ -122,7 +122,7 @@ def lidUpdate(tree, fileName, calib: bool = False):
     #     parts[-2] = 'data_calibrated'
     # parts[-1] = fileName.stem.split('__')[0]
     # newLid = ':'.join(parts)
-    newLid =lidGenerator(oldLid,fileName, calib)
+    newLid =lidGenerator(olf_lid=oldLid,file_name=fileName, ccalib=calib)
     updateXML(tree, "logical_identifier", newLid)
 
 def new_lvid(old:str, file_name: Path, file_version:str):
