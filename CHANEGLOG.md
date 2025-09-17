@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.4 2025-09-17
+
+- fixed the datamodel keys for the phase
+
 ## 0.5.2 2025-09-16
 
 - fix label reader

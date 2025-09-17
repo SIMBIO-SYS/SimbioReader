@@ -461,8 +461,9 @@ class SimbioReader:
         missionInfo = getElement(missionArea, 'psa:Mission_Information')
         self.startScet = getValue(missionInfo, 'psa:spacecraft_clock_start_count')
         self.stopScet = getValue(missionInfo, 'psa:spacecraft_clock_stop_count')
+        mission_phase=getElement(doc,"psa:Mission_Phase")
         self.phaseName = getValue(
-            missionInfo, 'psa:mission_phase_name')
+            mission_phase, 'psa:name')
         
         discArea = getElement(doc, 'Discipline_Area')
         
