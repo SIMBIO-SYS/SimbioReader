@@ -122,7 +122,9 @@ def lidUpdate(tree, fileName, calib: bool = False):
     #     parts[-2] = 'data_calibrated'
     # parts[-1] = fileName.stem.split('__')[0]
     # newLid = ':'.join(parts)
-    newLid =lidGenerator(olf_lid=oldLid,file_name=fileName, ccalib=calib)
+    if not isinstance(fileName, Path):
+        fileName=Path(fileName)
+    newLid =lidGenerator(old_lid=oldLid,file_name=fileName, calib=calib)
     updateXML(tree, "logical_identifier", newLid)
 
 def new_lvid(old:str, file_name: Path, file_version:str):

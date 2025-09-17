@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.6 2025-09-17
+
+- fix bugs
+
 ## 0.5.5 2025-09-17
 
 - fixed bug in lidGenartor
