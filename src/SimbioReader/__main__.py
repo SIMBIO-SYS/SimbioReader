@@ -678,7 +678,7 @@ class SimbioReader:
                 if not template.exists():
                     raise FileNotFoundError(f"The template {template.name} was not found")
                 new_label=f"{dest}/{new_filename}.lblx"
-                copyfile(template,new_label)
+                template.rename(new_label)
                 from xml.dom.minidom import parse, parseString, Element
                 import hashlib
                 tree = parse(new_label)

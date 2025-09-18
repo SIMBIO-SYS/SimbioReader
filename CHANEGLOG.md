@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.8 2025-09-18
+
+- fix bug in `savePreview`. changed copy template in rename template
+
 ## 0.5.7 2025-09-18
 
 - The `savePreview` function returns the LVID of the browse product if a PDS4 template is provided as input.
