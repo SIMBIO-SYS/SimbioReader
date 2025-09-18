@@ -640,7 +640,7 @@ class SimbioReader:
  
 
         
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None, template:Path=None, description:str = "This is the first version."):
+    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None, template:Path=None, description:str = "This is the first version.")->str|None:
         """Saves a preview image of the loaded data.
 
         Args:
@@ -682,7 +682,7 @@ class SimbioReader:
                 from xml.dom.minidom import parse, parseString, Element
                 import hashlib
                 tree = parse(new_label)
-                lidUpdate(tree, new_label)
+                new_lid=lidUpdate(tree, new_label)
                 creatTime=datetime.now()
                 updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
                 file_version=new_filename.split('__')[1].split('.')[0]
@@ -701,6 +701,7 @@ class SimbioReader:
                 dom2 = parseString(pretty_print(tree))
                 with open(new_label, "w") as xmlFile:
                     dom2.writexml(xmlFile, encoding="utf-8")
+                return f"{new_lid}::{file_version}"
         elif img_type == 'jpg':
             data = im.fromarray(self.img,mode='L')
             # print(data.getpixel((50,50)))

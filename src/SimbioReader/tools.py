@@ -126,6 +126,8 @@ def lidUpdate(tree, fileName, calib: bool = False):
         fileName=Path(fileName)
     newLid =lidGenerator(old_lid=oldLid,file_name=fileName, calib=calib)
     updateXML(tree, "logical_identifier", newLid)
+    return newLid
+    
 
 def new_lvid(old:str, file_name: Path, file_version:str):
     parts=old.split('::')
@@ -138,6 +140,7 @@ def lvidUpdate(tree:str, file_name: Path, file_version:str):
     oldLVID = getFromXml(tree, "lidvid_reference")
     newLVID=new_lvid(oldLVID, file_name, file_version)
     updateXML(tree, "lidvid_reference", newLVID)
+    
     pass
 
 def pretty_print(dom):
