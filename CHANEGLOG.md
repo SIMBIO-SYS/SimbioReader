@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.9 2025-09-26
+
+- fixed issue on save preview image for calibrated files
+
 ## 0.5.8 2025-09-18
 
 - fix bug in `savePreview`. changed copy template in rename template

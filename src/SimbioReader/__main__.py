@@ -671,7 +671,10 @@ class SimbioReader:
             # if 'raw' in data_filename:
             #     new_filename.replace('raw','browse_raw')
             image_file= f"{dest}/{new_filename}.{img_type}"
-            data.save(image_file, quality=quality)
+            if 'cal' in self.fileName.stem:
+                data.convert('RGB').save(image_file, quality=quality)
+            else:
+                data.save(image_file, quality=quality)
             if template:
                 if not isinstance(template,Path):
                     template = Path(template)
