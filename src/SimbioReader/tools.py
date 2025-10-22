@@ -109,7 +109,7 @@ def getFromXml(xml:md.Element, label, idx=0):
 def lidGenerator(old_lid: str , file_name: Path, calib:bool=False)-> str:
     parts = old_lid.split(':')
     if calib:
-        parts[-2] = 'data_calibrated'
+        parts[-2] = 'browse_calibrated'
     parts[-1] = file_name.stem.split('__')[0]
     newLid = ':'.join(parts)
     return newLid
@@ -132,6 +132,8 @@ def lidUpdate(tree, fileName, calib: bool = False):
 def new_lvid(old:str, file_name: Path, file_version:str):
     parts=old.split('::')
     new_main=parts[0].split(':')
+    if 'cal' in file_name.stem:
+        new_main[-2]='browse_calibrated'
     newLVID=f"{':'.join(new_main[0:-1])}:{file_name.stem.split('__')[0]}::{file_version}"
     return newLVID
 

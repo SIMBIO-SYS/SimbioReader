@@ -443,6 +443,8 @@ class SimbioReader:
         idArea = getElement(doc, 'Identification_Area')
         self.title = getValue(idArea, 'title')
         self.dataModelVersion = getValue(idArea, 'information_model_version')
+        self.version =getValue(idArea, 'version_id')
+        self.lid = getValue(idArea, 'logical_identifier')
         # TODO: Check on the datamodel version
         
         obsArea = getElement(doc, 'Observation_Area')
@@ -527,6 +529,16 @@ class SimbioReader:
         if self.verbose:
             self.console.print(f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}")
             # print(f"Size of the old image array: {self.img.size}")
+
+    @property
+    def lvid(self)->str:
+        """Returns the LIDVID of the SIMBIO-SYS file.
+
+        Returns:
+            str: The LIDVID of the SIMBIO-SYS file.
+        """
+    
+        return f"{self.lid}::{self.version}"
 
     def Show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, all_info:bool=False)->Columns:
         """Displays information about the loaded SIMBIO-SYS file.
@@ -685,7 +697,11 @@ class SimbioReader:
                 from xml.dom.minidom import parse, parseString, Element
                 import hashlib
                 tree = parse(new_label)
-                new_lid=lidUpdate(tree, new_label)
+                if 'cal' in self.fileName.stem:
+                    calib=True
+                else:
+                    calib=False
+                new_lid=lidUpdate(tree, new_label,calib=calib)
                 creatTime=datetime.now()
                 updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
                 file_version=new_filename.split('__')[1].split('.')[0]

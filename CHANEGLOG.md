@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.10 2025-10-22
+
+- fix lvid generator
+
 ## 0.5.9 2025-09-26
 
 - fixed issue on save preview image for calibrated files
@@ -36,7 +40,7 @@
 
 - Update filter database definition
 
-## 0.2.1 2024-09-02
+## 0.2.1 2024-09-02 
 
 - fix bug in the Filter definition
 
