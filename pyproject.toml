@@ -41,3 +41,7 @@ build-backend = "setuptools.build_meta"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
 
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^4.0.4"
+
