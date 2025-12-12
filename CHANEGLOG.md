@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.6.0-dev.2 
+
+- fix pyproject
+
 ## 0.6.0 2025-12-10
 
 - update to the new dataformat

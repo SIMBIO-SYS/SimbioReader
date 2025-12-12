@@ -7,6 +7,7 @@ import pandas as pd
 from rich.panel import Panel
 from rich.table import Table
 from rich.columns import Columns
+from SimbioReader.constants import MSG
 
 
 class HK:
@@ -123,7 +124,7 @@ class Data:
             file_name = source_path.joinpath(getValue(fo, "file_name"))
             if verbose or debug:
                 self.console.print(
-                    f"[green]Info:[/green] Processing file {i+1}/{self.items_number}: {file_name.name}"
+                    f"{MSG.Info}Processing file {i+1}/{self.items_number}: {file_name.name}"
                 )
             if not file_name.exists():
                 raise FileNotFoundError(f"The data file {file_name} does not exist.")
@@ -132,7 +133,7 @@ class Data:
                 # read CSV file
                 if verbose or debug:
                     self.console.print(
-                        f"[green]Info:[/green] Reading CSV file: {file_name}"
+                        f"{MSG.INFO}Reading CSV file: {file_name}"
                     )
                 df = pd.read_csv(file_name, sep=",", header=0)
                 self.hk = HK(df)
@@ -141,7 +142,7 @@ class Data:
                     filter = getValue(imaging[i], "img:filter_name")
                     if debug:
                         self.console.print(
-                            f"[blue]Debug:[/blue] Found filter: {filter}"
+                            f"{MSG.Degug}Found filter: {filter}"
                         )
                     pass
                 else:
@@ -168,7 +169,7 @@ class SimbioReader:
 
         if debug:
             self.console.print(
-                f"[blue]Debug:[/blue] Initializing SimbioReader with file path: {file_path}"
+                f"{MSG.DEBUG}Initializing SimbioReader with file path: {file_path}"
             )
         # Check the filename extension
         self.pdsLabel = self.label_name(file_path)
@@ -176,7 +177,7 @@ class SimbioReader:
         # check if the file exists
         if debug:
             self.console.print(
-                f"[blue]Debug:[/blue] Checking if file exists: {self.pdsLabel}"
+                f"{MSG.DEBUG}Checking if file exists: {self.pdsLabel}"
             )
         if self.pdsLabel is None or not self.pdsLabel.exists():
             # self.console.print(f"[red]Error:[/red] The file {self.pdsLabel} does not exist.")
@@ -184,7 +185,7 @@ class SimbioReader:
 
         if verbose or debug:
             self.console.print(
-                f"[green]Info:[/green] Reading PDS label file: {self.pdsLabel}"
+                f"{MSG.INFO}Reading PDS label file: {self.pdsLabel}"
             )
         label = parse(self.pdsLabel.as_posix())
         self.channel = getValue(label, "psa:identifier").lower()
@@ -197,7 +198,7 @@ class SimbioReader:
         self.dataModelVersion = getValue(label, "information_model_version")
         if debug:
             self.console.print(
-                f"[blue]Debug:[/blue] Initialized SimbioReader with channel: {self.title}, version: {self.level}, Datamodel: {self.dataModelVersion}"
+                f"{MSG.DEBUG}Initialized SimbioReader with channel: {self.title}, version: {self.level}, Datamodel: {self.dataModelVersion}"
             )
 
         # Observation Time
@@ -211,10 +212,10 @@ class SimbioReader:
         self.stop_scet = getValue(label, "psa:spacecraft_clock_start_count")
         if debug:
             self.console.print(
-                f"[blue]Debug:[/blue] Observation start time: {self.startTime}, stop time: {self.stopTime}"
+                f"{MSG.DEBUG}Observation start time: {self.startTime}, stop time: {self.stopTime}"
             )
             self.console.print(
-                f"[blue]Debug:[/blue] Spacecraft clock start count: {self.start_scet}, stop count: {self.stop_scet}"
+                f"{MSG.DEBUG}Spacecraft clock start count: {self.start_scet}, stop count: {self.stop_scet}"
             )
 
         # Target Information
@@ -224,7 +225,7 @@ class SimbioReader:
         )
 
         if debug:
-            self.console.print(f"[blue]Debug:[/blue] Target information: {self.target}")
+            self.console.print(f"{MSG.DEBUG}Target information: {self.target}")
 
         # Read the channels data
         self.data = Data(
@@ -267,7 +268,7 @@ class SimbioReader:
         elif file_path.is_file():
             if not file_path.suffix == ".lblx":
                 self.console.print(
-                    f"[red]Error:[/red] The file {file_path} does not have a .lblx extension."
+                    f"{MSG.ERROR}The file {file_path} does not have a .lblx extension."
                 )
                 parts = file_path.stem.split("_")
                 pdsLabel = f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
