@@ -19,7 +19,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 progEpilog = "- For any information or suggestion please contact " \
     "[bold magenta]Romolo.Politi@inaf.it[/bold magenta]"
 
-VERSION = (0,5,11,'f',1)
+VERSION = (0,6,0,'f',1)
 
 datamodel='1.22.0.0'
 
