@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.5.11 2025-12-03
+
+- fixed lvid_reference for calibrated file to fix JIRA ticket 157 item 11
+
 ## 0.5.10 2025-10-22
 
 - fix lvid generator

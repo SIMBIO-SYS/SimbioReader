@@ -133,7 +133,7 @@ def new_lvid(old:str, file_name: Path, file_version:str):
     parts=old.split('::')
     new_main=parts[0].split(':')
     if 'cal' in file_name.stem:
-        new_main[-2]='browse_calibrated'
+        new_main[-2]='data_calibrated'
     newLVID=f"{':'.join(new_main[0:-1])}:{file_name.stem.split('__')[0]}::{file_version}"
     return newLVID
 
