@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SimbioReader &mdash; SimbioReader 0.2.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>SimbioReader &mdash; SimbioReader 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=37f418d5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -83,6 +81,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.img"><code class="docutils literal notranslate"><span class="pre">SimbioReader.img</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.Show"><code class="docutils literal notranslate"><span class="pre">SimbioReader.Show()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.image"><code class="docutils literal notranslate"><span class="pre">SimbioReader.image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.lvid"><code class="docutils literal notranslate"><span class="pre">SimbioReader.lvid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.read"><code class="docutils literal notranslate"><span class="pre">SimbioReader.read()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#SimbioReader.SimbioReader.savePreview"><code class="docutils literal notranslate"><span class="pre">SimbioReader.savePreview()</span></code></a></li>
 </ul>
@@ -155,7 +154,7 @@
 <p>The SimbioReader is a package to read PDS4 Label and data file for SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="SimbioReader.SimbioReader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">SimbioReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileName:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log:</span> <span class="pre">&lt;module</span> <span class="pre">'logging'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.12.5/x64/lib/python3.12/logging/__init__.py'&gt;</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console:</span> <span class="pre">~rich.console.Console</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updateCheck:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">SimbioReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileName:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log:</span> <span class="pre">&lt;module</span> <span class="pre">'logging'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.14.2/x64/lib/python3.14/logging/__init__.py'&gt;</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console:</span> <span class="pre">~rich.console.Console</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updateCheck:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>SimbioReader class for reading and processing SIMBIO-SYS data files.</p>
 <p>This class provides methods to read SIMBIO-SYS data files (STC, HRIC, VIHI channels),
@@ -517,7 +516,7 @@ hk, detector, and data_structure to True). Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="SimbioReader.SimbioReader.image">
-<span class="sig-name descname"><span class="pre">image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">&lt;module</span> <span class="pre">'PIL.Image'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.12.5/x64/lib/python3.12/site-packages/PIL/Image.py'&gt;</span></span></span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader.image" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">&lt;module</span> <span class="pre">'PIL.Image'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.14.2/x64/lib/python3.14/site-packages/PIL/Image.py'&gt;</span></span></span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader.image" title="Link to this definition"></a></dt>
 <dd><p>Returns a PIL Image object representing the loaded image data.</p>
 <p>This method returns a Pillow (PIL Fork) Image object containing the image data
 loaded from the Simbio file. The image data is assumed to be a single-band
@@ -531,6 +530,20 @@ or multi-band array, depending on the channel type.</p>
 <li><p><strong>ValueError</strong> – If the loaded image data cannot be converted to a PIL Image</p></li>
 <li><p><strong>object due to unsupported data type</strong><strong> or </strong><strong>shape.</strong> – </p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="SimbioReader.SimbioReader.lvid">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lvid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#SimbioReader.SimbioReader.lvid" title="Link to this definition"></a></dt>
+<dd><p>Returns the LIDVID of the SIMBIO-SYS file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The LIDVID of the SIMBIO-SYS file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -553,7 +566,7 @@ or multi-band array, depending on the channel type.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="SimbioReader.SimbioReader.savePreview">
-<span class="sig-name descname"><span class="pre">savePreview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outFolder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader.savePreview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader.savePreview" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">savePreview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outFolder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'This</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">version.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SimbioReader.savePreview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SimbioReader.savePreview" title="Link to this definition"></a></dt>
 <dd><p>Saves a preview image of the loaded data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -561,6 +574,8 @@ or multi-band array, depending on the channel type.</p>
 <li><p><strong>img_type</strong> – The desired image format. Supported formats are ‘png’, ‘tif’, and ‘jpg’. Defaults to ‘png’.</p></li>
 <li><p><strong>quality</strong> – The quality of the saved image (applicable for ‘png’ and ‘jpg’ formats only). Ranges from 0 (worst) to 100 (best). Defaults to 100.</p></li>
 <li><p><strong>out_folder</strong> – The output folder path where the preview image will be saved. Defaults to the same directory as the original Simbio file.</p></li>
+<li><p><strong>template</strong> – name of the PDS4 template that will be generated. If None no template will be written. If the template is not none the img_type
+is forced to png</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -576,7 +591,7 @@ or multi-band array, depending on the channel type.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="SimbioReader.DataStructure">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">DataStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#DataStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.DataStructure" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">DataStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#DataStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.DataStructure" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing the data structure of a SIMBIO-SYS file.</p>
 <p>This class extracts and initializes various attributes related to the data
@@ -674,7 +689,7 @@ configuration, based on an XML Element.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="SimbioReader.SubFrame">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">SubFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SubFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SubFrame" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">SubFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#SubFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.SubFrame" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a subframe of a SIMBIO-SYS image.</p>
 <p>This class extracts and initializes various attributes related to a subframe
@@ -755,7 +770,7 @@ number of samples, and field of view.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="SimbioReader.Detector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">Detector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#Detector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.Detector" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">Detector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#Detector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.Detector" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a detector in a SIMBIO-SYS image.</p>
 <p>This class extracts and initializes various attributes related to a detector
@@ -816,7 +831,7 @@ in a SIMBIO-SYS image, such as the first line, first sample, and number of lines
 
 <dl class="py class">
 <dt class="sig sig-object py" id="SimbioReader.HK">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">HK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#HK"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.HK" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">SimbioReader.</span></span><span class="sig-name descname"><span class="pre">HK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/__main__.html#HK"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.HK" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing housekeeping data for a SIMBIO-SYS image.</p>
 <p>This class initializes various attributes from a pandas DataFrame containing

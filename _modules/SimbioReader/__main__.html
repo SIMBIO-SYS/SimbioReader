@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SimbioReader.__main__ &mdash; SimbioReader 0.2.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+  <title>SimbioReader.__main__ &mdash; SimbioReader 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=37f418d5"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=000c92bf"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -74,32 +72,33 @@
            <div itemprop="articleBody">
              
   <h1>Source code for SimbioReader.__main__</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">xml.dom.minidom</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">parse</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.dom.minidom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">parse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">copyfile</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">rich_click</span> <span class="k">as</span> <span class="nn">click</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">im</span>
-<span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="nb">print</span>
-<span class="kn">from</span> <span class="nn">rich.columns</span> <span class="kn">import</span> <span class="n">Columns</span>
-<span class="kn">from</span> <span class="nn">rich.console</span> <span class="kn">import</span> <span class="n">Console</span>
-<span class="kn">from</span> <span class="nn">rich.panel</span> <span class="kn">import</span> <span class="n">Panel</span>
-<span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
-<span class="kn">from</span> <span class="nn">rich.text</span> <span class="kn">import</span> <span class="n">Text</span>
-<span class="kn">from</span> <span class="nn">rich_click</span> <span class="kn">import</span> <span class="n">rich_config</span>
-<span class="kn">from</span> <span class="nn">update_checker</span> <span class="kn">import</span> <span class="n">UpdateChecker</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rich_click</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">im</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="nb">print</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.columns</span><span class="w"> </span><span class="kn">import</span> <span class="n">Columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.panel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich_click</span><span class="w"> </span><span class="kn">import</span> <span class="n">rich_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">update_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">UpdateChecker</span>
 
-<span class="kn">from</span> <span class="nn">SimbioReader.constants</span> <span class="kn">import</span> <span class="p">(</span><span class="n">CONTEXT_SETTINGS</span><span class="p">,</span> <span class="n">FMODE</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">CONTEXT_SETTINGS</span><span class="p">,</span> <span class="n">FMODE</span><span class="p">,</span> <span class="n">MSG</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span>
                                     <span class="n">datamodel</span><span class="p">,</span> <span class="n">progEpilog</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">SimbioReader.exceptions</span> <span class="kn">import</span> <span class="n">SizeError</span>
-<span class="kn">from</span> <span class="nn">SimbioReader.filters_tools</span> <span class="kn">import</span> <span class="n">Filter</span>
-<span class="kn">from</span> <span class="nn">SimbioReader.tools</span> <span class="kn">import</span> <span class="n">camel_case</span><span class="p">,</span> <span class="n">getElement</span><span class="p">,</span> <span class="n">getValue</span><span class="p">,</span> <span class="n">snake_case</span>
-<span class="kn">from</span> <span class="nn">SimbioReader.version</span> <span class="kn">import</span> <span class="n">version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.filters_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.tools</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">getElement</span><span class="p">,</span> <span class="n">getValue</span><span class="p">,</span> <span class="n">snake_case</span><span class="p">,</span><span class="n">gen_filename</span><span class="p">,</span> <span class="n">lidUpdate</span><span class="p">,</span> <span class="n">updateXML</span><span class="p">,</span> <span class="n">lvidUpdate</span><span class="p">,</span> <span class="n">pretty_print</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
 
 <span class="c1"># from functools import wraps</span>
 
@@ -112,7 +111,7 @@
 <span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">full</span><span class="p">()</span>
 
     
-<span class="k">def</span> <span class="nf">hdr_readr</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span><span class="n">Path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hdr_readr</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span><span class="n">Path</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">FMODE</span><span class="o">.</span><span class="n">READ</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
     <span class="n">img_data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -137,7 +136,7 @@
 
 <div class="viewcode-block" id="HK">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK">[docs]</a>
-<span class="k">class</span> <span class="nc">HK</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HK</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing housekeeping data for a SIMBIO-SYS image.</span>
 
@@ -151,7 +150,7 @@
 <span class="sd">        df (pd.DataFrame): The DataFrame containing housekeeping data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">df</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the HK object by extracting information from the DataFrame.</span>
 
@@ -168,7 +167,7 @@
             
 <div class="viewcode-block" id="HK.Show">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK.Show">[docs]</a>
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Displays the housekeeping information in a formatted table.</span>
 
@@ -185,7 +184,7 @@
         <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;HouseKeeping&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
     
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the HK object.</span>
 
@@ -194,7 +193,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;HK object&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the HK object for debugging.</span>
 
@@ -208,7 +207,7 @@
 
 <div class="viewcode-block" id="Detector">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector">[docs]</a>
-<span class="k">class</span> <span class="nc">Detector</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Detector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing a detector in a SIMBIO-SYS image.</span>
 
@@ -223,13 +222,13 @@
 <span class="sd">        first_sample (int): The first sample number of the detector.</span>
 <span class="sd">        lines (int): The number of lines in the detector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">detector</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="s1">&#39;img:Detector&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_line&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_sample&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:lines&#39;</span><span class="p">))</span>
     
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the Detector object.</span>
 
@@ -238,7 +237,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Detector object&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the Detector object for debugging.</span>
 
@@ -249,7 +248,7 @@
     
 <div class="viewcode-block" id="Detector.Show">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector.Show">[docs]</a>
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Displays the detector information in a formatted table.</span>
 
@@ -270,7 +269,7 @@
     
 <div class="viewcode-block" id="SubFrame">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SubFrame">[docs]</a>
-<span class="k">class</span> <span class="nc">SubFrame</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing a subframe of a SIMBIO-SYS image.</span>
 
@@ -289,7 +288,7 @@
 <span class="sd">        line_fov (float): The line field of view of the subframe.</span>
 <span class="sd">        sample_fov (float): The sample field of view of the subframe.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">subFrame</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="s1">&#39;img:Subframe&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span><span class="s1">&#39;img:first_line&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span><span class="s1">&#39;img:first_sample&#39;</span><span class="p">))</span>
@@ -298,7 +297,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">line_fov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span><span class="s1">&#39;img:line_fov&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_fov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span><span class="s1">&#39;img:sample_fov&#39;</span><span class="p">))</span>
     
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the Subframe object.</span>
 
@@ -307,7 +306,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SubFrame object&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation for debugging purposes.</span>
 
@@ -320,7 +319,7 @@
 
 <div class="viewcode-block" id="DataStructure">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.DataStructure">[docs]</a>
-<span class="k">class</span> <span class="nc">DataStructure</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataStructure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing the data structure of a SIMBIO-SYS file.</span>
 
@@ -342,7 +341,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
         <span class="n">fao</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;File_Area_Observational&#39;</span><span class="p">)</span>
         <span class="n">fl</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">fao</span><span class="p">,</span><span class="s1">&#39;File&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">creation_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span><span class="s1">&#39;creation_date_time&#39;</span><span class="p">),</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -364,7 +363,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="o">=</span> <span class="mi">1</span>
         
         
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the Datastructure.</span>
 
@@ -373,7 +372,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;DataStructure object&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation for debugging purposes.</span>
 
@@ -384,7 +383,7 @@
     
 <div class="viewcode-block" id="DataStructure.Show">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.DataStructure.Show">[docs]</a>
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Displays the data structure information in a formatted table.</span>
 
@@ -409,7 +408,7 @@
 
 <div class="viewcode-block" id="SimbioReader">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader">[docs]</a>
-<span class="k">class</span> <span class="nc">SimbioReader</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimbioReader</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        SimbioReader class for reading and processing SIMBIO-SYS data files.</span>
 
@@ -458,7 +457,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
     
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">logging</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">logging</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                  <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">console</span><span class="p">:</span><span class="n">Console</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">updateCheck</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 
@@ -491,13 +490,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.dat&#39;</span><span class="p">,</span><span class="s1">&#39;.qub&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.xml&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.lblx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.lblx&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The PDS4 label is not present. it&#39;s impossible read the data file&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.qub&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">!=</span> <span class="s1">&#39;VIHI&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The file is not a Simbio file or the filename is not well formatted&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.xml&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.lblx&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">)</span>
@@ -511,7 +510,7 @@
 
 <div class="viewcode-block" id="SimbioReader.read">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.read">[docs]</a>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and processes the SIMBIO-SYS file, extracting metadata and image data.</span>
 
 <span class="sd">        Raises:</span>
@@ -543,6 +542,8 @@
         <span class="n">idArea</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s1">&#39;Identification_Area&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">idArea</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataModelVersion</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">idArea</span><span class="p">,</span> <span class="s1">&#39;information_model_version&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span><span class="n">getValue</span><span class="p">(</span><span class="n">idArea</span><span class="p">,</span> <span class="s1">&#39;version_id&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lid</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">idArea</span><span class="p">,</span> <span class="s1">&#39;logical_identifier&#39;</span><span class="p">)</span>
         <span class="c1"># TODO: Check on the datamodel version</span>
         
         <span class="n">obsArea</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s1">&#39;Observation_Area&#39;</span><span class="p">)</span>
@@ -561,8 +562,9 @@
         <span class="n">missionInfo</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">missionArea</span><span class="p">,</span> <span class="s1">&#39;psa:Mission_Information&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">startScet</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">missionInfo</span><span class="p">,</span> <span class="s1">&#39;psa:spacecraft_clock_start_count&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stopScet</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">missionInfo</span><span class="p">,</span> <span class="s1">&#39;psa:spacecraft_clock_stop_count&#39;</span><span class="p">)</span>
+        <span class="n">mission_phase</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span><span class="s2">&quot;psa:Mission_Phase&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phaseName</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span>
-            <span class="n">missionInfo</span><span class="p">,</span> <span class="s1">&#39;psa:mission_phase_name&#39;</span><span class="p">)</span>
+            <span class="n">mission_phase</span><span class="p">,</span> <span class="s1">&#39;psa:name&#39;</span><span class="p">)</span>
         
         <span class="n">discArea</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s1">&#39;Discipline_Area&#39;</span><span class="p">)</span>
         
@@ -628,9 +630,19 @@
 
             <span class="c1"># print(f&quot;Size of the old image array: {self.img.size}&quot;)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lvid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the LIDVID of the SIMBIO-SYS file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The LIDVID of the SIMBIO-SYS file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lid</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+
 <div class="viewcode-block" id="SimbioReader.Show">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.Show">[docs]</a>
-    <span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hk</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">detector</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_structure</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">all_info</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Columns</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hk</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">detector</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_structure</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">all_info</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Columns</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Displays information about the loaded SIMBIO-SYS file.</span>
 
 <span class="sd">        Args:</span>
@@ -723,7 +735,7 @@
         <span class="k">pass</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the object.</span>
 
@@ -732,7 +744,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SimbioReader object </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> - from file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation for debugging purposes.</span>
 
@@ -741,22 +753,26 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
  
+
         
 <div class="viewcode-block" id="SimbioReader.savePreview">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.savePreview">[docs]</a>
-    <span class="k">def</span> <span class="nf">savePreview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">img_type</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="n">quality</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">outFolder</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">savePreview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">img_type</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="n">quality</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">outFolder</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This is the first version.&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a preview image of the loaded data.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            img_type: The desired image format. Supported formats are &#39;png&#39;, &#39;tif&#39;, and &#39;jpg&#39;. Defaults to &#39;png&#39;.</span>
 <span class="sd">            quality: The quality of the saved image (applicable for &#39;png&#39; and &#39;jpg&#39; formats only). Ranges from 0 (worst) to 100 (best). Defaults to 100.</span>
 <span class="sd">            out_folder: The output folder path where the preview image will be saved. Defaults to the same directory as the original Simbio file.</span>
+<span class="sd">            template: name of the PDS4 template that will be generated. If None no template will be written. If the template is not none the img_type</span>
+<span class="sd">                    is forced to png</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If the provided image format is not supported.</span>
 <span class="sd">            TypeError: If the `out_folder` argument is not a `Path` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-  
+        <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+            <span class="n">img_type</span> <span class="o">=</span> <span class="s1">&#39;png&#39;</span>
         <span class="k">if</span> <span class="n">outFolder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">parent</span>
         <span class="k">else</span><span class="p">:</span>
@@ -766,8 +782,50 @@
         <span class="k">if</span> <span class="n">img_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="s1">&#39;tif&#39;</span><span class="p">]:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
             <span class="c1"># print(data.getpixel((50, 50)))</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">img_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                      <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+            <span class="n">new_filename</span><span class="o">=</span><span class="n">gen_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="p">)</span>
+            <span class="c1"># data_filename=self.fileName.stem</span>
+            <span class="c1"># new_filename=copy.copy(data_filename)</span>
+            <span class="c1"># if &#39;raw&#39; in data_filename:</span>
+            <span class="c1">#     new_filename.replace(&#39;raw&#39;,&#39;browse_raw&#39;)</span>
+            <span class="n">image_file</span><span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">img_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="s1">&#39;cal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span><span class="n">Path</span><span class="p">):</span>
+                    <span class="n">template</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">template</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The template </span><span class="si">{</span><span class="n">template</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> was not found&quot;</span><span class="p">)</span>
+                <span class="n">new_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">.lblx&quot;</span>
+                <span class="n">template</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">new_label</span><span class="p">)</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">xml.dom.minidom</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">parseString</span><span class="p">,</span> <span class="n">Element</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">new_label</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;cal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                    <span class="n">calib</span><span class="o">=</span><span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">calib</span><span class="o">=</span><span class="kc">False</span>
+                <span class="n">new_lid</span><span class="o">=</span><span class="n">lidUpdate</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_label</span><span class="p">,</span><span class="n">calib</span><span class="o">=</span><span class="n">calib</span><span class="p">)</span>
+                <span class="n">creatTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;modification_date&quot;</span><span class="p">,</span> <span class="n">creatTime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">file_version</span><span class="o">=</span><span class="n">new_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">file_version</span><span class="o">=</span><span class="n">file_version</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;version_id&quot;</span><span class="p">,</span><span class="n">file_version</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;version_id&quot;</span><span class="p">,</span><span class="n">file_version</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;description&quot;</span><span class="p">,</span><span class="n">description</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">lvidUpdate</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="p">,</span> <span class="n">file_version</span><span class="p">)</span>
+                <span class="n">image_file</span><span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;file_name&#39;</span><span class="p">,</span> <span class="n">image_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;creation_date_time&#39;</span><span class="p">,</span>
+                    <span class="n">creatTime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;file_size&#39;</span><span class="p">,</span> <span class="n">image_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;md5_checksum&#39;</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">dom2</span> <span class="o">=</span> <span class="n">parseString</span><span class="p">(</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_label</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xmlFile</span><span class="p">:</span>
+                    <span class="n">dom2</span><span class="o">.</span><span class="n">writexml</span><span class="p">(</span><span class="n">xmlFile</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_lid</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="n">file_version</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">elif</span> <span class="n">img_type</span> <span class="o">==</span> <span class="s1">&#39;jpg&#39;</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>
             <span class="c1"># print(data.getpixel((50,50)))</span>
@@ -779,7 +837,7 @@
     
 <div class="viewcode-block" id="SimbioReader.image">
 <a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.image">[docs]</a>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">im</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">im</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a PIL Image object representing the loaded image data.</span>
 
 <span class="sd">        This method returns a Pillow (PIL Fork) Image object containing the image data</span>
@@ -799,7 +857,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">sh_version</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sh_version</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Display version and exit&quot;&quot;&quot;</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SimbioReader version [blue bold]</span><span class="si">{</span><span class="n">version</span><span class="o">.</span><span class="n">short</span><span class="p">()</span><span class="si">}</span><span class="s2">[/]&quot;</span><span class="p">)</span>
@@ -818,7 +876,7 @@
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Debug mode&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Verbose mode&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show the version and exit&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">callback</span><span class="o">=</span><span class="n">sh_version</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">detector</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">all_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+<span class="k">def</span><span class="w"> </span><span class="nf">cli</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">detector</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">all_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
         <span class="n">filter_flag</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
     <span class="n">dat</span> <span class="o">=</span> <span class="n">SimbioReader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">console</span><span class="o">=</span><span class="n">console</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>

@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tools &mdash; SimbioReader 0.2.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Tools &mdash; SimbioReader 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=37f418d5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,9 +47,17 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tools</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.camel_case"><code class="docutils literal notranslate"><span class="pre">camel_case()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.gen_filename"><code class="docutils literal notranslate"><span class="pre">gen_filename()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.getElement"><code class="docutils literal notranslate"><span class="pre">getElement()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.getFromXml"><code class="docutils literal notranslate"><span class="pre">getFromXml()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.getValue"><code class="docutils literal notranslate"><span class="pre">getValue()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.lidGenerator"><code class="docutils literal notranslate"><span class="pre">lidGenerator()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.lidUpdate"><code class="docutils literal notranslate"><span class="pre">lidUpdate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.lvidUpdate"><code class="docutils literal notranslate"><span class="pre">lvidUpdate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.new_lvid"><code class="docutils literal notranslate"><span class="pre">new_lvid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.pretty_print"><code class="docutils literal notranslate"><span class="pre">pretty_print()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.snake_case"><code class="docutils literal notranslate"><span class="pre">snake_case()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#SimbioReader.tools.updateXML"><code class="docutils literal notranslate"><span class="pre">updateXML()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
@@ -113,6 +119,11 @@ and then joining them together to form a camelCase string.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.gen_filename">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">gen_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#gen_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.gen_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="SimbioReader.tools.getElement">
 <span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">getElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Element</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#getElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.getElement" title="Link to this definition"></a></dt>
 <dd><p>Get a Block of a dom</p>
@@ -130,6 +141,11 @@ and then joining them together to form a camelCase string.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.getFromXml">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">getFromXml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/tools.html#getFromXml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.getFromXml" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="SimbioReader.tools.getValue">
 <span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">getValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodeList</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#getValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.getValue" title="Link to this definition"></a></dt>
 <dd><p>Get the value from a tag</p>
@@ -142,6 +158,31 @@ and then joining them together to form a camelCase string.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.lidGenerator">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">lidGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_lid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#lidGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.lidGenerator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.lidUpdate">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">lidUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/tools.html#lidUpdate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.lidUpdate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.lvidUpdate">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">lvidUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/tools.html#lvidUpdate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.lvidUpdate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.new_lvid">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">new_lvid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/tools.html#new_lvid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.new_lvid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.pretty_print">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/SimbioReader/tools.html#pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.pretty_print" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="SimbioReader.tools.snake_case">
@@ -168,6 +209,11 @@ replacing capital letters with underscores followed by the lowercase equivalent.
 </pre></div>
 </div>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SimbioReader.tools.updateXML">
+<span class="sig-prename descclassname"><span class="pre">SimbioReader.tools.</span></span><span class="sig-name descname"><span class="pre">updateXML</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/SimbioReader/tools.html#updateXML"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#SimbioReader.tools.updateXML" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 
