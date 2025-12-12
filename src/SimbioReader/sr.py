@@ -99,7 +99,17 @@ class Target:
     def __repr__(self):
         return self.__str__()
 
+class SimbioObject:
+    def __init__(self, file_name: str, ):
+        self.file_name = file_name
+        
 
+    def __str__(self):
+        return f"Filter(name={self.name}, wavelength={self.wavelength})"
+
+    def __repr__(self):
+        return self.__str__()
+    
 class Data:
     def __init__(
         self,
@@ -124,7 +134,7 @@ class Data:
             file_name = source_path.joinpath(getValue(fo, "file_name"))
             if verbose or debug:
                 self.console.print(
-                    f"{MSG.Info}Processing file {i+1}/{self.items_number}: {file_name.name}"
+                    f"{MSG.INFO}Processing file {i+1}/{self.items_number}: {file_name.name}"
                 )
             if not file_name.exists():
                 raise FileNotFoundError(f"The data file {file_name} does not exist.")
@@ -142,7 +152,7 @@ class Data:
                     filter = getValue(imaging[i], "img:filter_name")
                     if debug:
                         self.console.print(
-                            f"{MSG.Degug}Found filter: {filter}"
+                            f"{MSG.DEBUG}Found filter: {filter}"
                         )
                     pass
                 else:
@@ -172,6 +182,9 @@ class SimbioReader:
                 f"{MSG.DEBUG}Initializing SimbioReader with file path: {file_path}"
             )
         # Check the filename extension
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
+            
         self.pdsLabel = self.label_name(file_path)
 
         # check if the file exists
@@ -308,5 +321,17 @@ class SimbioReader:
         )
 
         return Panel(
-            col, title="SimbioReader Summary", border_style="green", expand=False
+            col, title=f"SimbioReader Summary: {self.pdsLabel.stem}", border_style="green", expand=False
         )
+    
+
+    
+    def __getattr__(self, name:str):
+        if name.startswith('segment') and self.channel in ['stc','hric']:
+            self.console.print(f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}.")
+        elif name.startswith('segment') and self.channel == 'vihi':
+            self.console.print(f"{MSG.ERROR}Segment {name} not available.")
+        elif name.startswith('filter') and self.channel == 'vihi':
+            self.console.print(f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}.") 
+
+        return None
