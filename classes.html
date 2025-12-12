@@ -1,0 +1,140 @@
+<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <div class="mermaid">
+    
+        classDiagram
+          class DataStructure {
+            axes : int
+            band : NoneType, int
+            creation_time : datetime
+            data_type
+            file_size : int
+            md5
+            Show()
+          }
+          class Detector {
+            first_line : int
+            first_sample : int
+            lines : int
+            Show() -> Panel
+          }
+          class FMODE {
+            APPEND : str
+            READ : str
+            READ_BINARY : str
+            WRITE : str
+            WRITE_BINARY : str
+          }
+          class Filter {
+            show()
+          }
+          class Filter {
+            show() -> Panel
+          }
+          class HK {
+            df : DataFrame
+            Show() -> Panel
+          }
+          class MSG {
+            CRITICAL : str
+            DEBUG : str
+            ERROR : str
+            INFO : str
+            TODO : str
+            WARNING : str
+          }
+          class Phase {
+            end : datetime
+            extended_name
+            name
+            start : datetime
+            show()
+            show_all() -> Table
+          }
+          class SimbioReader {
+            bands : NoneType, int
+            channel : str
+            console : NoneType, Console
+            dataModelVersion
+            data_stucture
+            debug : bool
+            detector
+            exposure
+            fileName : Path
+            filter
+            firstLine : int
+            firstSample : int
+            hk
+            img
+            level
+            lid
+            lineFov : float
+            lines : int
+            log : Optional[logging]
+            lvid
+            pdsLabel : Path
+            phaseName
+            sampleFov : float
+            samples : int
+            startScet
+            startTime : datetime
+            stopScet
+            stopTime : datetime
+            tarName
+            tarType
+            title
+            verbose : bool
+            version
+            Show(hk: bool, detector: bool, data_structure: bool, all_info: bool) -> Columns
+            image() -> im
+            read()
+            savePreview(img_type: str, quality: int, outFolder: Path, template: Path, description: str) -> str | None
+          }
+          class SizeError {
+            expected
+            size
+          }
+          class SubFrame {
+            first_line : int
+            first_sample : int
+            line_fov : float
+            lines : int
+            sample_fov : float
+            samples : int
+          }
+          class SubPhase {
+            end : datetime
+            extended_name
+            name
+            phase
+            start : datetime
+            show() -> Table
+            show_all() -> Table
+          }
+          class Test {
+            end : datetime
+            name
+            start : datetime
+            subphase
+            show() -> Table
+            show_all(phase: str, subphase: str, key: str, date: datetime | str) -> Table
+          }
+          class Vers {
+            bug
+            build
+            major
+            minor
+            type
+            full()
+            short()
+          }
+          DataStructure --* SimbioReader : data_stucture
+          Detector --* SimbioReader : detector
+          HK --* SimbioReader : hk
+          Filter --* SimbioReader : filter
+          Phase --* SubPhase : phase
+  
+       </div>
+  </body>
+</html>

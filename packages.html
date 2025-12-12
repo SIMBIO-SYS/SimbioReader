@@ -1,0 +1,50 @@
+<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <div class="mermaid">
+    
+        classDiagram
+          class SimbioReader {
+          }
+          class __main__ {
+          }
+          class constants {
+          }
+          class exceptions {
+          }
+          class filters {
+          }
+          class filters_tools {
+          }
+          class infocli {
+          }
+          class phases {
+          }
+          class simbioInfo {
+          }
+          class subphases {
+          }
+          class tests {
+          }
+          class tools {
+          }
+          class version {
+          }
+          SimbioReader --> __main__
+          __main__ --> constants
+          __main__ --> exceptions
+          __main__ --> filters_tools
+          __main__ --> tools
+          __main__ --> version
+          filters_tools --> filters
+          infocli --> constants
+          infocli --> simbioInfo
+          simbioInfo --> filters
+          simbioInfo --> phases
+          simbioInfo --> subphases
+          simbioInfo --> tests
+          version --> constants
+  
+       </div>
+  </body>
+</html>
