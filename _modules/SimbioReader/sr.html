@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimbioReader.sr &mdash; SimbioReader 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=000c92bf"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SimbioReader
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reaference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SimbioReader</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">SimbioReader.sr</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for SimbioReader.sr</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">im</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.dom.minidom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">parse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">getElement</span><span class="p">,</span> <span class="n">getValue</span><span class="p">,</span> <span class="n">camel_case</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dateutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">parser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.panel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.columns</span><span class="w"> </span><span class="kn">import</span> <span class="n">Columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MSG</span><span class="p">,</span><span class="n">data_types</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.filters_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">gen_filename</span><span class="p">,</span> <span class="n">lidUpdate</span><span class="p">,</span> <span class="n">lvidUpdate</span><span class="p">,</span> <span class="n">updateXML</span><span class="p">,</span> <span class="n">pretty_print</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.dom.minidom</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">parseString</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Document</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">full</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Detector">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Detector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing a detector in a SIMBIO-SYS image.</span>
+
+<span class="sd">    This class extracts and initializes various attributes related to a detector</span>
+<span class="sd">    in a SIMBIO-SYS image, such as the first line, first sample, and number of lines.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dat (Element): An XML Element containing the detector information.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        first_line (int): The first line number of the detector.</span>
+<span class="sd">        first_sample (int): The first sample number of the detector.</span>
+<span class="sd">        lines (int): The number of lines in the detector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">detector</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="s1">&#39;img:Subframe&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_line</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_line&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:first_sample&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:lines&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:samples&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_fov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:line_fov&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_fov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">detector</span><span class="p">,</span><span class="s1">&#39;img:sample_fov&#39;</span><span class="p">))</span>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Detector object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the Detector object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Detector object&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Detector object for debugging.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the Detector object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="Detector.show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.Detector.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the detector information in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A Panel object containing the formatted detector information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; = &#39;</span>
+        <span class="n">dt</span><span class="o">=</span><span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;First Line&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_line</span><span class="p">))</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;First Sample&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_sample</span><span class="p">))</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Lines&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">))</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Samples&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">))</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Line FOV&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line_fov</span><span class="p">))</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s1">&#39;Sample FOV&#39;</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_fov</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Detector&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+ 
+
+<div class="viewcode-block" id="DataStructure">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.DataStructure">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataStructure</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing the data structure of a SIMBIO-SYS file.</span>
+
+<span class="sd">    This class extracts and initializes various attributes related to the data </span>
+<span class="sd">    structure of a SIMBIO-SYS file, such as creation time, file size, and axes </span>
+<span class="sd">    configuration, based on an XML Element.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dat (Element): An XML Element containing the data structure information.</span>
+<span class="sd">        channel (str): The channel identifier (e.g., &#39;HRIC&#39;, &#39;STC&#39;, &#39;VIHI&#39;).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        creation_time (datetime): The creation time of the file.</span>
+<span class="sd">        file_size (int): The size of the file.</span>
+<span class="sd">        md5 (str): The MD5 checksum of the file.</span>
+<span class="sd">        axes (int): The number of axes in the data structure.</span>
+<span class="sd">        band (int): The band information (default is 1).</span>
+<span class="sd">        data_type (str): The type of data (e.g., &#39;UnsignedLSB2&#39;, &#39;IEEE754LSBSingle&#39;).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">:</span><span class="n">Element</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># fao=getElement(dat,&#39;File_Area_Observational&#39;)</span>
+        <span class="n">fl</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;File&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">creation_time</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span><span class="s1">&#39;creation_date_time&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span><span class="s1">&#39;file_size&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md5</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">fl</span><span class="p">,</span><span class="s1">&#39;md5_checksum&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;axes&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">band</span><span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">channel</span> <span class="o">!=</span> <span class="s1">&#39;VIHI&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of axes is wrong for the channel&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;Axis_Array&#39;</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">getValue</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span><span class="s1">&#39;axis_name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span><span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span><span class="s1">&#39;elements&#39;</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">dat</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;Array_3D_Spectrum&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">dat</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;Array_2D_Image&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span><span class="s1">&#39;data_type&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the Datastructure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string in the format &#39;DataStructure Object&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;DataStructure object&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation for debugging purposes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string in the format &#39;DataStructure Object&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="DataStructure.show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.DataStructure.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the data structure information in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A rich Panel object containing the formatted table of data structure information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; = &#39;</span>
+        <span class="n">dt</span><span class="o">=</span><span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">sep</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+        <span class="c1"># dt.add_row(&#39;Creation Time&#39;,sep,datetime.strftime(self.creation_time,&quot;%Y-%m-%d&quot;))</span>
+        <span class="c1"># dt.add_row(&#39;File Size&#39;,sep,str(self.file_size))</span>
+        <span class="c1"># dt.add_row(&#39;MD5 Checksum&#39;,sep,self.md5)</span>
+        <span class="c1"># dt.add_row(&#39;Axes&#39;,sep,str(self.axes))</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Data Structure&#39;</span><span class="p">,</span><span class="n">border_style</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+        
+
+<div class="viewcode-block" id="HK">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HK</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing housekeeping data for a SIMBIO-SYS image.</span>
+
+<span class="sd">    This class initializes various attributes from a pandas DataFrame containing</span>
+<span class="sd">    housekeeping data and provides methods to display this information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): A pandas DataFrame containing housekeeping data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame containing housekeeping data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the HK object by extracting information from the DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df (pd.DataFrame): A pandas DataFrame containing housekeeping data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">val</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HK.show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.HK.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the housekeeping information in a formatted table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Panel: A Panel object containing the formatted housekeeping information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; = &quot;</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">sep</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;HouseKeeping&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the HK object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the HK object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;HK object&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the HK object for debugging.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of the HK object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Target</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_type</span> <span class="o">=</span> <span class="n">target_type</span>
+
+        <span class="c1"># other attributes will be added after the integration of the observation log in the PDS label</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; =  &quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Target Info&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Target(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target_type</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SimbioObject</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">imaging</span><span class="p">:</span> <span class="n">Element</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">Element</span><span class="p">,</span><span class="n">file_obs</span><span class="p">:</span> <span class="n">Element</span><span class="p">,</span> <span class="n">console</span><span class="p">:</span> <span class="n">Console</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">console</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">console</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_name</span> <span class="o">=</span> <span class="n">filter_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imaging</span> <span class="o">=</span> <span class="n">imaging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">imaging</span><span class="p">,</span> <span class="s2">&quot;img:exposure_duration&quot;</span><span class="p">)</span>
+        <span class="n">subFrame</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">imaging</span><span class="p">,</span> <span class="s2">&quot;img:Subframe&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">firstLine</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:first_line&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">firstSample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:first_sample&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:lines&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:samples&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineFov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:line_fov&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampleFov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">subFrame</span><span class="p">,</span> <span class="s1">&#39;img:sample_fov&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span> <span class="o">=</span> <span class="n">DataStructure</span><span class="p">(</span><span class="n">file_obs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">sample</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">band</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">!=</span> <span class="s1">&#39;VIHI&#39;</span><span class="p">:</span>
+            <span class="n">flt</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">imaging</span><span class="p">,</span> <span class="s1">&#39;img:Optical_Filter&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">=</span><span class="n">Filter</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="n">getValue</span><span class="p">(</span><span class="n">flt</span><span class="p">,</span><span class="s1">&#39;img:filter_name&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">imaging</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;UnsignedLSB2&quot;</span><span class="p">:</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;IEEE754LSBSingle&quot;</span><span class="p">:</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Loading: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Image size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">imgSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">*</span><span class="n">data_types</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">data_type</span><span class="p">][</span><span class="s1">&#39;bits&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Image size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">imgSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">*</span><span class="n">data_types</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">data_type</span><span class="p">][</span><span class="s1">&#39;bits&#39;</span><span class="p">]</span>
+            
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">File size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="o">*</span><span class="mi">8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Computed File Size: </span><span class="si">{</span><span class="n">imgSize</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="o">*</span><span class="mi">8</span> <span class="o">!=</span> <span class="n">imgSize</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SizeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">*</span>
+                                <span class="mi">8</span><span class="p">,</span><span class="n">imgSize</span><span class="p">)</span>
+        <span class="c1">#print(img_data[&#39;samples&#39;],img_data[&#39;lines&#39;],img_data[&#39;bands&#39;])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                               <span class="n">count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                                   <span class="n">count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">axes</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Dimension of the old image array: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># print(f&quot;Size of the old image array: {self.img.size}&quot;)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Panel</span><span class="p">:</span>
+        <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; =  &quot;</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;File Name&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">))</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Filter Name&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_name</span><span class="p">)</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Channel&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="n">tb</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Exposure Time (s)&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exposure_time</span><span class="p">))</span>
+        <span class="n">pl</span><span class="o">=</span><span class="n">Panel</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Simbio Filter General Info&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">Columns</span><span class="p">([</span><span class="n">pl</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">show</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">data_stucture</span><span class="o">.</span><span class="n">show</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">show</span><span class="p">()]),</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Filter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> Info&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Filter(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">savePreview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">img_type</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="n">quality</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">outFolder</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tree</span><span class="p">:</span><span class="n">Document</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">new_filename</span><span class="o">=</span><span class="n">gen_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="s1">&#39;tif&#39;</span><span class="p">]:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">image_file</span><span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">outFolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">img_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="s1">&#39;cal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tree</span><span class="p">:</span>
+                <span class="n">fab</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;File_Area_Browse&quot;</span><span class="p">)</span>
+                <span class="n">fl</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;File&quot;</span><span class="p">)</span>
+                <span class="n">fln</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;file_name&quot;</span><span class="p">)</span>
+                <span class="n">fln</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">img_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+                <span class="n">fl</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">fln</span><span class="p">)</span>
+                <span class="n">fl_ct</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;creation_date_time&quot;</span><span class="p">)</span>
+                <span class="n">creatTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="n">fl_ct</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="n">creatTime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)))</span>
+                <span class="n">fl</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">fl_ct</span><span class="p">)</span>
+                <span class="n">fl_fs</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;file_size&quot;</span><span class="p">)</span>
+                <span class="n">fl_fs</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">)))</span>
+                <span class="n">fl</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">fl_fs</span><span class="p">)</span>
+                <span class="n">fl_md5</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;md5_checksum&quot;</span><span class="p">)</span>
+                <span class="n">fl_md5</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()))</span>
+                <span class="n">fl</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">fl_md5</span><span class="p">)</span>
+                <span class="n">fab</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">fl</span><span class="p">)</span>
+
+
+
+                <span class="n">enc_img</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;Encoding_Image&quot;</span><span class="p">)</span>
+                <span class="n">enc_offset</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">)</span>
+                <span class="n">enc_offset</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">))</span>
+                <span class="n">enc_offset</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+                <span class="n">enc_stid</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;encoding_standard_id&quot;</span><span class="p">)</span>
+                <span class="n">enc_stid</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">createTextNode</span><span class="p">(</span><span class="s2">&quot;PNG&quot;</span><span class="p">))</span>
+                <span class="n">enc_img</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">enc_offset</span><span class="p">)</span>
+                <span class="n">enc_img</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">enc_stid</span><span class="p">)</span>
+
+                <span class="n">fab</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">enc_img</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">fab</span>
+        <span class="k">elif</span> <span class="n">img_type</span> <span class="o">==</span> <span class="s1">&#39;jpg&#39;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>
+            <span class="c1"># print(data.getpixel((50,50)))</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">outFolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">img_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">)</span>
+        <span class="c1"># print(self.img[0,0])</span>
+    
+<span class="k">class</span><span class="w"> </span><span class="nc">Data</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">source_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">file_obs</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">imaging</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">console</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">console</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">console</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">items_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_obs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="n">level</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file_obs</span><span class="p">):</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">source_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">fo</span><span class="p">,</span> <span class="s2">&quot;file_name&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Processing file </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">items_number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_name</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The data file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+
+                <span class="c1"># read CSV file</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Reading CSV file: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hk</span> <span class="o">=</span> <span class="n">HK</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">file_name</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.qub&quot;</span><span class="p">,</span> <span class="s2">&quot;.dat&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">channel</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;stc&quot;</span><span class="p">,</span> <span class="s2">&quot;hric&quot;</span><span class="p">]:</span>
+                    <span class="nb">filter</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">imaging</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;img:filter_name&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">filter</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;filter_</span><span class="si">{</span><span class="nb">filter</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">SimbioObject</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span><span class="n">filter_name</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span><span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span><span class="n">imaging</span><span class="o">=</span><span class="n">imaging</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">file_obs</span><span class="o">=</span><span class="n">file_obs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">console</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>   <span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Found filter: </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># qube /segments</span>
+                    <span class="k">pass</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">savePreview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">img_type</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="n">quality</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">outFolder</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tree</span><span class="p">:</span><span class="n">Document</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">filter_prevs</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="n">disp</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;filter_</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">filter_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">savePreview</span><span class="p">(</span><span class="n">img_type</span><span class="o">=</span><span class="n">img_type</span><span class="p">,</span><span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span><span class="n">outFolder</span><span class="o">=</span><span class="n">outFolder</span><span class="p">,</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">filter_prevs</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Data(channel=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="si">}</span><span class="s2">, level=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="si">}</span><span class="s2">, items_number=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">items_number</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="SimbioReader">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimbioReader</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">console</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="c1"># Initialize the SimbioReader with a file path and optional console for output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">console</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">console</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Initializing SimbioReader with file path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Check the filename extension</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="c1"># check if the file exists</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Checking if file exists: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># self.console.print(f&quot;[red]Error:[/red] The file {self.pdsLabel} does not exist.&quot;)</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">INFO</span><span class="si">}</span><span class="s2">Reading PDS label file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;psa:identifier&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;stc&quot;</span><span class="p">,</span> <span class="s2">&quot;hric&quot;</span><span class="p">,</span> <span class="s2">&quot;vihi&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown channel &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="si">}</span><span class="s2">&#39; found in label.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;processing_level&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lid</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;logical_identifier&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;version_id&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataModelVersion</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;information_model_version&quot;</span><span class="p">)</span>
+        <span class="n">mission_phase</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="s2">&quot;psa:Mission_Phase&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phaseName</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">mission_phase</span><span class="p">,</span> <span class="s1">&#39;psa:name&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Initialized SimbioReader with channel: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">, version: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="si">}</span><span class="s2">, Datamodel: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataModelVersion</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Observation Time</span>
+
+        <span class="n">obsArea</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;Observation_Area&quot;</span><span class="p">)</span>
+        <span class="n">timeCoords</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">obsArea</span><span class="p">,</span> <span class="s2">&quot;Time_Coordinates&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">timeCoords</span><span class="p">,</span> <span class="s2">&quot;start_date_time&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopTime</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">getValue</span><span class="p">(</span><span class="n">timeCoords</span><span class="p">,</span> <span class="s2">&quot;stop_date_time&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_scet</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;psa:spacecraft_clock_start_count&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_scet</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;psa:spacecraft_clock_start_count&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Observation start time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">startTime</span><span class="si">}</span><span class="s2">, stop time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stopTime</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Spacecraft clock start count: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_scet</span><span class="si">}</span><span class="s2">, stop count: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_scet</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Target Information</span>
+        <span class="n">targetInfo</span> <span class="o">=</span> <span class="n">getElement</span><span class="p">(</span><span class="n">obsArea</span><span class="p">,</span> <span class="s2">&quot;Target_Identification&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">getValue</span><span class="p">(</span><span class="n">targetInfo</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">),</span> <span class="n">target_type</span><span class="o">=</span><span class="n">getValue</span><span class="p">(</span><span class="n">targetInfo</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">DEBUG</span><span class="si">}</span><span class="s2">Target information: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read the channels data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span>
+            <span class="n">channel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">,</span>
+            <span class="n">source_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">file_obs</span><span class="o">=</span><span class="n">label</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;File_Area_Observational&quot;</span><span class="p">),</span>
+            <span class="n">imaging</span><span class="o">=</span><span class="n">label</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;img:Imaging&quot;</span><span class="p">),</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">label</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;geom:Geometry&quot;</span><span class="p">),</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">console</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lvid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the LIDVID of the SIMBIO-SYS file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The LIDVID of the SIMBIO-SYS file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lid</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="SimbioReader.label_name">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.label_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">lst</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.lblx&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># self.console.print(f&quot;[red]Error:[/red] No .lblx files found in directory {file_path}.&quot;)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;No .lblx files found in directory </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># self.console.print(f&quot;[red]Error:[/red] Multiple .lblx files found in directory {file_path}. Please specify a single file.&quot;)</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Multiple .lblx files found in directory </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">. Please specify a single file.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.lblx&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">ERROR</span><span class="si">}</span><span class="s2">The file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> does not have a .lblx extension.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">pdsLabel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">])</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span><span class="si">}</span><span class="s2">.lblx&quot;</span>
+                <span class="k">return</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">pdsLabel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">file_path</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SimbioReader(channel=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="si">}</span><span class="s2">, level=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="si">}</span><span class="s2">, lid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lid</span><span class="si">}</span><span class="s2">, version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SimbioReader.show">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">()</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+        <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot; = &quot;</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Channel&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Processing Level&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Mission Phase&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phaseName</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Logical Identifier&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lid</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Version&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Data Model Version&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataModelVersion</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Observation Start Time&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Observation Stop Time&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopTime</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Spacecraft Clock Start Count&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_scet</span><span class="p">)</span>
+        <span class="n">dt</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;Spacecraft Clock Stop Count&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_scet</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;SimbioReader Info&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimbioReader.summary">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Panel</span><span class="p">:</span>
+        <span class="n">filters</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+            <span class="n">disp</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;filter_</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">show</span><span class="p">())</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">Columns</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">show</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">hk</span><span class="o">.</span><span class="n">show</span><span class="p">(),</span><span class="o">*</span><span class="n">filters</span><span class="p">],</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Panel</span><span class="p">(</span>
+            <span class="n">col</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;SimbioReader Summary: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">border_style</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+    
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;segment&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stc&#39;</span><span class="p">,</span><span class="s1">&#39;hric&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">ERROR</span><span class="si">}</span><span class="s2">Attribute [blue]</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[/blue] not available. The current Channel id is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;segment&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="s1">&#39;vihi&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">ERROR</span><span class="si">}</span><span class="s2">Segment </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not available.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">==</span> <span class="s1">&#39;vihi&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MSG</span><span class="o">.</span><span class="n">ERROR</span><span class="si">}</span><span class="s2">Attribute [blue]</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[/blue] not available. The current Channel id is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+
+        
+<div class="viewcode-block" id="SimbioReader.savePreview">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.savePreview">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">savePreview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">img_type</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span><span class="n">quality</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">outFolder</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span><span class="n">Path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This is the first version.&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a preview image of the loaded data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img_type: The desired image format. Supported formats are &#39;png&#39;, &#39;tif&#39;, and &#39;jpg&#39;. Defaults to &#39;png&#39;.</span>
+<span class="sd">            quality: The quality of the saved image (applicable for &#39;png&#39; and &#39;jpg&#39; formats only). Ranges from 0 (worst) to 100 (best). Defaults to 100.</span>
+<span class="sd">            out_folder: The output folder path where the preview image will be saved. Defaults to the same directory as the original Simbio file.</span>
+<span class="sd">            template: name of the PDS4 template that will be generated. If None no template will be written. If the template is not none the img_type</span>
+<span class="sd">                    is forced to png</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the provided image format is not supported.</span>
+<span class="sd">            TypeError: If the `out_folder` argument is not a `Path` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+            <span class="n">img_type</span> <span class="o">=</span> <span class="s1">&#39;png&#39;</span>
+        <span class="k">if</span> <span class="n">outFolder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">outFolder</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">:</span>
+                <span class="n">outFolder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outFolder</span><span class="p">)</span>
+            <span class="n">dest</span><span class="o">=</span><span class="n">outFolder</span>
+            <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">dest</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">savePreview</span><span class="p">(</span><span class="n">img_type</span><span class="o">=</span><span class="n">img_type</span><span class="p">,</span><span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span><span class="n">outFolder</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span><span class="n">Path</span><span class="p">):</span>
+                    <span class="n">template</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">template</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The template </span><span class="si">{</span><span class="n">template</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> was not found&quot;</span><span class="p">)</span>
+            <span class="n">new_filename</span><span class="o">=</span><span class="n">gen_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdsLabel</span><span class="p">)</span>
+            <span class="n">new_label</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">new_filename</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.lblx&quot;</span><span class="p">)</span>
+            <span class="c1"># template.rename(new_label)</span>
+            <span class="c1"># from xml.dom.minidom import parse, parseString, Element</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;File_Area_Browse&quot;</span><span class="p">):</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">parentNode</span><span class="o">.</span><span class="n">removeChild</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="s1">&#39;cal&#39;</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">new_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">calib</span><span class="o">=</span><span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">calib</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">new_lid</span><span class="o">=</span><span class="n">lidUpdate</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">new_label</span><span class="p">,</span><span class="n">calib</span><span class="o">=</span><span class="n">calib</span><span class="p">)</span>
+            <span class="n">creatTime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;modification_date&quot;</span><span class="p">,</span> <span class="n">creatTime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">file_version</span><span class="o">=</span><span class="n">new_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">file_version</span><span class="o">=</span><span class="n">file_version</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;version_id&quot;</span><span class="p">,</span><span class="n">file_version</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;version_id&quot;</span><span class="p">,</span><span class="n">file_version</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">updateXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;description&quot;</span><span class="p">,</span><span class="n">description</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">lvidUpdate</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">new_label</span><span class="p">,</span> <span class="n">file_version</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">savePreview</span><span class="p">(</span><span class="n">img_type</span><span class="o">=</span><span class="n">img_type</span><span class="p">,</span><span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span><span class="n">outFolder</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">)</span>
+            <span class="n">br</span><span class="o">=</span><span class="n">getElement</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="s2">&quot;Product_Browse&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="n">br</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+       
+            <span class="n">dom2</span> <span class="o">=</span> <span class="n">parseString</span><span class="p">(</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_label</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xmlFile</span><span class="p">:</span>
+                <span class="n">dom2</span><span class="o">.</span><span class="n">writexml</span><span class="p">(</span><span class="n">xmlFile</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_lid</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="n">file_version</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">savePreview</span><span class="p">(</span><span class="n">img_type</span><span class="o">=</span><span class="n">img_type</span><span class="p">,</span><span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span><span class="n">outFolder</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SimbioReader.image">
+<a class="viewcode-back" href="../../simbioreader.html#SimbioReader.SimbioReader.image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">im</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a PIL Image object representing the loaded image data.</span>
+
+<span class="sd">        This method returns a Pillow (PIL Fork) Image object containing the image data</span>
+<span class="sd">        loaded from the Simbio file. The image data is assumed to be a single-band</span>
+<span class="sd">        or multi-band array, depending on the channel type.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PIL Image object representing the loaded image data.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the loaded image data cannot be converted to a PIL Image</span>
+<span class="sd">            object due to unsupported data type or shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Romolo Politi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

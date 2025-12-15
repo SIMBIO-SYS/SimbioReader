@@ -175,7 +175,7 @@
 
 <div class="viewcode-block" id="gen_filename">
 <a class="viewcode-back" href="../../tools.html#SimbioReader.tools.gen_filename">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">gen_filename</span><span class="p">(</span><span class="n">old_filename</span><span class="p">:</span><span class="n">Path</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_filename</span><span class="p">(</span><span class="n">old_filename</span><span class="p">:</span><span class="n">Path</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Path</span><span class="p">:</span>
     <span class="n">new_filename</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">old_filename</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
     <span class="c1"># new_filename=new_filename.split(&#39;__&#39;)[0]</span>
     <span class="k">if</span> <span class="s1">&#39;raw&#39;</span> <span class="ow">in</span> <span class="n">new_filename</span><span class="p">:</span>
