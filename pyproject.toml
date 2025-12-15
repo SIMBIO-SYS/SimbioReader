@@ -19,6 +19,10 @@ readme = "README.md"
 
 keywords = ["data reader", "Space Mission", "BepiColombo", "SIMBIO-SYS"]
 classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Development Status :: 2 - Pre-Alpha",
     
 ]
@@ -32,7 +36,7 @@ Repository = "https://github.com/SIMBIO-SYS/SimbioReader"
 docs = ["sphinx"]
 
 [project.scripts]
-simbioReader = "SimbioReader.__main__:cli"
+simbioReader = "SimbioReader.cli:cli"
 simbioInfo = "SimbioReader.infocli:cli"
 
 

@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.6.0
+
+- new structure, one product for all filters
+
 ## 0.6.0-dev.2 
 
 - fix pyproject

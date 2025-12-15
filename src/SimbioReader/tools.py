@@ -87,7 +87,7 @@ def snake_case(text)->str:
                 text.replace('-', ' '))).split()).lower()
 
 
-def gen_filename(old_filename:Path)->str:
+def gen_filename(old_filename:Path)->Path:
     new_filename=copy.copy(old_filename.stem)
     # new_filename=new_filename.split('__')[0]
     if 'raw' in new_filename:

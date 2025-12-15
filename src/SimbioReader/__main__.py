@@ -496,7 +496,7 @@ class SimbioReader:
             dtype = np.int16
         elif self.data_stucture.data_type == "IEEE754LSBSingle":
             dtype = np.float32
-
+        
         if self.verbose:
             self.console.print(f"{MSG.INFO}Loading: {self.fileName}")
             if self.data_stucture.axes == 3:

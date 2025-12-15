@@ -1,2 +1,2 @@
-from SimbioReader.__main__ import SimbioReader, DataStructure, SubFrame, Detector, HK
-from SimbioReader.__main__ import __version__
+from SimbioReader.sr import SimbioReader, DataStructure, Data, Detector, HK
+from SimbioReader.sr import __version__
