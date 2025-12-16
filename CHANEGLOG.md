@@ -1,5 +1,11 @@
 # SimbioReader Changelog
 
+## 0.6.1
+
+- removed the log call
+- fixed differences between raw and cal product
+- fixed bugs in browse label
+
 ## 0.6.0
 
 - new structure, one product for all filters

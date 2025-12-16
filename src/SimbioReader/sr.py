@@ -1,22 +1,25 @@
+import hashlib
+from datetime import datetime
 from pathlib import Path
+from xml.dom.minidom import Document, Element, parse, parseString
+
 import numpy as np
-from PIL import Image as im
-from rich.console import Console
-from xml.dom.minidom import Element, parse
-from SimbioReader.tools import getElement, getValue, camel_case
-from dateutil import parser
 import pandas as pd
+from dateutil import parser
+from PIL import Image as im
+from rich.columns import Columns
+from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.columns import Columns
-from SimbioReader.constants import MSG,data_types
-from SimbioReader.filters_tools import Filter
+from update_checker import UpdateChecker
+
+from SimbioReader.constants import MSG, data_types
 from SimbioReader.exceptions import SizeError
-from SimbioReader.tools import gen_filename, lidUpdate, lvidUpdate, updateXML, pretty_print
-from datetime import datetime
-from xml.dom.minidom import parse, parseString, Element, Document
-import hashlib
+from SimbioReader.filters_tools import Filter
+from SimbioReader.tools import (camel_case, gen_filename, getElement, getValue,
+                                lidUpdate, lvidUpdate, pretty_print, updateXML)
 from SimbioReader.version import version
+
 __version__ = version.full()
 
 class Detector:
@@ -113,7 +116,7 @@ class DataStructure:
         self.md5 = getValue(fl,'md5_checksum')
         self.axes = int(getValue(dat,'axes'))
         self.band= None
-        if self.axes == 3 and channel != 'VIHI':
+        if self.axes == 3 and channel != 'vihi':
             raise ValueError("The number of axes is wrong for the channel")
         for i in range(self.axes):
             axis = getElement(dat,'Axis_Array',i)
@@ -256,17 +259,18 @@ class Target:
         return self.__str__()
 
 class SimbioObject:
-    def __init__(self, file_name: str, filter_name: str, channel: str,
-                 imaging: Element, geometry: Element,file_obs: Element, console: Console = None, debug:bool=False, verbose:bool=False):
+    def __init__(self, file_name: str,  channel: str,
+                 imaging: Element, geometry: Element,file_obs: Element, filter_name: str= None,console: Console = None, debug:bool=False, verbose:bool=False):
         if console is None:
             self.console = Console()
         else:
             self.console = console
-        self.file_name = file_name
+        self.file_name = Path(file_name)
         self.filter_name = filter_name
         self.channel = channel
         self.imaging = imaging
         self.geometry = geometry
+        self.debug=debug
         self.exposure_time = getValue(imaging, "img:exposure_duration")
         subFrame = getElement(imaging, "img:Subframe")
         self.firstLine = int(getValue(subFrame, 'img:first_line'))
@@ -279,7 +283,7 @@ class SimbioObject:
         self.samples=self.data_stucture.sample
         self.lines=self.data_stucture.line
         self.bands=self.data_stucture.band
-        if self.channel != 'VIHI':
+        if self.channel.upper() != 'VIHI':
             flt = getElement(imaging, 'img:Optical_Filter')
             self.filter=Filter(channel=self.channel,name=getValue(flt,'img:filter_name'))
         self.detector = Detector(imaging)
@@ -346,6 +350,10 @@ class SimbioObject:
         if img_type in ['png','tif']:
             data = im.fromarray(self.img)
             image_file= f"{outFolder}/{new_filename}.{img_type}"
+            if self.debug:
+                self.console.print(
+                    f"{MSG.DEBUG}Saving image {Path(image_file).name} with quality {quality}"
+                )
             if 'cal' in self.file_name.stem:
                 data.convert('RGB').save(image_file, quality=quality)
             else:
@@ -362,6 +370,7 @@ class SimbioObject:
                 fl.appendChild(fl_ct)
                 fl_fs=tree.createElement("file_size")
                 fl_fs.appendChild(tree.createTextNode(str(Path(image_file).stat().st_size)))
+                fl_fs.setAttribute("unit","byte")
                 fl.appendChild(fl_fs)
                 fl_md5=tree.createElement("md5_checksum")
                 fl_md5.appendChild(tree.createTextNode(hashlib.md5(
@@ -371,10 +380,10 @@ class SimbioObject:
 
 
 
-                enc_img=tree.createElement("Encoding_Image")
+                enc_img=tree.createElement("Encoded_Image")
                 enc_offset=tree.createElement("offset")
                 enc_offset.appendChild(tree.createTextNode("0"))
-                enc_offset.setAttribute("unit","bytes")
+                enc_offset.setAttribute("unit","byte")
                 enc_stid=tree.createElement("encoding_standard_id")
                 enc_stid.appendChild(tree.createTextNode("PNG"))
                 enc_img.appendChild(enc_offset)
@@ -406,9 +415,15 @@ class Data:
             self.console = Console()
         else:
             self.console = console
-        self.filters =[]
-        self.items_number = len(file_obs)
         self.channel = channel
+        if self.channel == 'vihi':
+            self.segments = []
+            self.seg_number=0
+        else:
+            self.filters =[]
+        
+        self.items_number = len(file_obs)
+        
         self.level = level
         for i, fo in enumerate(file_obs):
             file_name = source_path.joinpath(getValue(fo, "file_name"))
@@ -439,15 +454,24 @@ class Data:
                         )
                     pass
                 else:
-                    # qube /segments
+                    self.seg_number +=1
+                    self.segments.append(f"segment_{self.seg_number:03}")
+                    setattr(self, f"segment_{self.seg_number:03}", SimbioObject(file_name,channel=channel,imaging=imaging[i],geometry=geometry[i],file_obs=file_obs[i],console=self.console,debug=debug,verbose=verbose   ))
                     pass
     
     def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None,tree:Document=None)->str|None:
-        filter_prevs=[]
-        for item in self.filters:
-            disp=getattr(self,f'filter_{item.lower()}')
-            filter_prevs.append(disp.savePreview(img_type=img_type,quality=quality,outFolder=outFolder,tree=tree) )
-        return filter_prevs
+        if self.channel == 'vihi':
+            seg_prevs=[]
+            for item in self.segments:
+                disp=getattr(self,f'{item}')
+                seg_prevs.append(disp.savePreview(img_type=img_type,quality=quality,outFolder=outFolder,tree=tree) )
+            return seg_prevs
+        else:
+            filter_prevs=[]
+            for item in self.filters:
+                disp=getattr(self,f'filter_{item.lower()}')
+                filter_prevs.append(disp.savePreview(img_type=img_type,quality=quality,outFolder=outFolder,tree=tree) )
+            return filter_prevs
 
 
     def __str__(self):
@@ -459,14 +483,21 @@ class Data:
 
 class SimbioReader:
     def __init__(
-        self, file_path: Path, debug: bool = False, verbose: bool = False, console=None
+        self, file_path: Path, debug: bool = False, verbose: bool = False, console=None, updateCheck: bool = True
     ):
         # Initialize the SimbioReader with a file path and optional console for output
         self.pdsLabel: Path = None
+        self.debug=debug
         if console is None:
             self.console = Console()
         else:
             self.console = console
+        if updateCheck:
+            checker = UpdateChecker()
+            result = checker.check('SimbioReader', version.short())
+            if result:
+                # TODO: Check this part after the delivery on pypi.org
+                self.console.print(result)
 
         if debug:
             self.console.print(
@@ -511,8 +542,8 @@ class SimbioReader:
 
         obsArea = getElement(label, "Observation_Area")
         timeCoords = getElement(obsArea, "Time_Coordinates")
-        self.startTime = parser.parse(getValue(timeCoords, "start_date_time"))
-        self.stopTime = parser.parse(getValue(timeCoords, "stop_date_time"))
+        self.startTime = parser.parse(getValue(timeCoords, "start_date_time"),ignoretz=True)
+        self.stopTime = parser.parse(getValue(timeCoords, "stop_date_time"),ignoretz=True)
 
         self.start_scet = getValue(label, "psa:spacecraft_clock_start_count")
         self.stop_scet = getValue(label, "psa:spacecraft_clock_start_count")
@@ -573,12 +604,21 @@ class SimbioReader:
                 return lst[0]
         elif file_path.is_file():
             if not file_path.suffix == ".lblx":
-                self.console.print(
-                    f"{MSG.ERROR}The file {file_path} does not have a .lblx extension."
-                )
-                parts = file_path.stem.split("_")
-                pdsLabel = f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
-                return file_path.parent.joinpath(pdsLabel)
+                if self.debug:
+                    self.console.print(
+                        f"{MSG.WARNING}The file {file_path} does not have a .lblx extension."
+                    )
+                if "_cal_" in file_path.stem:
+
+                    parts = file_path.stem.split("_")
+                    if len(parts) == 12:
+                        pdsLabel = f"{('_').join(parts[:-4])}__{'_'.join(parts[-2:])}.lblx"
+                    else:
+                        pdsLabel = f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
+                    return file_path.parent.joinpath(pdsLabel)
+                else:
+                    if file_path.with_suffix('.lblx').exists():
+                        return file_path.with_suffix('.lblx')
             else:
                 return file_path
 
@@ -633,6 +673,24 @@ class SimbioReader:
             self.console.print(f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}.") 
 
         return None
+    
+    def get_filter_by_file(self,file_name:Path)->SimbioObject|None:
+        if isinstance(file_name,str):
+            file_name=Path(file_name)
+        for item in self.data.filters:
+            disp=getattr(self.data,f'filter_{item.lower()}')
+            if disp.file_name.name == file_name.name:
+                return disp
+        return None
+    
+    def get_segment_by_file(self,file_name:Path)->SimbioObject|None:
+        if isinstance(file_name,str):
+            file_name=Path(file_name)
+        for item in self.data.segments:
+            disp=getattr(self.data,f'{item}')
+            if disp.file_name.name == file_name.name:
+                return disp
+        return None
 
 
 
@@ -651,6 +709,10 @@ class SimbioReader:
             ValueError: If the provided image format is not supported.
             TypeError: If the `out_folder` argument is not a `Path` object.
         """
+        if self.debug:
+            self.console.print(
+                f"{MSG.DEBUG}Saving preview image with type: {img_type}, for {self.pdsLabel.name}"
+            )
         if template:
             img_type = 'png'
         if outFolder is None:
@@ -661,7 +723,9 @@ class SimbioReader:
             dest=outFolder
             if dest.exists() is False:
                 dest.mkdir(parents=True, exist_ok=True)
-        ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest)
+        # ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest)
+        if 'vihi' in self.channel:
+            self.console.print('VIHI')
         if template:
             if not isinstance(template,Path):
                     template = Path(template)
