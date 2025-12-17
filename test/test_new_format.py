@@ -71,8 +71,8 @@ def test_simbio_reader_init_datamodel_version():
 def test_simbio_reader_init_start_stop_time():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_001/sim_cal_sc_stc_cruise_ico11_2024-04-08_001__0_1.lblx")
     reader = SimbioReader(file_path=file_path)
-    assert reader.startTime.isoformat() == "2024-04-08T01:05:18.055390+00:00"
-    assert reader.stopTime.isoformat() == "2024-04-08T01:05:18.055390+00:00"
+    assert reader.startTime.isoformat() == "2024-04-08T01:05:18.055390"
+    assert reader.stopTime.isoformat() == "2024-04-08T01:05:18.055390"
 
 def test_simbio_reader_init_start_stop_scet():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_001/sim_cal_sc_stc_cruise_ico11_2024-04-08_001__0_1.lblx")
