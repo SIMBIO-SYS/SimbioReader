@@ -1,7 +1,6 @@
 ![Version 0.6.1](https://img.shields.io/badge/version-0.6.1-blue?style=plastic)
 ![Language Python 3.13](https://img.shields.io/badge/python-3.13-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
-[![Upload Python Package](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/python-publish.yml)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/simbioreader/badge/?version=latest)](https://simbioreader.readthedocs.io/en/latest/?badge=latest)
 
@@ -18,6 +17,12 @@ To install the reader you can use the command:
 
 ```console
 $ python3 -m pip install SimbioReader
+```
+
+or using poetry
+
+```console
+$ poetry add SimbioReader
 ```
 
 ## Usage

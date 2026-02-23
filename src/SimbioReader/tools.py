@@ -4,23 +4,36 @@ from pathlib import Path
 import copy
 
 def getValue(nodeList: md.Element, label: str) -> str:
-    """Get the value from a tag
-    
+    """Extracts and returns the text content of the first matching XML element.
+    This function searches for an XML element with the specified tag name within
+    a given node list and returns the text data of the first matching element's
+    first child node.
     Args:
-        nodelist: The xml block to evaluate
-    
+        nodeList (md.Element): The parent XML element to search within.
+        label (str): The tag name of the XML element to retrieve.
     Returns:
-         The value of the tag
-
+        str: The text content of the first matching element's first child node.
+    Raises:
+        IndexError: If no element with the specified label is found.
+        AttributeError: If the found element has no firstChild or the firstChild
+            has no data attribute.
+    Example:
+        >>> import xml.dom.minidom as md
+        >>> xml_string = '<root><name>John Doe</name><age>30</age></root>'
+        >>> doc = md.parseString(xml_string)
+        >>> root = doc.documentElement
+        >>> getValue(root, 'name')
+        'John Doe'
+        >>> getValue(root, 'age')
+        '30'
     """
-    # for item in nodeList:
-    #     print(item)
+    
     elem = nodeList.getElementsByTagName(label)
     return elem[0].firstChild.data
-    # return item
+    
 
 
-def getElement(doc, label, el=0) -> md.Element:
+def getElement(doc:md.Document, label:str, el:int=0) -> md.Element:
     """Get a Block of a dom
     
     Args:

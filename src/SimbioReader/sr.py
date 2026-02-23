@@ -780,4 +780,10 @@ class SimbioReader:
         """
         data = im.fromarray(self.img)
         return data
+    
+    def __str__(self) -> str:
+        return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"
+    
+    def __repr__(self) -> str:
+        return self.__str__()
 

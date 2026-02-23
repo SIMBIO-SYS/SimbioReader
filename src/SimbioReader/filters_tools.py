@@ -15,11 +15,13 @@ class Filter:
             raise ValueError("Invalid channel.")
         itm = [elem for elem in flt.values() if elem['name']==name]
         if len(itm)==0:
-            raise ValueError("No filters found.")
+            itm=[elem for elem in flt.values() if elem['id']=='CUST-0']
+            # raise ValueError("No filters found.")
         elif len(itm)>1:
-            raise ValueError("Multiple filters found. Please provide a detailed filter name.")
-        elif len(itm)==1:
-            itm=itm[0]
+            pass
+            # raise ValueError("Multiple filters found. Please provide a detailed filter name.")
+        # elif len(itm)==1:
+        itm=itm[0]
   
         for key, value in itm.items():
             setattr(self, key, value)      

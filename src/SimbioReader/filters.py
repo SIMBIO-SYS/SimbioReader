@@ -139,7 +139,19 @@ hricFilters={
     "cust0":{
         "name"         : "PAN-L - custom",
         "desc"         : "Fraction of the CCD used by the PAN-L filter",
-        "id"           : "L_P700",
+        "id"           : "CUST-0",
+        "bandwidth"    : "204.3",
+        "centerFilter" : "699.5",
+        "interframeDel": "0.8",
+        "fistLine"     : "1227",
+        "firstSample"  : "576",
+        "line"         : "384",
+        "sample"       : "896"
+    },
+        "cust1":{
+        "name"         : "PAN-L - custom",
+        "desc"         : "Fraction of the CCD used by the PAN-L filter",
+        "id"           : "CUST-1",
         "bandwidth"    : "204.3",
         "centerFilter" : "699.5",
         "interframeDel": "0.8",

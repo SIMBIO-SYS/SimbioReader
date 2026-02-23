@@ -44,7 +44,7 @@ class Phase:
                 dt = parse(dt,ignoretz=True)
             phase_data = self._find_phase_by_date(dt)
             if not phase_data:
-                raise ValueError("No phase found for the given date.")
+                raise ValueError(f"No phase found for the given date. (dt: {dt})")
         else:
             raise ValueError("You must provide a phase name or a date.")
         
