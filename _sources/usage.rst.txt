@@ -11,6 +11,12 @@ To install the reader you can use the command:
 
     pip install SimbioReader
 
+or using poetry:
+
+.. code-block:: bash
+
+    poetry add SimbioReader
+
 Usage
 -----
 
