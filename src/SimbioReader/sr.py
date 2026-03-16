@@ -12,15 +12,30 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from update_checker import UpdateChecker
+from PIL import Image as im
 
 from SimbioReader.constants import MSG, data_types
 from SimbioReader.exceptions import SizeError
 from SimbioReader.filters_tools import Filter
-from SimbioReader.tools import (camel_case, gen_filename, getElement, getValue,
-                                lidUpdate, lvidUpdate, pretty_print, updateXML)
-from SimbioReader.version import version
+from mystrtools import convert_case
+from SimbioReader.tools import (
+    gen_filename,
+    getElement,
+    getValue,
+    lidUpdate,
+    lvidUpdate,
+    pretty_print,
+    updateXML,
+)
+
+# from SimbioReader.version import version
+from importlib.metadata import version as get_version
+from semantic_version_tools import Vers
+
+version = Vers(get_version("SimbioReader"))
 
 __version__ = version.full()
+
 
 class Detector:
     """
@@ -37,16 +52,16 @@ class Detector:
         first_sample (int): The first sample number of the detector.
         lines (int): The number of lines in the detector.
     """
-    def __init__(self,dat:Element) -> None:
-        detector = getElement(dat, 'img:Subframe')
-        self.first_line = int(getValue(detector,'img:first_line'))
-        self.first_sample = int(getValue(detector,'img:first_sample'))
-        self.lines = int(getValue(detector,'img:lines'))
-        self.samples = int(getValue(detector,'img:samples'))
-        self.line_fov = float(getValue(detector,'img:line_fov'))
-        self.sample_fov = float(getValue(detector,'img:sample_fov'))
 
-    
+    def __init__(self, dat: Element) -> None:
+        detector = getElement(dat, "img:Subframe")
+        self.first_line = int(getValue(detector, "img:first_line"))
+        self.first_sample = int(getValue(detector, "img:first_sample"))
+        self.lines = int(getValue(detector, "img:lines"))
+        self.samples = int(getValue(detector, "img:samples"))
+        self.line_fov = float(getValue(detector, "img:line_fov"))
+        self.sample_fov = float(getValue(detector, "img:sample_fov"))
+
     def __str__(self) -> str:
         """
         Returns a string representation of the Detector object.
@@ -55,7 +70,7 @@ class Detector:
             str: A string representation of the Detector object.
         """
         return f"Detector object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation of the Detector object for debugging.
@@ -64,34 +79,34 @@ class Detector:
             str: A string representation of the Detector object.
         """
         return self.__str__()
-    
-    def show(self)-> Panel:
+
+    def show(self, title="Detector") -> Panel:
         """
         Displays the detector information in a formatted table.
 
         Returns:
             Panel: A Panel object containing the formatted detector information.
         """
-        sep=' = '
-        dt=Table.grid()
-        dt.add_column(style='yellow',justify='right')
+        sep = " = "
+        dt = Table.grid()
+        dt.add_column(style="yellow", justify="right")
         dt.add_column()
-        dt.add_column(style='cyan',justify='left')
-        dt.add_row('First Line',sep,str(self.first_line))
-        dt.add_row('First Sample',sep,str(self.first_sample))
-        dt.add_row('Lines',sep,str(self.lines))
-        dt.add_row('Samples',sep,str(self.samples))
-        dt.add_row('Line FOV',sep,str(self.line_fov))
-        dt.add_row('Sample FOV',sep,str(self.sample_fov))
-        return Panel(dt,title='Detector',border_style='yellow',expand=False)
- 
+        dt.add_column(style="cyan", justify="left")
+        dt.add_row("First Line", sep, str(self.first_line))
+        dt.add_row("First Sample", sep, str(self.first_sample))
+        dt.add_row("Lines", sep, str(self.lines))
+        dt.add_row("Samples", sep, str(self.samples))
+        dt.add_row("Line FOV", sep, str(self.line_fov))
+        dt.add_row("Sample FOV", sep, str(self.sample_fov))
+        return Panel(dt, title=title, border_style="yellow", expand=False)
+
 
 class DataStructure:
     """
     A class representing the data structure of a SIMBIO-SYS file.
 
-    This class extracts and initializes various attributes related to the data 
-    structure of a SIMBIO-SYS file, such as creation time, file size, and axes 
+    This class extracts and initializes various attributes related to the data
+    structure of a SIMBIO-SYS file, such as creation time, file size, and axes
     configuration, based on an XML Element.
 
     Args:
@@ -107,30 +122,33 @@ class DataStructure:
         data_type (str): The type of data (e.g., 'UnsignedLSB2', 'IEEE754LSBSingle').
 
     """
-    
-    def __init__(self, dat:Element, channel:str):
+
+    def __init__(self, dat: Element, channel: str):
         # fao=getElement(dat,'File_Area_Observational')
-        fl=getElement(dat,'File')
-        self.creation_time = parser.parse(getValue(fl,'creation_date_time'))
-        self.file_size = int(getValue(fl,'file_size'))
-        self.md5 = getValue(fl,'md5_checksum')
-        self.axes = int(getValue(dat,'axes'))
-        self.band= None
-        if self.axes == 3 and channel != 'vihi':
+        fl = getElement(dat, "File")
+        self.creation_time = parser.parse(getValue(fl, "creation_date_time"))
+        self.file_size = int(getValue(fl, "file_size"))
+        self.md5 = getValue(fl, "md5_checksum")
+        self.axes = int(getValue(dat, "axes"))
+        self.band = None
+        if self.axes == 3 and channel != "vihi":
             raise ValueError("The number of axes is wrong for the channel")
         for i in range(self.axes):
-            axis = getElement(dat,'Axis_Array',i)
-            setattr(self,getValue(axis,'axis_name').lower(),int(getValue(axis,'elements')))
+            axis = getElement(dat, "Axis_Array", i)
+            setattr(
+                self,
+                getValue(axis, "axis_name").lower(),
+                int(getValue(axis, "elements")),
+            )
         if self.axes == 3:
-            dat=getElement(dat,'Array_3D_Spectrum')
+            dat = getElement(dat, "Array_3D_Spectrum")
         elif self.axes == 2:
-            dat=getElement(dat,'Array_2D_Image')
-        self.data_type = getValue(dat,'data_type')
+            dat = getElement(dat, "Array_2D_Image")
+        self.data_type = getValue(dat, "data_type")
         if self.band is None:
             self.band = 1
-        
-        
-    def __str__(self)->str:
+
+    def __str__(self) -> str:
         """
         Returns a string representation of the Datastructure.
 
@@ -138,7 +156,7 @@ class DataStructure:
             str: A string in the format 'DataStructure Object'.
         """
         return f"DataStructure object"
-    
+
     def __repr__(self) -> str:
         """
         Returns a string representation for debugging purposes.
@@ -147,27 +165,27 @@ class DataStructure:
             str: A string in the format 'DataStructure Object'.
         """
         return self.__str__()
-    
-    def show(self):
+
+    def show(self, title="Data Structure") -> Panel:
         """
         Displays the data structure information in a formatted table.
 
         Returns:
             Panel: A rich Panel object containing the formatted table of data structure information.
         """
-        sep=' = '
-        dt=Table.grid()
-        dt.add_column(style='yellow',justify='right')
+        sep = " = "
+        dt = Table.grid()
+        dt.add_column(style="yellow", justify="right")
         dt.add_column()
-        dt.add_column(style='cyan',justify='left')
+        dt.add_column(style="cyan", justify="left")
         for item in self.__dict__:
-            dt.add_row(item,sep,str(self.__dict__[item]))
+            dt.add_row(item, sep, str(self.__dict__[item]))
         # dt.add_row('Creation Time',sep,datetime.strftime(self.creation_time,"%Y-%m-%d"))
         # dt.add_row('File Size',sep,str(self.file_size))
         # dt.add_row('MD5 Checksum',sep,self.md5)
         # dt.add_row('Axes',sep,str(self.axes))
-        return Panel(dt,title='Data Structure',border_style='yellow',expand=False)
-        
+        return Panel(dt, title=title, border_style="yellow", expand=False)
+
 
 class HK:
     """
@@ -212,7 +230,7 @@ class HK:
         dt.add_column(style="cyan", justify="left")
         for i in self.df.columns:
             dt.add_row(
-                " ".join(i.split("_")).title(), sep, f"{self.df[i].values[0]}".strip()
+                convert_case(i,"space").title(), sep, f"{self.df[i].values[0]}".strip()
             )
         return Panel(dt, title="HouseKeeping", border_style="yellow", expand=False)
 
@@ -258,75 +276,99 @@ class Target:
     def __repr__(self):
         return self.__str__()
 
+
 class SimbioObject:
-    def __init__(self, file_name: str,  channel: str,
-                 imaging: Element, geometry: Element,file_obs: Element, filter_name: str= None,console: Console = None, debug:bool=False, verbose:bool=False):
-        if console is None:
-            self.console = Console()
-        else:
-            self.console = console
+    def __init__(
+        self,
+        file_name: str,
+        channel: str,
+        imaging: Element,
+        geometry: Element,
+        file_obs: Element,
+        filter_name: Path | str | None = None,
+        console: Console= Console(),
+        debug: bool = False,
+        verbose: bool = False,
+    ):
+        self.console = console
         self.file_name = Path(file_name)
         self.filter_name = filter_name
         self.channel = channel
         self.imaging = imaging
         self.geometry = geometry
-        self.debug=debug
+        self.debug = debug
         self.exposure_time = getValue(imaging, "img:exposure_duration")
         subFrame = getElement(imaging, "img:Subframe")
-        self.firstLine = int(getValue(subFrame, 'img:first_line'))
-        self.firstSample = int(getValue(subFrame, 'img:first_sample'))
-        self.lines = int(getValue(subFrame, 'img:lines'))
-        self.samples = int(getValue(subFrame, 'img:samples'))
-        self.lineFov = float(getValue(subFrame, 'img:line_fov'))
-        self.sampleFov = float(getValue(subFrame, 'img:sample_fov'))
-        self.data_stucture = DataStructure(file_obs, self.channel)
-        self.samples=self.data_stucture.sample
-        self.lines=self.data_stucture.line
-        self.bands=self.data_stucture.band
-        if self.channel.upper() != 'VIHI':
-            flt = getElement(imaging, 'img:Optical_Filter')
-            self.filter=Filter(channel=self.channel,name=getValue(flt,'img:filter_name'))
+        self.firstLine = int(getValue(subFrame, "img:first_line"))
+        self.firstSample = int(getValue(subFrame, "img:first_sample"))
+        self.lines = int(getValue(subFrame, "img:lines"))
+        self.samples = int(getValue(subFrame, "img:samples"))
+        self.lineFov = float(getValue(subFrame, "img:line_fov"))
+        self.sampleFov = float(getValue(subFrame, "img:sample_fov"))
+        self.data_structure = DataStructure(file_obs, self.channel)
+        self.samples = self.data_structure.sample
+        self.lines = self.data_structure.line
+        self.bands = self.data_structure.band
+        if self.channel.upper() != "VIHI":
+            flt = getElement(imaging, "img:Optical_Filter")
+            self.filter = Filter(
+                channel=self.channel, name=getValue(flt, "img:filter_name")
+            )
         self.detector = Detector(imaging)
-        if self.data_stucture.data_type == "UnsignedLSB2":
+        if self.data_structure.data_type == "UnsignedLSB2":
             dtype = np.int16
-        elif self.data_stucture.data_type == "IEEE754LSBSingle":
+        elif self.data_structure.data_type == "IEEE754LSBSingle":
             dtype = np.float32
-        
+
         if verbose:
             console.print(f"{MSG.INFO}Loading: {self.file_name}")
-            if self.data_stucture.axes == 3:
-                console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}")
-                imgSize = self.samples*self.lines*self.bands*data_types[self.data_stucture.data_type]['bits']
+            if self.data_structure.axes == 3:
+                console.print(
+                    f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}"
+                )
+                imgSize = (
+                    self.samples
+                    * self.lines
+                    * self.bands
+                    * data_types[self.data_structure.data_type]["bits"]
+                )
             else:
                 console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}")
-                imgSize = self.samples*self.lines*data_types[self.data_stucture.data_type]['bits']
-            
-            console.print(f"{MSG.INFO}File size: {self.file_name.stat().st_size*8}")
-            console.print(
-                f"{MSG.INFO}Computed File Size: {imgSize}")
-            if self.file_name.stat().st_size*8 != imgSize:
-                raise SizeError(self.file_name.stat().st_size *
-                                8,imgSize)
-        #print(img_data['samples'],img_data['lines'],img_data['bands'])
-        if self.data_stucture.axes == 3:
-            self.img = np.fromfile(self.file_name, dtype=dtype,
-                               count=self.samples*self.lines*self.bands)
+                imgSize = (
+                    self.samples
+                    * self.lines
+                    * data_types[self.data_structure.data_type]["bits"]
+                )
+
+            console.print(f"{MSG.INFO}File size: {self.file_name.stat().st_size * 8}")
+            console.print(f"{MSG.INFO}Computed File Size: {imgSize}")
+            if self.file_name.stat().st_size * 8 != imgSize:
+                raise SizeError(self.file_name.stat().st_size * 8, imgSize)
+        # print(img_data['samples'],img_data['lines'],img_data['bands'])
+        if self.data_structure.axes == 3:
+            self.img = np.fromfile(
+                self.file_name,
+                dtype=dtype,
+                count=self.samples * self.lines * self.bands,
+            )
         else:
-            self.img = np.fromfile(self.file_name, dtype=dtype,
-                                   count=self.samples*self.lines)
-        if self.data_stucture.axes == 3: 
-            if self.lines==1:
-                self.img.shape = ( self.samples,self.bands)
+            self.img = np.fromfile(
+                self.file_name, dtype=dtype, count=self.samples * self.lines
+            )
+        if self.data_structure.axes == 3:
+            if self.lines == 1:
+                self.img.shape = (self.samples, self.bands)
             else:
-                self.img.shape = (self.lines,self.samples, self.bands )
+                self.img.shape = (self.lines, self.samples, self.bands)
         else:
             self.img.shape = (self.samples, self.lines)
         if verbose:
-            self.console.print(f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}")
+            self.console.print(
+                f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}"
+            )
             # print(f"Size of the old image array: {self.img.size}")
 
-
-    def show(self)->Panel:
+    def show(self) -> Panel:
         sep = " =  "
         tb = Table.grid()
         tb.add_column(style="yellow", justify="right")
@@ -336,68 +378,91 @@ class SimbioObject:
         tb.add_row("Filter Name", sep, self.filter_name)
         tb.add_row("Channel", sep, self.channel.upper())
         tb.add_row("Exposure Time (s)", sep, str(self.exposure_time))
-        pl=Panel(tb, title="Simbio Filter General Info", border_style="cyan", expand=False)
-        return Panel(Columns([pl,self.filter.show(),self.data_stucture.show(),self.detector.show()]), title=f"Filter {self.filter_name.upper()} Info", border_style="magenta", expand=False)        
+        pl = Panel(
+            tb, title="Simbio Filter General Info", border_style="cyan", expand=False
+        )
+        return Panel(
+            Columns(
+                [
+                    pl,
+                    self.filter.show(),
+                    self.data_structure.show(),
+                    self.detector.show(),
+                ]
+            ),
+            title=f"Filter {self.filter_name.upper()} Info",
+            border_style="magenta",
+            expand=False,
+        )
 
     def __str__(self):
         return f"Filter(name={self.filter_name})"
 
     def __repr__(self):
         return self.__str__()
-    
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None, tree:Document=None)->str|None:
-        new_filename=gen_filename(self.file_name)
-        if img_type in ['png','tif']:
+
+    def savePreview(
+        self,
+        img_type: str = "png",
+        quality: int = 100,
+        outFolder: Path = None,
+        tree: Document = None,
+    ) -> str | None:
+        new_filename = gen_filename(self.file_name)
+        if img_type in ["png", "tif"]:
             data = im.fromarray(self.img)
-            image_file= f"{outFolder}/{new_filename}.{img_type}"
+            image_file = f"{outFolder}/{new_filename}.{img_type}"
             if self.debug:
                 self.console.print(
                     f"{MSG.DEBUG}Saving image {Path(image_file).name} with quality {quality}"
                 )
-            if 'cal' in self.file_name.stem:
-                data.convert('RGB').save(image_file, quality=quality)
+            if "cal" in self.file_name.stem:
+                data.convert("RGB").save(image_file, quality=quality)
             else:
                 data.save(image_file, quality=quality)
             if tree:
-                fab=tree.createElement("File_Area_Browse")
-                fl=tree.createElement("File")
-                fln=tree.createElement("file_name")
+                fab = tree.createElement("File_Area_Browse")
+                fl = tree.createElement("File")
+                fln = tree.createElement("file_name")
                 fln.appendChild(tree.createTextNode(f"{new_filename}.{img_type}"))
                 fl.appendChild(fln)
-                fl_ct=tree.createElement("creation_date_time")
-                creatTime=datetime.now()
+                fl_ct = tree.createElement("creation_date_time")
+                creatTime = datetime.now()
                 fl_ct.appendChild(tree.createTextNode(creatTime.strftime("%Y-%m-%d")))
                 fl.appendChild(fl_ct)
-                fl_fs=tree.createElement("file_size")
-                fl_fs.appendChild(tree.createTextNode(str(Path(image_file).stat().st_size)))
-                fl_fs.setAttribute("unit","byte")
+                fl_fs = tree.createElement("file_size")
+                fl_fs.appendChild(
+                    tree.createTextNode(str(Path(image_file).stat().st_size))
+                )
+                fl_fs.setAttribute("unit", "byte")
                 fl.appendChild(fl_fs)
-                fl_md5=tree.createElement("md5_checksum")
-                fl_md5.appendChild(tree.createTextNode(hashlib.md5(
-                    open(image_file, 'rb').read()).hexdigest()))
+                fl_md5 = tree.createElement("md5_checksum")
+                fl_md5.appendChild(
+                    tree.createTextNode(
+                        hashlib.md5(open(image_file, "rb").read()).hexdigest()
+                    )
+                )
                 fl.appendChild(fl_md5)
                 fab.appendChild(fl)
 
-
-
-                enc_img=tree.createElement("Encoded_Image")
-                enc_offset=tree.createElement("offset")
+                enc_img = tree.createElement("Encoded_Image")
+                enc_offset = tree.createElement("offset")
                 enc_offset.appendChild(tree.createTextNode("0"))
-                enc_offset.setAttribute("unit","byte")
-                enc_stid=tree.createElement("encoding_standard_id")
+                enc_offset.setAttribute("unit", "byte")
+                enc_stid = tree.createElement("encoding_standard_id")
                 enc_stid.appendChild(tree.createTextNode("PNG"))
                 enc_img.appendChild(enc_offset)
                 enc_img.appendChild(enc_stid)
 
                 fab.appendChild(enc_img)
                 return fab
-        elif img_type == 'jpg':
-            data = im.fromarray(self.img,mode='L')
+        elif img_type == "jpg":
+            data = im.fromarray(self.img, mode="L")
             # print(data.getpixel((50,50)))
-            data.save(f"{outFolder}/{new_filename}.{img_type}",
-                      quality=quality)
+            data.save(f"{outFolder}/{new_filename}.{img_type}", quality=quality)
         # print(self.img[0,0])
-    
+
+
 class Data:
     def __init__(
         self,
@@ -416,63 +481,104 @@ class Data:
         else:
             self.console = console
         self.channel = channel
-        if self.channel == 'vihi':
+        if self.channel == "vihi":
             self.segments = []
-            self.seg_number=0
+            self.seg_number = 0
         else:
-            self.filters =[]
-        
+            self.filters = []
+
         self.items_number = len(file_obs)
-        
+
         self.level = level
         for i, fo in enumerate(file_obs):
             file_name = source_path.joinpath(getValue(fo, "file_name"))
             if verbose or debug:
                 self.console.print(
-                    f"{MSG.INFO}Processing file {i+1}/{self.items_number}: {file_name.name}"
+                    f"{MSG.INFO}Processing file {i + 1}/{self.items_number}: {file_name.name}"
                 )
             if not file_name.exists():
                 raise FileNotFoundError(f"The data file {file_name} does not exist.")
             if file_name.suffix.lower() == ".csv":
-
                 # read CSV file
                 if verbose or debug:
-                    self.console.print(
-                        f"{MSG.INFO}Reading CSV file: {file_name}"
-                    )
+                    self.console.print(f"{MSG.INFO}Reading CSV file: {file_name}")
                 df = pd.read_csv(file_name, sep=",", header=0)
                 self.hk = HK(df)
             elif file_name.suffix.lower() in [".qub", ".dat"]:
                 if channel in ["stc", "hric"]:
                     filter = getValue(imaging[i], "img:filter_name")
                     self.filters.append(filter.lower())
-                    setattr(self, f"filter_{filter.lower()}", SimbioObject(file_name,filter_name=filter,channel=channel,imaging=imaging[i],geometry=geometry[i],file_obs=file_obs[i],console=self.console,debug=debug,verbose=verbose   ))
+                    setattr(
+                        self,
+                        f"filter_{filter.lower()}",
+                        SimbioObject(
+                            file_name,
+                            filter_name=filter,
+                            channel=channel,
+                            imaging=imaging[i],
+                            geometry=geometry[i],
+                            file_obs=file_obs[i],
+                            console=self.console,
+                            debug=debug,
+                            verbose=verbose,
+                        ),
+                    )
 
                     if debug:
-                        self.console.print(
-                            f"{MSG.DEBUG}Found filter: {filter}"
-                        )
+                        self.console.print(f"{MSG.DEBUG}Found filter: {filter}")
                     pass
                 else:
-                    self.seg_number +=1
+                    self.seg_number += 1
                     self.segments.append(f"segment_{self.seg_number:03}")
-                    setattr(self, f"segment_{self.seg_number:03}", SimbioObject(file_name,channel=channel,imaging=imaging[i],geometry=geometry[i],file_obs=file_obs[i],console=self.console,debug=debug,verbose=verbose   ))
+                    setattr(
+                        self,
+                        f"segment_{self.seg_number:03}",
+                        SimbioObject(
+                            file_name,
+                            channel=channel,
+                            imaging=imaging[i],
+                            geometry=geometry[i],
+                            file_obs=file_obs[i],
+                            console=self.console,
+                            debug=debug,
+                            verbose=verbose,
+                        ),
+                    )
                     pass
-    
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None,tree:Document=None)->str|None:
-        if self.channel == 'vihi':
-            seg_prevs=[]
+
+    def savePreview(
+        self,
+        img_type: str = "png",
+        quality: int = 100,
+        outFolder: Path = None,
+        tree: Document = None,
+    ) -> str | None:
+        if self.channel == "vihi":
+            seg_prevs = []
             for item in self.segments:
-                disp=getattr(self,f'{item}')
-                seg_prevs.append(disp.savePreview(img_type=img_type,quality=quality,outFolder=outFolder,tree=tree) )
+                disp = getattr(self, f"{item}")
+                seg_prevs.append(
+                    disp.savePreview(
+                        img_type=img_type,
+                        quality=quality,
+                        outFolder=outFolder,
+                        tree=tree,
+                    )
+                )
             return seg_prevs
         else:
-            filter_prevs=[]
+            filter_prevs = []
             for item in self.filters:
-                disp=getattr(self,f'filter_{item.lower()}')
-                filter_prevs.append(disp.savePreview(img_type=img_type,quality=quality,outFolder=outFolder,tree=tree) )
+                disp = getattr(self, f"filter_{item.lower()}")
+                filter_prevs.append(
+                    disp.savePreview(
+                        img_type=img_type,
+                        quality=quality,
+                        outFolder=outFolder,
+                        tree=tree,
+                    )
+                )
             return filter_prevs
-
 
     def __str__(self):
         return f"Data(channel={self.channel}, level={self.level}, items_number={self.items_number})"
@@ -483,18 +589,23 @@ class Data:
 
 class SimbioReader:
     def __init__(
-        self, file_path: Path, debug: bool = False, verbose: bool = False, console=None, updateCheck: bool = True
+        self,
+        file_path: Path,
+        debug: bool = False,
+        verbose: bool = False,
+        console=None,
+        updateCheck: bool = True,
     ):
         # Initialize the SimbioReader with a file path and optional console for output
-        self.pdsLabel: Path = None
-        self.debug=debug
+        self.pdsLabel: Path | None = None
+        self.debug = debug
         if console is None:
             self.console = Console()
         else:
             self.console = console
         if updateCheck:
             checker = UpdateChecker()
-            result = checker.check('SimbioReader', version.short())
+            result = checker.check("SimbioReader", version.short())
             if result:
                 # TODO: Check this part after the delivery on pypi.org
                 self.console.print(result)
@@ -506,22 +617,18 @@ class SimbioReader:
         # Check the filename extension
         if isinstance(file_path, str):
             file_path = Path(file_path)
-            
+
         self.pdsLabel = self.label_name(file_path)
 
         # check if the file exists
         if debug:
-            self.console.print(
-                f"{MSG.DEBUG}Checking if file exists: {self.pdsLabel}"
-            )
+            self.console.print(f"{MSG.DEBUG}Checking if file exists: {self.pdsLabel}")
         if self.pdsLabel is None or not self.pdsLabel.exists():
             # self.console.print(f"[red]Error:[/red] The file {self.pdsLabel} does not exist.")
             raise FileNotFoundError(f"The file {self.pdsLabel} does not exist.")
 
         if verbose or debug:
-            self.console.print(
-                f"{MSG.INFO}Reading PDS label file: {self.pdsLabel}"
-            )
+            self.console.print(f"{MSG.INFO}Reading PDS label file: {self.pdsLabel}")
         label = parse(self.pdsLabel.as_posix())
         self.channel = getValue(label, "psa:identifier").lower()
         if self.channel not in ["stc", "hric", "vihi"]:
@@ -531,8 +638,8 @@ class SimbioReader:
         self.version = getValue(label, "version_id")
         self.title = getValue(label, "title")
         self.dataModelVersion = getValue(label, "information_model_version")
-        mission_phase=getElement(label,"psa:Mission_Phase")
-        self.phaseName = getValue(mission_phase, 'psa:name')
+        mission_phase = getElement(label, "psa:Mission_Phase")
+        self.phaseName = getValue(mission_phase, "psa:name")
         if debug:
             self.console.print(
                 f"{MSG.DEBUG}Initialized SimbioReader with channel: {self.title}, version: {self.level}, Datamodel: {self.dataModelVersion}"
@@ -542,8 +649,12 @@ class SimbioReader:
 
         obsArea = getElement(label, "Observation_Area")
         timeCoords = getElement(obsArea, "Time_Coordinates")
-        self.startTime = parser.parse(getValue(timeCoords, "start_date_time"),ignoretz=True)
-        self.stopTime = parser.parse(getValue(timeCoords, "stop_date_time"),ignoretz=True)
+        self.startTime = parser.parse(
+            getValue(timeCoords, "start_date_time"), ignoretz=True
+        )
+        self.stopTime = parser.parse(
+            getValue(timeCoords, "stop_date_time"), ignoretz=True
+        )
 
         self.start_scet = getValue(label, "psa:spacecraft_clock_start_count")
         self.stop_scet = getValue(label, "psa:spacecraft_clock_start_count")
@@ -609,26 +720,53 @@ class SimbioReader:
                         f"{MSG.WARNING}The file {file_path} does not have a .lblx extension."
                     )
                 if "_cal_" in file_path.stem:
-
                     parts = file_path.stem.split("_")
                     if len(parts) == 12:
-                        pdsLabel = f"{('_').join(parts[:-4])}__{'_'.join(parts[-2:])}.lblx"
+                        pdsLabel = (
+                            f"{('_').join(parts[:-4])}__{'_'.join(parts[-2:])}.lblx"
+                        )
                     else:
-                        pdsLabel = f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
+                        pdsLabel = (
+                            f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
+                        )
                     return file_path.parent.joinpath(pdsLabel)
                 else:
-                    if file_path.with_suffix('.lblx').exists():
-                        return file_path.with_suffix('.lblx')
+                    if file_path.with_suffix(".lblx").exists():
+                        return file_path.with_suffix(".lblx")
             else:
                 return file_path
 
-    def __str__(self) -> str:
-        return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"
+    
+    def show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, filters:bool=False, all_info:bool=False) -> Panel:
+        columns=[self.info(), self.target.show()]
+        if hk or all_info:
+            columns.append(self.data.hk.show())
+        if detector or all_info:
+            for item in self.data.filters:
+                disp = getattr(self.data, f"filter_{item.lower()}")
+                columns.append(disp.detector.show(title=f"Detector Info - Filter {item.upper()}"))
+        if data_structure or all_info:
+             for item in self.data.filters:
+                disp = getattr(self.data, f"filter_{item.lower()}")
+                columns.append(disp.data_structure.show(title=f"Data Structure Info - Filter {item.upper()}"))
 
-    def __repr__(self) -> str:
-        return self.__str__()
+        if filters:
+            for item in self.data.filters:
+                disp = getattr(self.data, f"filter_{item.lower()}")
+                columns.append(disp.show())
+        col = Columns(
+            columns,#[self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
+            expand=True,
+        )
 
-    def show(self) -> Panel:
+        return Panel(
+            col,
+            title=f"SimbioReader Summary: {self.pdsLabel.stem}",
+            border_style="green",
+            expand=False,
+        )
+
+    def info(self) -> Panel:
         dt = Table.grid()
         dt.add_column(style="yellow", justify="right")
         dt.add_column()
@@ -648,54 +786,80 @@ class SimbioReader:
         dt.add_row("Spacecraft Clock Stop Count", sep, self.stop_scet)
 
         return Panel(dt, title="SimbioReader Info", border_style="green", expand=False)
+    
+    def filters_summary(self) -> Panel:
+        tb= Table()
+        tb.add_column("",style="yellow", justify="right")
+        tb.add_column("Filter Names",style="yellow", justify="center")
+        for item in self.data.filters:
+            tb.add_row(':green_circle:',item.upper())
+            # disp = getattr(self.data, f"filter_{item.lower()}")
+            
+        
+        return Panel(
+            tb,
+            title="Filters Summary",
+            border_style="green",
+            expand=False,
+        )
 
     def summary(self) -> Panel:
-        filters=[]
+        filters = []
         for item in self.data.filters:
-            disp=getattr(self.data,f'filter_{item.lower()}')
+            disp = getattr(self.data, f"filter_{item.lower()}")
             filters.append(disp.show())
         col = Columns(
-            [self.show(), self.target.show(), self.data.hk.show(),*filters], expand=True
+            [self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
+            expand=True,
         )
 
         return Panel(
-            col, title=f"SimbioReader Summary: {self.pdsLabel.stem}", border_style="green", expand=False
+            col,
+            title=f"SimbioReader Summary: {self.pdsLabel.stem}",
+            border_style="green",
+            expand=False,
         )
-    
 
-    
-    def __getattr__(self, name:str):
-        if name.startswith('segment') and self.channel in ['stc','hric']:
-            self.console.print(f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}.")
-        elif name.startswith('segment') and self.channel == 'vihi':
+    def __getattr__(self, name: str):
+        if name.startswith("segment") and self.channel in ["stc", "hric"]:
+            self.console.print(
+                f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
+            )
+        elif name.startswith("segment") and self.channel == "vihi":
             self.console.print(f"{MSG.ERROR}Segment {name} not available.")
-        elif name.startswith('filter') and self.channel == 'vihi':
-            self.console.print(f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}.") 
+        elif name.startswith("filter") and self.channel == "vihi":
+            self.console.print(
+                f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
+            )
 
         return None
-    
-    def get_filter_by_file(self,file_name:Path)->SimbioObject|None:
-        if isinstance(file_name,str):
-            file_name=Path(file_name)
+
+    def get_filter_by_file(self, file_name: Path) -> SimbioObject | None:
+        if isinstance(file_name, str):
+            file_name = Path(file_name)
         for item in self.data.filters:
-            disp=getattr(self.data,f'filter_{item.lower()}')
+            disp = getattr(self.data, f"filter_{item.lower()}")
             if disp.file_name.name == file_name.name:
                 return disp
         return None
-    
-    def get_segment_by_file(self,file_name:Path)->SimbioObject|None:
-        if isinstance(file_name,str):
-            file_name=Path(file_name)
+
+    def get_segment_by_file(self, file_name: Path) -> SimbioObject | None:
+        if isinstance(file_name, str):
+            file_name = Path(file_name)
         for item in self.data.segments:
-            disp=getattr(self.data,f'{item}')
+            disp = getattr(self.data, f"{item}")
             if disp.file_name.name == file_name.name:
                 return disp
         return None
 
-
-
-        
-    def savePreview(self,img_type:str='png',quality:int=100, outFolder:Path=None, template:Path=None, description:str = "This is the first version.")->str|None:
+    def savePreview(
+        self,
+        img_type: str = "png",
+        quality: int = 100,
+        outFolder: Path = None,
+        template: Path = None,
+        description: str = "This is the first version.",
+    ) -> str | None:
         """Saves a preview image of the loaded data.
 
         Args:
@@ -714,57 +878,61 @@ class SimbioReader:
                 f"{MSG.DEBUG}Saving preview image with type: {img_type}, for {self.pdsLabel.name}"
             )
         if template:
-            img_type = 'png'
+            img_type = "png"
         if outFolder is None:
             dest = self.pdsLabel.parent
         else:
             if type(outFolder) is not Path:
                 outFolder = Path(outFolder)
-            dest=outFolder
+            dest = outFolder
             if dest.exists() is False:
                 dest.mkdir(parents=True, exist_ok=True)
         # ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest)
-        if 'vihi' in self.channel:
-            self.console.print('VIHI')
+        if "vihi" in self.channel:
+            self.console.print("VIHI")
         if template:
-            if not isinstance(template,Path):
-                    template = Path(template)
+            if not isinstance(template, Path):
+                template = Path(template)
             if not template.exists():
                 raise FileNotFoundError(f"The template {template.name} was not found")
-            new_filename=gen_filename(self.pdsLabel)
-            new_label=dest.joinpath(new_filename).with_suffix(".lblx")
+            new_filename = gen_filename(self.pdsLabel)
+            new_label = dest.joinpath(new_filename).with_suffix(".lblx")
             # template.rename(new_label)
             # from xml.dom.minidom import parse, parseString, Element
             tree = parse(template.as_posix())
             for item in tree.getElementsByTagName("File_Area_Browse"):
                 item.parentNode.removeChild(item)
-            
-            if 'cal' in Path(new_filename).stem:
-                calib=True
+
+            if "cal" in Path(new_filename).stem:
+                calib = True
             else:
-                calib=False
-            new_lid=lidUpdate(tree, new_label,calib=calib)
-            creatTime=datetime.now()
+                calib = False
+            new_lid = lidUpdate(tree, new_label, calib=calib)
+            creatTime = datetime.now()
             updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
-            file_version=new_filename.split('__')[1].split('.')[0]
-            file_version=file_version.replace('_','.')
-            updateXML(tree,"version_id",file_version, idx=0)
-            updateXML(tree,"version_id",file_version, idx=1)
-            updateXML(tree,"description",description, idx=0)
-            lvidUpdate(tree,new_label, file_version)
-            ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest, tree=tree)
-            br=getElement(tree,"Product_Browse")
+            file_version = new_filename.split("__")[1].split(".")[0]
+            file_version = file_version.replace("_", ".")
+            updateXML(tree, "version_id", file_version, idx=0)
+            updateXML(tree, "version_id", file_version, idx=1)
+            updateXML(tree, "description", description, idx=0)
+            lvidUpdate(tree, new_label, file_version)
+            ret = self.data.savePreview(
+                img_type=img_type, quality=quality, outFolder=dest, tree=tree
+            )
+            br = getElement(tree, "Product_Browse")
             for item in ret:
                 br.appendChild(item)
-       
+
             dom2 = parseString(pretty_print(tree))
             with open(new_label, "w") as xmlFile:
                 dom2.writexml(xmlFile, encoding="utf-8")
             return f"{new_lid}::{file_version}"
         else:
-            ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest)
-    
-    def image(self)->im:
+            ret = self.data.savePreview(
+                img_type=img_type, quality=quality, outFolder=dest
+            )
+
+    def image(self) -> im:
         """Returns a PIL Image object representing the loaded image data.
 
         This method returns a Pillow (PIL Fork) Image object containing the image data
@@ -780,10 +948,9 @@ class SimbioReader:
         """
         data = im.fromarray(self.img)
         return data
-    
+
     def __str__(self) -> str:
         return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"
-    
+
     def __repr__(self) -> str:
         return self.__str__()
-

@@ -1,5 +1,14 @@
 # SimbioReader Changelog
 
+## 0.6.5
+
+- Update dependencies
+
+## 0.6.4
+
+- removed unused funtion and implemented use of standard libraries
+- improve the package test
+
 ## 0.6.1
 
 - removed the log call

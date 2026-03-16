@@ -3,13 +3,13 @@ from re import sub
 from pathlib import Path
 import copy
 
-def getValue(nodeList: md.Element, label: str) -> str:
+def getValue(nodeList: md.Document | md.Element, label: str) -> str:
     """Extracts and returns the text content of the first matching XML element.
     This function searches for an XML element with the specified tag name within
     a given node list and returns the text data of the first matching element's
     first child node.
     Args:
-        nodeList (md.Element): The parent XML element to search within.
+        nodeList (md.Document): The parent XML element to search within.
         label (str): The tag name of the XML element to retrieve.
     Returns:
         str: The text content of the first matching element's first child node.
@@ -29,11 +29,22 @@ def getValue(nodeList: md.Element, label: str) -> str:
     """
     
     elem = nodeList.getElementsByTagName(label)
-    return elem[0].firstChild.data
+    if not elem:
+        raise IndexError(f"Tag '{label}' not found")
+
+    node = elem[0]
+    if node.firstChild is None:
+        raise AttributeError(f"Tag '{label}' has no child nodes")
+
+    value = node.firstChild.nodeValue
+    if value is None:
+        raise AttributeError(f"Tag '{label}' has no text value")
+
+    return value
     
 
 
-def getElement(doc:md.Document, label:str, el:int=0) -> md.Element:
+def getElement(doc: md.Document | md.Element, label: str, el: int = 0) -> md.Element:
     """Get a Block of a dom
     
     Args:
@@ -47,57 +58,18 @@ def getElement(doc:md.Document, label:str, el:int=0) -> md.Element:
     Todo:
         * implement OnBoard processing class
     """
+    if el < 0:
+        raise IndexError("Element index cannot be negative")
+
     elem = doc.getElementsByTagName(label)
+    if not elem:
+        raise IndexError(f"Tag '{label}' not found")
+    if el >= len(elem):
+        raise IndexError(
+            f"Tag '{label}' has {len(elem)} element(s), index {el} is out of range"
+        )
+
     return elem[el]
-
-
-def camel_case(text)-> str:
-    """
-    Converts a given string to camelCase.
-
-    The function transforms a string by removing underscores or hyphens,
-    capitalizing the first letter of each word except the first one,
-    and then joining them together to form a camelCase string.
-
-    Args:
-        text (str): The input string, typically in snake_case or kebab-case.
-
-    Returns:
-        str: The converted string in camelCase.
-
-    Example:
-        >>> camel_case('hello_world')
-        'helloWorld'
-        >>> camel_case('hello-world')
-        'helloWorld'
-    """
-    text = sub(r"(_|-)+", " ", text).title().replace(" ", "")
-    return ''.join([text[0].lower(), text[1:]])
-
-
-def snake_case(text)->str:
-    """
-    Converts a given string to snake_case.
-
-    The function transforms a camelCase or PascalCase string to snake_case,
-    replacing capital letters with underscores followed by the lowercase equivalent.
-
-    Args:
-        text (str): The input string, typically in camelCase or PascalCase.
-
-    Returns:
-        str: The converted string in snake_case.
-
-    Example:
-        >>> snake_case('helloWorld')
-        'hello_world'
-        >>> snake_case('HelloWorld')
-        'hello_world'
-    """
-    return '_'.join(
-        sub('([A-Z][a-z]+)', r' \1',
-            sub('([A-Z]+)', r' \1',
-                text.replace('-', ' '))).split()).lower()
 
 
 def gen_filename(old_filename:Path)->Path:
@@ -107,17 +79,27 @@ def gen_filename(old_filename:Path)->Path:
         new_filename=new_filename.replace('raw','browse_raw')
     else:
         new_filename=new_filename.replace('_cal_','_browse_cal_')
-    return new_filename
+    return Path(new_filename)
 
 def updateXML(xml: md.Element, label: str, value: str | int | float, idx: int = 0) -> None:
     a = xml.getElementsByTagName(label)[idx]
-    a.firstChild.nodeValue = value
+    child = a.firstChild
+    if child is None:
+        raise AttributeError(f"Tag '{label}' has no child nodes")
+    if not isinstance(child, md.Text):
+        raise TypeError(f"Tag '{label}' first child is not a text node")
+    child.data = str(value)
     
 
 
-def getFromXml(xml:md.Element, label, idx=0):
+def getFromXml(xml: md.Element, label: str, idx: int = 0) -> str:
     a = xml.getElementsByTagName(label)[idx]
-    return a.firstChild.nodeValue
+    child = a.firstChild
+    if child is None:
+        raise AttributeError(f"Tag '{label}' has no child nodes")
+    if not isinstance(child, md.Text):
+        raise TypeError(f"Tag '{label}' first child is not a text node")
+    return child.data
 
 def lidGenerator(old_lid: str , file_name: Path, calib:bool=False)-> str:
     parts = old_lid.split(':')
@@ -151,12 +133,13 @@ def new_lvid(old:str, file_name: Path, file_version:str):
     return newLVID
 
 
-def lvidUpdate(tree:str, file_name: Path, file_version:str):
+def lvidUpdate(
+    tree: md.Document | md.Element, file_name: Path, file_version: str
+) -> str:
     oldLVID = getFromXml(tree, "lidvid_reference")
-    newLVID=new_lvid(oldLVID, file_name, file_version)
+    newLVID = new_lvid(oldLVID, file_name, file_version)
     updateXML(tree, "lidvid_reference", newLVID)
-    
-    pass
+    return newLVID
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' '*4).split('\n') if line.strip()])
