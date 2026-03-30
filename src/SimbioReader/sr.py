@@ -910,7 +910,7 @@ class SimbioReader:
             new_lid = lidUpdate(tree, new_label, calib=calib)
             creatTime = datetime.now()
             updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
-            file_version = new_filename.split("__")[1].split(".")[0]
+            file_version = str(new_filename).split("__")[1].split(".")[0]
             file_version = file_version.replace("_", ".")
             updateXML(tree, "version_id", file_version, idx=0)
             updateXML(tree, "version_id", file_version, idx=1)

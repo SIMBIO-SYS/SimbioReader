@@ -1,5 +1,10 @@
 # SimbioReader Changelog
 
+## 0.6.7
+
+- fix file name version
+
+
 ## 0.6.5
 
 - Update dependencies
