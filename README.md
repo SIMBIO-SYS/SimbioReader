@@ -32,8 +32,13 @@ The package contain a class that read and decode the SIMBIO-SYS image
 ```python
 from SimbioReader import SimbioReader as SR
 
-dat = SimbioReader("sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat")
+dat = SR("sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat")
 ```
+
+Filter display is guarded for product types that do not expose filter metadata,
+so requesting filter output on those products no longer raises an attribute
+error. See [`FLUSSO_DATI.md`](FLUSSO_DATI.md) for the reader's parsing and data
+flow.
 
 ## Command line tools
 
