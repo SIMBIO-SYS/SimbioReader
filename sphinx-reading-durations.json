@@ -1,9 +1,9 @@
 {
-    "cli": 0.034,
+    "cli": 0.031,
     "index": 0.003,
     "reference": 0.002,
-    "simbioinfo": 0.028,
-    "simbioreader": 0.011,
+    "simbioinfo": 0.011,
+    "simbioreader": 0.01,
     "tools": 0.005,
-    "usage": 0.004
+    "usage": 0.003
 }
