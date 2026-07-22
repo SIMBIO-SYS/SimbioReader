@@ -1,24 +1,25 @@
 [project]
 name = "SimbioReader"
-version = "0.7.0"
-description="Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
+version = "1.0.0-dev.1"
+description = "Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
-
-    "numpy (>=2.3.3,<3.0.0)",
-    "pandas (>=3.0.1,<4.0.0)",
-    "rich-click (>=1.8.9,<2.0.0)",
-    "update-checker (>=0.18.0,<0.19.0)",
-    "importlib-metadata (>=8.7.0,<9.0.0)",
-    "pillow (>=12.0.0,<13.0.0)",
-    "semantic-version-tools (>=1.4.1,<2.0.0)",
-    "mystrtools (>=0.1.0,<0.2.0)",
+    "numpy>=2.3.3,<3.0.0",
+    "pandas>=3.0.1,<4.0.0",
+    "rich-click>=1.8.9,<2.0.0",
+    "importlib-metadata>=8.7.0,<9.0.0",
+    "pillow>=12.0.0,<13.0.0",
+    "packaging>=26.0,<27.0",
+    "requests>=2.32.5,<3.0.0",
+    "semantic-version-tools>=1.4.1,<2.0.0",
+    "mystrtools>=0.1.0,<0.2.0",
+    "loguru>=0.7.3",
+    "pds4-tools>=1.4",
+    "lxml>=6.1.1",
 ]
-requires-python = ">=3.14, <4.0"
-
-authors = [{name="Romolo Politi", email ="Romolo.Politi@inaf.it" }]
-
+requires-python = ">=3.14,<4.0"
+authors = [{ name = "Romolo Politi", email = "Romolo.Politi@inaf.it" }]
 readme = "README.md"
-
+license-files = ["LICENSE"]
 keywords = ["data reader", "Space Mission", "BepiColombo", "SIMBIO-SYS"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
@@ -26,39 +27,34 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Development Status :: 4 - Beta",
-    
 ]
-
-
 
 [project.urls]
 Repository = "https://github.com/SIMBIO-SYS/SimbioReader"
-
 
 [project.scripts]
 simbioReader = "SimbioReader.cli:cli"
 simbioInfo = "SimbioReader.infocli:cli"
 
-
-
-
-[tool.poetry]
-packages =[
-{include ="SimbioReader", from ="src"}]
-
-
-
 [build-system]
-requires = ["poetry-core>=2.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.26,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "SimbioReader"
+
 [dependency-groups]
 test = [
-    "pytest (>=9.0.2,<10.0.0)",
-    "pytest-cov (>=7.0.0,<8.0.0)"
+    "pytest>=9.0.2,<10.0.0",
+    "pytest-cov>=7.0.0,<8.0.0",
 ]
 devel = [
-    "ruff (>=0.15.4,<0.16.0)",
-    "pyright (>=1.1.408,<2.0.0)"
+    "ruff>=0.15.4,<0.16.0",
+    "pyright>=1.1.408,<2.0.0",
+]
+docs = [
+    "sphinx>=8.2.3,<9.0.0",
+    "sphinx-rtd-theme>=3.0.2,<4.0.0",
 ]
 
 [tool.pytest.ini_options]
@@ -98,9 +94,28 @@ pythonpath = ["."]
 branch=true
 omit=["test/*","./prova.py"]
 
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # Pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501", # handled by formatter
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [tool.pyright]
 pythonVersion = "3.14"
 typeCheckingMode = "basic"
 include = ["src"]
-venvPath = "/home/romolo/Documenti/Progetti/SIMBIO-SYS/Software/SimbioReader"
-venv = "venv"

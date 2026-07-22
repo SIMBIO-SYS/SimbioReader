@@ -1,0 +1,14 @@
+/venv/*
+.venv/
+.env
+.vscode/launch.json
+.vscode/settings.json
+/build
+
+/src/SimbioReader.egg-info
+/docs/build
+/data_test/
+prova.py
+.coverage
+coverage/coverage.json
+coverage/coverage.xml

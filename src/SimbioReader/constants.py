@@ -8,23 +8,25 @@ class MSG:
 
 
 class FMODE:
-    READ = 'r'
-    READ_BINARY = 'rb'
-    WRITE = 'w'
-    WRITE_BINARY = 'wb'
-    APPEND = 'a'
+    READ = "r"
+    READ_BINARY = "rb"
+    WRITE = "w"
+    WRITE_BINARY = "wb"
+    APPEND = "a"
 
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-progEpilog = "- For any information or suggestion please contact " \
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+progEpilog = (
+    "- For any information or suggestion please contact "
     "[bold magenta]Romolo.Politi@inaf.it[/bold magenta]"
+)
 
 # VERSION = (0,6,2,'f',1)
 
 
-datamodel='1.22.0.0'
+datamodel = "1.22.0.0"
 
 data_types = {
-    "UnsignedLSB2": {'envi':2,'bits':16},
-    "IEEE754LSBSingle":{'envi':4,'bits':32},
+    "UnsignedLSB2": {"envi": 2, "bits": 16},
+    "IEEE754LSBSingle": {"envi": 4, "bits": 32},
 }

@@ -1,23 +1,31 @@
 import hashlib
+from dataclasses import dataclass
 from datetime import datetime
+
+# from SimbioReader.version import version
+from importlib.metadata import version as get_version
 from pathlib import Path
 from xml.dom.minidom import Document, Element, parse, parseString
 
 import numpy as np
 import pandas as pd
+import pds4_tools
 from dateutil import parser
+from loguru import logger
+from lxml import etree
+from mystrtools import convert_case
+from pds4_tools.reader.array_objects import ArrayStructure
+from pds4_tools.reader.table_objects import TableStructure
 from PIL import Image as im
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from update_checker import UpdateChecker
-from PIL import Image as im
+from semantic_version_tools import Vers
 
 from SimbioReader.constants import MSG, data_types
-from SimbioReader.exceptions import SizeError
+from SimbioReader.exceptions import LoadingError, SizeError
 from SimbioReader.filters_tools import Filter
-from mystrtools import convert_case
 from SimbioReader.tools import (
     gen_filename,
     getElement,
@@ -27,14 +35,23 @@ from SimbioReader.tools import (
     pretty_print,
     updateXML,
 )
+from SimbioReader.version_check import check_pypi_version
 
-# from SimbioReader.version import version
-from importlib.metadata import version as get_version
-from semantic_version_tools import Vers
-
-version = Vers(get_version("SimbioReader"))
+installed_version = get_version("SimbioReader")
+version = Vers(installed_version)
 
 __version__ = version.full()
+
+
+class INSTRUMENT:
+    STC: str = "STC"
+    HRIC: str = "HRIC"
+    VIHI: str = "VIHI"
+
+
+instruments: list[str] = [INSTRUMENT.STC, INSTRUMENT.VIHI, INSTRUMENT.HRIC]
+
+# ============= To Check =====================
 
 
 class Detector:
@@ -69,7 +86,7 @@ class Detector:
         Returns:
             str: A string representation of the Detector object.
         """
-        return f"Detector object"
+        return "Detector object"
 
     def __repr__(self) -> str:
         """
@@ -98,92 +115,6 @@ class Detector:
         dt.add_row("Samples", sep, str(self.samples))
         dt.add_row("Line FOV", sep, str(self.line_fov))
         dt.add_row("Sample FOV", sep, str(self.sample_fov))
-        return Panel(dt, title=title, border_style="yellow", expand=False)
-
-
-class DataStructure:
-    """
-    A class representing the data structure of a SIMBIO-SYS file.
-
-    This class extracts and initializes various attributes related to the data
-    structure of a SIMBIO-SYS file, such as creation time, file size, and axes
-    configuration, based on an XML Element.
-
-    Args:
-        dat (Element): An XML Element containing the data structure information.
-        channel (str): The channel identifier (e.g., 'HRIC', 'STC', 'VIHI').
-
-    Attributes:
-        creation_time (datetime): The creation time of the file.
-        file_size (int): The size of the file.
-        md5 (str): The MD5 checksum of the file.
-        axes (int): The number of axes in the data structure.
-        band (int): The band information (default is 1).
-        data_type (str): The type of data (e.g., 'UnsignedLSB2', 'IEEE754LSBSingle').
-
-    """
-
-    def __init__(self, dat: Element, channel: str):
-        # fao=getElement(dat,'File_Area_Observational')
-        fl = getElement(dat, "File")
-        self.creation_time = parser.parse(getValue(fl, "creation_date_time"))
-        self.file_size = int(getValue(fl, "file_size"))
-        self.md5 = getValue(fl, "md5_checksum")
-        self.axes = int(getValue(dat, "axes"))
-        self.band = None
-        if self.axes == 3 and channel != "vihi":
-            raise ValueError("The number of axes is wrong for the channel")
-        for i in range(self.axes):
-            axis = getElement(dat, "Axis_Array", i)
-            setattr(
-                self,
-                getValue(axis, "axis_name").lower(),
-                int(getValue(axis, "elements")),
-            )
-        if self.axes == 3:
-            dat = getElement(dat, "Array_3D_Spectrum")
-        elif self.axes == 2:
-            dat = getElement(dat, "Array_2D_Image")
-        self.data_type = getValue(dat, "data_type")
-        if self.band is None:
-            self.band = 1
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Datastructure.
-
-        Returns:
-            str: A string in the format 'DataStructure Object'.
-        """
-        return f"DataStructure object"
-
-    def __repr__(self) -> str:
-        """
-        Returns a string representation for debugging purposes.
-
-        Returns:
-            str: A string in the format 'DataStructure Object'.
-        """
-        return self.__str__()
-
-    def show(self, title="Data Structure") -> Panel:
-        """
-        Displays the data structure information in a formatted table.
-
-        Returns:
-            Panel: A rich Panel object containing the formatted table of data structure information.
-        """
-        sep = " = "
-        dt = Table.grid()
-        dt.add_column(style="yellow", justify="right")
-        dt.add_column()
-        dt.add_column(style="cyan", justify="left")
-        for item in self.__dict__:
-            dt.add_row(item, sep, str(self.__dict__[item]))
-        # dt.add_row('Creation Time',sep,datetime.strftime(self.creation_time,"%Y-%m-%d"))
-        # dt.add_row('File Size',sep,str(self.file_size))
-        # dt.add_row('MD5 Checksum',sep,self.md5)
-        # dt.add_row('Axes',sep,str(self.axes))
         return Panel(dt, title=title, border_style="yellow", expand=False)
 
 
@@ -230,7 +161,7 @@ class HK:
         dt.add_column(style="cyan", justify="left")
         for i in self.df.columns:
             dt.add_row(
-                convert_case(i,"space").title(), sep, f"{self.df[i].values[0]}".strip()
+                convert_case(i, "space").title(), sep, f"{self.df[i].values[0]}".strip()
             )
         return Panel(dt, title="HouseKeeping", border_style="yellow", expand=False)
 
@@ -241,7 +172,7 @@ class HK:
         Returns:
             str: A string representation of the HK object.
         """
-        return f"HK object"
+        return "HK object"
 
     def __repr__(self) -> str:
         """
@@ -251,6 +182,12 @@ class HK:
             str: A string representation of the HK object.
         """
         return self.__str__()
+
+
+# ================================
+
+# TODO: Implemnt informatio after the improve of the target information
+# Class used in 1.0
 
 
 class Target:
@@ -277,6 +214,9 @@ class Target:
         return self.__str__()
 
 
+# ==============================================================
+
+
 class SimbioObject:
     def __init__(
         self,
@@ -286,11 +226,13 @@ class SimbioObject:
         geometry: Element,
         file_obs: Element,
         filter_name: Path | str | None = None,
-        console: Console= Console(),
+        console: Console | None = None,
         debug: bool = False,
         verbose: bool = False,
     ):
-        self.console = console
+        # Set the console
+        self.console = console if console else Console()
+
         self.file_name = Path(file_name)
         self.filter_name = filter_name
         self.channel = channel
@@ -587,93 +529,296 @@ class Data:
         return self.__str__()
 
 
+@dataclass
+class TimeCoordinates:
+    start_utc: datetime
+    end_utc: datetime
+    start_scet: str
+    end_scet: str
+
+
+@dataclass
+class SoftwareContext:
+    software_name: str
+    version: str
+
+
+@dataclass(slots=True, init=False, frozen=True)
 class SimbioReader:
+    console: Console
+    # Data Files
+    image_file: Path
+    image_data: ArrayStructure
+    lblx_file: Path
+    csv_file: Path
+    csv_data: TableStructure
+    cube_file: Path
+    cube_data: ArrayStructure
+
+    # label values
+    channel: INSTRUMENT
+    title: str
+    processing_level: str
+    lid: str
+    version_id: str
+    information_model_version: str
+    mission_phase: str
+
+    time_coordinates: TimeCoordinates
+    target: Target
+    software_context: SoftwareContext
+
+    debug: bool
+    verbosity: int
+
     def __init__(
         self,
         file_path: Path,
         debug: bool = False,
-        verbose: bool = False,
-        console=None,
+        verbose: int = 0,
+        console: Console | None = None,
         updateCheck: bool = True,
     ):
+        logger.debug("Inizializing SimbioReader object")
+        # Initialize the console
+        object.__setattr__(self, "console", console if console else Console())
+
+        # Set the debug and verbosity sttributes
+        object.__setattr__(self, "debug", debug)
+        object.__setattr__(self, "verbosity", verbose)
+
         # Initialize the SimbioReader with a file path and optional console for output
-        self.pdsLabel: Path | None = None
-        self.debug = debug
-        if console is None:
-            self.console = Console()
-        else:
-            self.console = console
+
         if updateCheck:
-            checker = UpdateChecker()
-            result = checker.check("SimbioReader", version.short())
-            if result:
-                # TODO: Check this part after the delivery on pypi.org
-                self.console.print(result)
+            logger.debug("Check for updates on PyPi")
+            result = check_pypi_version("SimbioReader", installed_version)
+            if result and result.update_available:
+                self.console.print(
+                    f"{MSG.WARNING} Version {result.current} of SimbioReader is outdated. "
+                    f"Version {result.latest} is available."
+                )
+            elif result and result.local_is_newer:
+                self.console.print(
+                    f"{MSG.INFO}Local version {result.current} of SimbioReader "
+                    f"is newer than version {result.latest} available on PyPI.\n \t[yellow bold]This is a developing version [/]"
+                )
+        # Check the file existence
+        file_path = Path(file_path)
+        if not file_path.exists():
+            message = f"The input file {file_path.name} does not exists"
+            logger.critical(message)
+            raise FileNotFoundError(message)
 
-        if debug:
-            self.console.print(
-                f"{MSG.DEBUG}Initializing SimbioReader with file path: {file_path}"
+        # Check the input type
+        if file_path.is_file():
+            # Check the input file suffix
+            match file_path.suffix:
+                case ".lblx":
+                    object.__setattr__(self, "lblx_file", file_path)
+                case ".dat" | ".qub" | ".csv":
+                    if file_path.with_suffix(".lblx").exists():
+                        object.__setattr__(
+                            self, "lblx_file", file_path.with_suffix(".lblx")
+                        )
+                    else:
+                        message = f"No lblx file associated to {file_path.name}. Not valid PDS4 file"
+                        logger.critical(message)
+                        self.console.print(f"{MSG.CRITICAL}{message}")
+                        raise ValueError(message)
+                case _:
+                    message = f"The {file_path.suffix} is not a valid suffix"
+                    logger.critical(message)
+                    self.console.print(f"{MSG.CRITICAL}{message}")
+                    raise ValueError(message)
+        elif file_path.is_dir():
+            file_list = list(file_path.rglob("**/*.lblx"))
+            match len(file_list):
+                case 0:
+                    message = (
+                        "No lblx file found, not a valid PDS4 file found in the folder"
+                    )
+                    self.console.print(f"{MSG.CRITICAL}{message}")
+                    logger.critical(message)
+                    raise FileNotFoundError(message)
+                case 1:
+                    object.__setattr__(self, "lblx_file", file_list[0])
+                case x if x > 1:
+                    message = (
+                        "Multiple lblx found in the folder. Please specify a lblx file"
+                    )
+                    self.console.print(f"{MSG.CRITICAL}{message}")
+                    logger.critical(message)
+                    raise ValueError(message)
+            pass
+
+        # Load the data
+        try:
+            data = pds4_tools.read(filename=str(self.lblx_file))
+        except Exception as exc:
+            message = f"Unable to read the PDS4 product: {exc}"
+            raise LoadingError(self.lblx_file.name, message) from exc
+
+        # Data summary
+        message = f"Identified {len(data.structures)} in the product."
+        logger.info(message)
+        if self.verbosity > 0:
+            self.console.print(f"{MSG.INFO}{message}")
+        if self.verbosity > 1:
+            for idx, item in enumerate(data.structures):
+                self.console.print(f"\t{idx + 1}. {item.type}")
+
+        # Initialize the dat/qub file and csv file
+        for item in data.structures:
+            match item.type:
+                case "Table_Delimited":
+                    object.__setattr__(self, "csv_file", Path(item.parent_filename))
+                    message = f"Identified a CSV File ({self.csv_file.name})"
+                    logger.info(message)
+                    if self.verbosity > 1:
+                        self.console.print(f"{MSG.INFO}{message}")
+                    object.__setattr__(self, "csv_data", item)
+                    pass
+                case "Array_2D_Image":
+                    object.__setattr__(self, "image_file", Path(item.parent_filename))
+                    message = f"Identified a 2D Image File ({self.image_file.name})"
+                    logger.info(message)
+                    if self.verbosity > 1:
+                        self.console.print(f"{MSG.INFO}{message}")
+                    object.__setattr__(self, "image_data", item)
+                case "Array_3D_Image":
+                    object.__setattr__(self, "cube_file", Path(item.parent_filename))
+                    message = f"Identified a 3D Image File ({self.image_file.name}) - VIHI Cube"
+                    logger.info(message)
+                    if self.verbosity > 1:
+                        self.console.print(f"{MSG.INFO}{message}")
+                    object.__setattr__(self, "cube_data", item)
+                    pass
+                case _:
+                    pass
+
+        # Read the lblx file to initialize the variables
+        tree = etree.parse(self.lblx_file)
+        root = tree.getroot()
+
+        # Namespace definition
+        namespaces = {
+            "pds": root.nsmap[None],
+            "psa": root.nsmap["psa"],
+        }
+
+        def set_value(xpath, attribute):
+            item = root.xpath(f"string({xpath})", namespaces=namespaces)
+            object.__setattr__(self, attribute, item)
+
+        # Identication of the channel
+        channel = (
+            root.xpath(
+                "string(./pds:Observation_Area/pds:Mission_Area/"
+                "psa:Sub-Instrument/psa:identifier)",
+                namespaces=namespaces,
             )
-        # Check the filename extension
-        if isinstance(file_path, str):
-            file_path = Path(file_path)
-
-        self.pdsLabel = self.label_name(file_path)
-
-        # check if the file exists
-        if debug:
-            self.console.print(f"{MSG.DEBUG}Checking if file exists: {self.pdsLabel}")
-        if self.pdsLabel is None or not self.pdsLabel.exists():
-            # self.console.print(f"[red]Error:[/red] The file {self.pdsLabel} does not exist.")
-            raise FileNotFoundError(f"The file {self.pdsLabel} does not exist.")
-
-        if verbose or debug:
-            self.console.print(f"{MSG.INFO}Reading PDS label file: {self.pdsLabel}")
-        label = parse(self.pdsLabel.as_posix())
-        self.channel = getValue(label, "psa:identifier").lower()
-        if self.channel not in ["stc", "hric", "vihi"]:
-            raise ValueError(f"Unknown channel '{self.channel}' found in label.")
-        self.level = getValue(label, "processing_level").lower()
-        self.lid = getValue(label, "logical_identifier")
-        self.version = getValue(label, "version_id")
-        self.title = getValue(label, "title")
-        self.dataModelVersion = getValue(label, "information_model_version")
-        mission_phase = getElement(label, "psa:Mission_Phase")
-        self.phaseName = getValue(mission_phase, "psa:name")
-        if debug:
-            self.console.print(
-                f"{MSG.DEBUG}Initialized SimbioReader with channel: {self.title}, version: {self.level}, Datamodel: {self.dataModelVersion}"
-            )
-
-        # Observation Time
-
-        obsArea = getElement(label, "Observation_Area")
-        timeCoords = getElement(obsArea, "Time_Coordinates")
-        self.startTime = parser.parse(
-            getValue(timeCoords, "start_date_time"), ignoretz=True
+            .upper()
+            .strip()
         )
-        self.stopTime = parser.parse(
-            getValue(timeCoords, "stop_date_time"), ignoretz=True
-        )
+        logger.debug(f"Identied the sub-instument name: {channel}")
+        if channel not in instruments:
+            message = (
+                f"The sub-Instrument {channel} is not a valid SIMBIO-SYS sub-instrument"
+            )
+            self.console.print(f"{MSG.CRITICAL}{message}")
+            logger.critical(message)
+            raise ValueError(message)
+        object.__setattr__(self, "channel", channel)
 
-        self.start_scet = getValue(label, "psa:spacecraft_clock_start_count")
-        self.stop_scet = getValue(label, "psa:spacecraft_clock_start_count")
-        if debug:
-            self.console.print(
-                f"{MSG.DEBUG}Observation start time: {self.startTime}, stop time: {self.stopTime}"
-            )
-            self.console.print(
-                f"{MSG.DEBUG}Spacecraft clock start count: {self.start_scet}, stop count: {self.stop_scet}"
-            )
+        # get Data Title
+        set_value("./pds:Identification_Area/pds:title", "title")
+        # get the processing level
+        IDENTIFICATION_AREA = "/pds:Product_Observational[1]/pds:Identification_Area[1]"
+        OBSERVATION_AREA = "/pds:Product_Observational[1]/pds:Observation_Area[1]"
+        set_value(
+            "/pds:Product_Observational[1]/pds:Observation_Area[1]/pds:Primary_Result_Summary[1]/pds:processing_level[1]",
+            "processing_level",
+        )
+        set_value(f"{IDENTIFICATION_AREA}/pds:logical_identifier[1]", "lid")
+        set_value(f"{IDENTIFICATION_AREA}/pds:version_id[1]", "version_id")
+        set_value(
+            f"{IDENTIFICATION_AREA}/pds:information_model_version[1]",
+            "information_model_version",
+        )
+        set_value(
+            f"{OBSERVATION_AREA}/pds:Mission_Area[1]/psa:Mission_Information[1]/psa:Mission_Phase[1]/psa:name[1]",
+            "mission_phase",
+        )
+        if self.debug:
+            message = f"Initialized SimbioReader with channel: {self.title}, version: {self.processing_level}, Datamodel: {self.information_model_version}"
+            self.console.print(f"{MSG.DEBUG}{message}")
+        logger.debug(message)
+
+        # Time coordinates
+        dateformat = "%Y-%m-%dT%H:%M:%S.%fZ"
+        xpath = f"{OBSERVATION_AREA}/pds:Time_Coordinates[1]/pds:start_date_time[1]"
+        start = datetime.strptime(
+            root.xpath(f"string({xpath})", namespaces=namespaces), dateformat
+        )
+        xpath = f"{OBSERVATION_AREA}/pds:Time_Coordinates[1]/pds:stop_date_time[1]"
+        end = datetime.strptime(
+            root.xpath(f"string({xpath})", namespaces=namespaces), dateformat
+        )
+        xpath = f"{OBSERVATION_AREA}/pds:Mission_Area[1]/psa:Mission_Information[1]/psa:spacecraft_clock_start_count[1]"
+        start_scet = root.xpath(f"string({xpath})", namespaces=namespaces)
+        xpath = f"{OBSERVATION_AREA}/pds:Mission_Area[1]/psa:Mission_Information[1]/psa:spacecraft_clock_stop_count[1]"
+        end_scet = root.xpath(f"string({xpath})", namespaces=namespaces)
+        object.__setattr__(
+            self, "time_coordinates", TimeCoordinates(start, end, start_scet, end_scet)
+        )
+        if self.verbosity > 1:
+            message = f"Setted the time coordinates to {self.time_coordinates}"
+            self.console.print(f"{MSG.DEBUG}{message}")
+        logger.debug(message)
 
         # Target Information
-        targetInfo = getElement(obsArea, "Target_Identification")
-        self.target = Target(
-            name=getValue(targetInfo, "name"), target_type=getValue(targetInfo, "type")
+        object.__setattr__(
+            self,
+            "target",
+            Target(
+                root.xpath(
+                    f"string({OBSERVATION_AREA}/pds:Target_Identification[1]/pds:name[1])",
+                    namespaces=namespaces,
+                ),
+                root.xpath(
+                    f"string({OBSERVATION_AREA}/pds:Target_Identification[1]/pds:type[1])",
+                    namespaces=namespaces,
+                ),
+            ),
         )
+        if self.verbosity > 1:
+            message = f"Setted the target to {self.target}"
+            self.console.print(f"{MSG.DEBUG}{message}")
+        logger.debug(message)
 
-        if debug:
-            self.console.print(f"{MSG.DEBUG}Target information: {self.target}")
+        # Software Context
+
+        object.__setattr__(
+            self,
+            "software_context",
+            SoftwareContext(
+                root.xpath(
+                    f"string({OBSERVATION_AREA}/pds:Mission_Area[1]/psa:Processing_Context[1]/psa:processing_software_title[1])",
+                    namespaces=namespaces,
+                ),
+                root.xpath(
+                    f"string({OBSERVATION_AREA}/pds:Mission_Area[1]/psa:Processing_Context[1]/psa:processing_software_version[1])",
+                    namespaces=namespaces,
+                ),
+            ),
+        )
+        if self.verbosity > 1:
+            message = f"Setted the Software Context to {self.software_context}"
+            self.console.print(f"{MSG.DEBUG}{message}")
+        logger.debug(message)
+
+        last_row = "qui"
+        return
 
         # Read the channels data
         self.data = Data(
@@ -696,66 +841,41 @@ class SimbioReader:
             str: The LIDVID of the SIMBIO-SYS file.
         """
 
-        return f"{self.lid}::{self.version}"
+        return f"{self.lid}::{self.version_id}"
 
-    def label_name(self, file_path: Path) -> None:
-        if file_path.is_dir():
-            lst = list(file_path.glob("*.lblx"))
-            if len(lst) == 0:
-                # self.console.print(f"[red]Error:[/red] No .lblx files found in directory {file_path}.")
-                raise FileNotFoundError(
-                    f"No .lblx files found in directory {file_path}."
-                )
-            elif len(lst) > 1:
-                # self.console.print(f"[red]Error:[/red] Multiple .lblx files found in directory {file_path}. Please specify a single file.")
-                raise FileExistsError(
-                    f"Multiple .lblx files found in directory {file_path}. Please specify a single file."
-                )
-            else:
-                return lst[0]
-        elif file_path.is_file():
-            if not file_path.suffix == ".lblx":
-                if self.debug:
-                    self.console.print(
-                        f"{MSG.WARNING}The file {file_path} does not have a .lblx extension."
-                    )
-                if "_cal_" in file_path.stem:
-                    parts = file_path.stem.split("_")
-                    if len(parts) == 12:
-                        pdsLabel = (
-                            f"{('_').join(parts[:-4])}__{'_'.join(parts[-2:])}.lblx"
-                        )
-                    else:
-                        pdsLabel = (
-                            f"{('_').join(parts[:-5])}__{'_'.join(parts[-2:])}.lblx"
-                        )
-                    return file_path.parent.joinpath(pdsLabel)
-                else:
-                    if file_path.with_suffix(".lblx").exists():
-                        return file_path.with_suffix(".lblx")
-            else:
-                return file_path
 
-    
-    def show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, filters:bool=False, all_info:bool=False) -> Panel:
-        columns=[self.info(), self.target.show()]
+    def show(
+        self,
+        hk: bool = False,
+        detector: bool = False,
+        data_structure: bool = False,
+        filters: bool = False,
+        all_info: bool = False,
+    ) -> Panel:
+        columns = [self.info(), self.target.show()]
         if hk or all_info:
             columns.append(self.data.hk.show())
         if detector or all_info:
             for item in self.data.filters:
                 disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(disp.detector.show(title=f"Detector Info - Filter {item.upper()}"))
+                columns.append(
+                    disp.detector.show(title=f"Detector Info - Filter {item.upper()}")
+                )
         if data_structure or all_info:
-             for item in self.data.filters:
+            for item in self.data.filters:
                 disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(disp.data_structure.show(title=f"Data Structure Info - Filter {item.upper()}"))
+                columns.append(
+                    disp.data_structure.show(
+                        title=f"Data Structure Info - Filter {item.upper()}"
+                    )
+                )
 
         if filters and hasattr(self.data, "filters"):
             for item in self.data.filters:
                 disp = getattr(self.data, f"filter_{item.lower()}")
                 columns.append(disp.show())
         col = Columns(
-            columns,#[self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
+            columns,  # [self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
             expand=True,
         )
 
@@ -786,16 +906,15 @@ class SimbioReader:
         dt.add_row("Spacecraft Clock Stop Count", sep, self.stop_scet)
 
         return Panel(dt, title="SimbioReader Info", border_style="green", expand=False)
-    
+
     def filters_summary(self) -> Panel:
-        tb= Table()
-        tb.add_column("",style="yellow", justify="right")
-        tb.add_column("Filter Names",style="yellow", justify="center")
+        tb = Table()
+        tb.add_column("", style="yellow", justify="right")
+        tb.add_column("Filter Names", style="yellow", justify="center")
         for item in self.data.filters:
-            tb.add_row(':green_circle:',item.upper())
+            tb.add_row(":green_circle:", item.upper())
             # disp = getattr(self.data, f"filter_{item.lower()}")
-            
-        
+
         return Panel(
             tb,
             title="Filters Summary",
@@ -809,7 +928,11 @@ class SimbioReader:
             disp = getattr(self.data, f"filter_{item.lower()}")
             filters.append(disp.show())
         col = Columns(
-            [self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
+            [
+                self.info(),
+                self.target.show(),
+                self.filters_summary(),
+            ],  # , self.data.hk.show(), *filters],
             expand=True,
         )
 
@@ -849,7 +972,7 @@ class SimbioReader:
             disp = getattr(self.data, f"filter_{item.lower()}")
             filters.append(disp)
         return filters
-    
+
     def get_segment_by_file(self, file_name: Path) -> SimbioObject | None:
         if isinstance(file_name, str):
             file_name = Path(file_name)

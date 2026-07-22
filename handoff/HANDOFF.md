@@ -23,8 +23,9 @@ tests, and filter definitions.
 Run the project checks from this repository:
 
 ```bash
-python -m pytest
-ruff check src tests
+uv sync --all-groups
+uv run pytest
+uv run ruff check src test
 ```
 
 Do not commit `.venv`, `__pycache__`, coverage output, or other generated

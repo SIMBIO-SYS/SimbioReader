@@ -1,7 +1,7 @@
-import xml.dom.minidom as md
-from re import sub
-from pathlib import Path
 import copy
+import xml.dom.minidom as md
+from pathlib import Path
+
 
 def getValue(nodeList: md.Document | md.Element, label: str) -> str:
     """Extracts and returns the text content of the first matching XML element.
@@ -27,7 +27,7 @@ def getValue(nodeList: md.Document | md.Element, label: str) -> str:
         >>> getValue(root, 'age')
         '30'
     """
-    
+
     elem = nodeList.getElementsByTagName(label)
     if not elem:
         raise IndexError(f"Tag '{label}' not found")
@@ -41,20 +41,19 @@ def getValue(nodeList: md.Document | md.Element, label: str) -> str:
         raise AttributeError(f"Tag '{label}' has no text value")
 
     return value
-    
 
 
 def getElement(doc: md.Document | md.Element, label: str, el: int = 0) -> md.Element:
     """Get a Block of a dom
-    
+
     Args:
         doc (xml.dom): The full Object
-        
+
         label (str): The name of the tag to extract
-            
+
     Returns:
         (xml.dom) The node tree extracted
-        
+
     Todo:
         * implement OnBoard processing class
     """
@@ -72,16 +71,19 @@ def getElement(doc: md.Document | md.Element, label: str, el: int = 0) -> md.Ele
     return elem[el]
 
 
-def gen_filename(old_filename:Path)->Path:
-    new_filename=copy.copy(old_filename.stem)
+def gen_filename(old_filename: Path) -> Path:
+    new_filename = copy.copy(old_filename.stem)
     # new_filename=new_filename.split('__')[0]
-    if 'raw' in new_filename:
-        new_filename=new_filename.replace('raw','browse_raw')
+    if "raw" in new_filename:
+        new_filename = new_filename.replace("raw", "browse_raw")
     else:
-        new_filename=new_filename.replace('_cal_','_browse_cal_')
+        new_filename = new_filename.replace("_cal_", "_browse_cal_")
     return Path(new_filename)
 
-def updateXML(xml: md.Element, label: str, value: str | int | float, idx: int = 0) -> None:
+
+def updateXML(
+    xml: md.Element, label: str, value: str | int | float, idx: int = 0
+) -> None:
     a = xml.getElementsByTagName(label)[idx]
     child = a.firstChild
     if child is None:
@@ -89,7 +91,6 @@ def updateXML(xml: md.Element, label: str, value: str | int | float, idx: int = 
     if not isinstance(child, md.Text):
         raise TypeError(f"Tag '{label}' first child is not a text node")
     child.data = str(value)
-    
 
 
 def getFromXml(xml: md.Element, label: str, idx: int = 0) -> str:
@@ -101,13 +102,15 @@ def getFromXml(xml: md.Element, label: str, idx: int = 0) -> str:
         raise TypeError(f"Tag '{label}' first child is not a text node")
     return child.data
 
-def lidGenerator(old_lid: str , file_name: Path, calib:bool=False)-> str:
-    parts = old_lid.split(':')
+
+def lidGenerator(old_lid: str, file_name: Path, calib: bool = False) -> str:
+    parts = old_lid.split(":")
     if calib:
-        parts[-2] = 'browse_calibrated'
-    parts[-1] = file_name.stem.split('__')[0]
-    newLid = ':'.join(parts)
+        parts[-2] = "browse_calibrated"
+    parts[-1] = file_name.stem.split("__")[0]
+    newLid = ":".join(parts)
     return newLid
+
 
 def lidUpdate(tree, fileName, calib: bool = False):
     # conf.log.debug("LID update", verbosity=3)
@@ -118,18 +121,20 @@ def lidUpdate(tree, fileName, calib: bool = False):
     # parts[-1] = fileName.stem.split('__')[0]
     # newLid = ':'.join(parts)
     if not isinstance(fileName, Path):
-        fileName=Path(fileName)
-    newLid =lidGenerator(old_lid=oldLid,file_name=fileName, calib=calib)
+        fileName = Path(fileName)
+    newLid = lidGenerator(old_lid=oldLid, file_name=fileName, calib=calib)
     updateXML(tree, "logical_identifier", newLid)
     return newLid
-    
 
-def new_lvid(old:str, file_name: Path, file_version:str):
-    parts=old.split('::')
-    new_main=parts[0].split(':')
-    if 'cal' in file_name.stem:
-        new_main[-2]='data_calibrated'
-    newLVID=f"{':'.join(new_main[0:-1])}:{file_name.stem.split('__')[0]}::{file_version}"
+
+def new_lvid(old: str, file_name: Path, file_version: str):
+    parts = old.split("::")
+    new_main = parts[0].split(":")
+    if "cal" in file_name.stem:
+        new_main[-2] = "data_calibrated"
+    newLVID = (
+        f"{':'.join(new_main[0:-1])}:{file_name.stem.split('__')[0]}::{file_version}"
+    )
     return newLVID
 
 
@@ -141,5 +146,8 @@ def lvidUpdate(
     updateXML(tree, "lidvid_reference", newLVID)
     return newLVID
 
+
 def pretty_print(dom):
-    return '\n'.join([line for line in dom.toprettyxml(indent=' '*4).split('\n') if line.strip()])
+    return "\n".join(
+        [line for line in dom.toprettyxml(indent=" " * 4).split("\n") if line.strip()]
+    )

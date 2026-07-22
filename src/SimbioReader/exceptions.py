@@ -6,3 +6,13 @@ class SizeError(Exception):
 
     def __str__(self):
         return f"The file size is {self.size} but the expected size is {self.expected}"
+
+
+class LoadingError(Exception):
+    def __init__(self, filename, message):
+        self.filename = filename
+        self.message = message
+        super().__init__(self.filename, self.message)
+
+    def __str__(self):
+        return f"Error loading {self.filename}: {self.message}"

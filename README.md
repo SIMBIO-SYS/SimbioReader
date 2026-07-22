@@ -19,10 +19,21 @@ To install the reader you can use the command:
 $ python3 -m pip install SimbioReader
 ```
 
-or using poetry
+or using uv
 
 ```console
-$ poetry add SimbioReader
+$ uv add SimbioReader
+```
+
+## Development
+
+Install the locked development environment and run the checks with:
+
+```console
+$ uv sync --all-groups
+$ uv run pytest
+$ uv run ruff check src test
+$ uv build
 ```
 
 ## Usage

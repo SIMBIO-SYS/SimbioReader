@@ -5,7 +5,7 @@ import pytest
 
 if "mystrtools" not in sys.modules:
     mystrtools_stub = types.ModuleType("mystrtools")
-    mystrtools_stub.convert_case = lambda value, *_args, **_kwargs: value #type: ignore
+    mystrtools_stub.convert_case = lambda value, *_args, **_kwargs: value  # type: ignore
     sys.modules["mystrtools"] = mystrtools_stub
 
 from SimbioReader.exceptions import SizeError
@@ -29,5 +29,7 @@ def test_size_error_message():
 
 
 def test_size_error_can_be_raised():
-    with pytest.raises(SizeError, match="The file size is 10 but the expected size is 20"):
+    with pytest.raises(
+        SizeError, match="The file size is 10 but the expected size is 20"
+    ):
         raise SizeError(size=10, expected=20)
