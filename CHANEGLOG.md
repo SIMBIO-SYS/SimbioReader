@@ -1,5 +1,9 @@
 # SimbioReader Changelog
 
+## 0.7.0
+
+- added method get_filters
+
 ## 0.6.7
 
 - fix file name version

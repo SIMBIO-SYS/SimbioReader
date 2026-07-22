@@ -843,6 +843,13 @@ class SimbioReader:
                 return disp
         return None
 
+    def get_filters(self) -> list:
+        filters = []
+        for item in self.data.filters:
+            disp = getattr(self.data, f"filter_{item.lower()}")
+            filters.append(disp)
+        return filters
+    
     def get_segment_by_file(self, file_name: Path) -> SimbioObject | None:
         if isinstance(file_name, str):
             file_name = Path(file_name)
