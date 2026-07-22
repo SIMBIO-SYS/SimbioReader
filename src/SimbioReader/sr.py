@@ -750,7 +750,7 @@ class SimbioReader:
                 disp = getattr(self.data, f"filter_{item.lower()}")
                 columns.append(disp.data_structure.show(title=f"Data Structure Info - Filter {item.upper()}"))
 
-        if filters:
+        if filters and hasattr(self.data, "filters"):
             for item in self.data.filters:
                 disp = getattr(self.data, f"filter_{item.lower()}")
                 columns.append(disp.show())

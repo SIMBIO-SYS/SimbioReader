@@ -1,5 +1,5 @@
-![Version 0.6.7](https://img.shields.io/badge/version-0.6.7-blue?style=plastic)
-![Language Python 3.13](https://img.shields.io/badge/python-3.13-orange?style=plastic&logo=python)
+![Version 0.6.8-dev.1](https://img.shields.io/badge/version-0.6.8--dev.1-blue?style=plastic)
+![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/simbioreader/badge/?version=latest)](https://simbioreader.readthedocs.io/en/latest/?badge=latest)
@@ -32,8 +32,13 @@ The package contain a class that read and decode the SIMBIO-SYS image
 ```python
 from SimbioReader import SimbioReader as SR
 
-dat = SimbioReader("sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat")
+dat = SR("sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat")
 ```
+
+Filter display is guarded for product types that do not expose filter metadata,
+so requesting filter output on those products no longer raises an attribute
+error. See [`FLUSSO_DATI.md`](FLUSSO_DATI.md) for the reader's parsing and data
+flow.
 
 ## Command line tools
 
