@@ -1,6 +1,7 @@
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime
+from enum import StrEnum
 
 # from SimbioReader.version import version
 from importlib.metadata import version as get_version
@@ -43,13 +44,17 @@ version = Vers(installed_version)
 __version__ = version.full()
 
 
-class INSTRUMENT:
-    STC: str = "STC"
-    HRIC: str = "HRIC"
-    VIHI: str = "VIHI"
+class INSTRUMENT(StrEnum):
+    STC = "STC"
+    HRIC = "HRIC"
+    VIHI = "VIHI"
 
 
-instruments: list[str] = [INSTRUMENT.STC, INSTRUMENT.VIHI, INSTRUMENT.HRIC]
+instruments: list[INSTRUMENT] = [
+    INSTRUMENT.STC,
+    INSTRUMENT.VIHI,
+    INSTRUMENT.HRIC,
+]
 
 # ============= To Check =====================
 
@@ -528,6 +533,79 @@ class Data:
     def __repr__(self):
         return self.__str__()
 
+@dataclass
+class Compression:
+    box:str
+    rate:str
+    ratio:str
+
+@dataclass(slots=True, frozen=True)
+class Simbio:
+    channel: INSTRUMENT
+    general_parameters: str
+    compression: Compression | None = None
+    
+    _stc: str | None = None
+    _vihi: str | None = None
+    _hric: str | None = None
+
+    def __post_init__(self) -> None:
+        try:
+            channel = INSTRUMENT(self.channel)
+        except ValueError as exc:
+            valid = ", ".join(instrument.value for instrument in INSTRUMENT)
+            raise ValueError(
+                f"Unknown instrument {self.channel!r}. Expected one of: {valid}."
+            ) from exc
+
+        object.__setattr__(self, "channel", channel)
+
+        instrument_data = {
+            INSTRUMENT.STC: self._stc,
+            INSTRUMENT.HRIC: self._hric,
+            INSTRUMENT.VIHI: self._vihi,
+        }
+        if instrument_data[channel] is None:
+            raise ValueError(f"Data for instrument {channel.value} are required.")
+
+        unexpected = [
+            instrument.value
+            for instrument, value in instrument_data.items()
+            if instrument is not channel and value is not None
+        ]
+        if unexpected:
+            names = ", ".join(unexpected)
+            raise ValueError(
+                f"Data for {names} cannot be provided when the instrument is "
+                f"{channel.value}."
+            )
+
+    def _get_instrument_data(
+        self,
+        expected: INSTRUMENT,
+        value: str | None,
+    ) -> str:
+        if self.channel is not expected:
+            raise AttributeError(
+                f"The {expected.value} data are not available. "
+                f"The current instrument is {self.channel.value}."
+            )
+        assert value is not None
+        return value
+
+    @property
+    def stc(self) -> str:
+        return self._get_instrument_data(INSTRUMENT.STC, self._stc)
+
+    @property
+    def hric(self) -> str:
+        return self._get_instrument_data(INSTRUMENT.HRIC, self._hric)
+
+    @property
+    def vihi(self) -> str:
+        return self._get_instrument_data(INSTRUMENT.VIHI, self._vihi)
+
+
 
 @dataclass
 class TimeCoordinates:
@@ -567,6 +645,7 @@ class SimbioReader:
     time_coordinates: TimeCoordinates
     target: Target
     software_context: SoftwareContext
+    simbio: Simbio
 
     debug: bool
     verbosity: int
@@ -711,7 +790,7 @@ class SimbioReader:
             object.__setattr__(self, attribute, item)
 
         # Identication of the channel
-        channel = (
+        channel_name = (
             root.xpath(
                 "string(./pds:Observation_Area/pds:Mission_Area/"
                 "psa:Sub-Instrument/psa:identifier)",
@@ -720,14 +799,17 @@ class SimbioReader:
             .upper()
             .strip()
         )
-        logger.debug(f"Identied the sub-instument name: {channel}")
-        if channel not in instruments:
+        logger.debug(f"Identied the sub-instument name: {channel_name}")
+        try:
+            channel = INSTRUMENT(channel_name)
+        except ValueError as exc:
             message = (
-                f"The sub-Instrument {channel} is not a valid SIMBIO-SYS sub-instrument"
+                f"The sub-Instrument {channel_name} is not a valid "
+                "SIMBIO-SYS sub-instrument"
             )
             self.console.print(f"{MSG.CRITICAL}{message}")
             logger.critical(message)
-            raise ValueError(message)
+            raise ValueError(message) from exc
         object.__setattr__(self, "channel", channel)
 
         # get Data Title
