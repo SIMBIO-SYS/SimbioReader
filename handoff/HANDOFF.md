@@ -1,10 +1,10 @@
 # SimbioReader handoff
 
-Updated: `2026-07-23T12:41:56+02:00`
+Updated: `2026-07-23`
 
 Branch: `Version_1.0`
 
-Current development version: `1.0.0-dev.1`
+Current development version: `1.0.0-dev.2`
 
 ## Current role
 
@@ -49,7 +49,7 @@ supported phase and filter workflows are available through `simbioReader`.
 - `CHANGELOG.md` contains the merged project history and the complete
   Version 1.0 branch changes.
 - `docs/source` contains the Sphinx user guide, CLI guide, typed-model
-  reference, mission-data reference, and tools API.
+  reference, mission-data reference, and class map.
 - `docs/model-coverage-audit.md` records XML coverage with stable `SC-*` IDs.
 - `docs/unused-code-audit.md` records legacy-code decisions with stable
   `UC-*` IDs.
@@ -65,15 +65,19 @@ uv run sphinx-build -W -M html docs/source docs/build
 uv build
 ```
 
-At this handoff, the focused test run reports 82 passing tests, Ruff reports
+At this handoff, the focused test run reports 69 passing tests, Ruff reports
 no lint errors, and the Sphinx HTML build succeeds with warnings treated as
 errors. Generated caches, coverage output, and documentation builds must not
 be committed.
 
+The focused Pyright check for `sr.py` and `simbio_class.py` passes. The complete
+package check reports four auxiliary-module errors tracked as `SIMCAL-017` in
+`../SimCal/TODO.md`; they are documented but not corrected in this increment.
+
 ## Next work
 
 - Remove the obsolete preview stubs in the next incompatible release.
-- Revisit the remaining high-confidence legacy classes documented in the
+- Revisit the remaining high-confidence module findings documented in the
   unused-code audit.
 - Replace the SIMBIO-SYS compatibility value if the current coded identifier
   changes before the final 1.0 release.

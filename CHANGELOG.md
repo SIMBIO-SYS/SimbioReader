@@ -27,6 +27,7 @@ Changes since the branch diverged from `main` at commit `90819e5`.
 
 - Advanced the package version to `1.0.0-dev.1` and migrated the build backend
   from Poetry to uv.
+- Advanced the package version to `1.0.0-dev.2`.
 - Unified command-line functionality under `simbioReader` with the
   `version`, `about`, `phases`, `filters`, and `info` subcommands.
 - `version` now displays code version and PSA/SIMBIO-SYS data-model
@@ -50,12 +51,19 @@ Changes since the branch diverged from `main` at commit `90819e5`.
 
 ### Deprecated
 
-- `SimbioReader.savePreview()` and the legacy `Data.savePreview()` compatibility
-  methods now print an obsolescence warning and raise
-  `DeprecatedMethodError`. They are scheduled for removal in a future release.
+- `SimbioReader.savePreview()` now prints an obsolescence warning and raises
+  `DeprecatedMethodError`. It is scheduled for removal in a future release.
 
 ### Removed
 
+- Legacy `Detector` and `HK` wrappers identified as `UC-SR-001` and
+  `UC-SR-002`; current typed detector and housekeeping models replace them.
+- Legacy `Data` identified as `UC-SR-004`, including its obsolete
+  `savePreview()` method (`UC-SR-007`).
+- The now-unused `pandas` runtime dependency.
+- The now-unused `mystrtools` runtime dependency.
+- The unused `SimbioReader.tools` module and its XML/LID helper functions,
+  which no production code called.
 - The separate `simbioInfo` console entry point and obsolete `infocli.py`
   module; their supported functionality is available through `simbioReader`.
 - Legacy `SimbioObject`, preview implementation, filter accessors, image
@@ -70,6 +78,12 @@ Changes since the branch diverged from `main` at commit `90819e5`.
 - Corrected mission phase names and boundaries using the dates in the phase
   database.
 - Guarded filter rendering for products without filter metadata.
+
+### Documentation
+
+- Record the four remaining package-wide Pyright findings as `SIMCAL-017` in
+  the central Calibrator issue register; this versioning pass does not alter
+  the affected auxiliary code.
 - Updated tests to use current model attributes and fixture paths.
 - Removed static-analysis errors and rich-click markup deprecation warnings.
 

@@ -19,5 +19,6 @@ SimbioReader 1.0 requires Python 3.14 and provides both a Python API and the
    :caption: Contents
 
    usage
+   class-map
    cli
    reference

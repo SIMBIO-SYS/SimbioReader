@@ -4,13 +4,10 @@ from datetime import datetime
 # from SimbioReader.version import version
 from importlib.metadata import version as get_version
 from pathlib import Path
-from xml.dom.minidom import Document, Element
 
-import pandas as pd
+import lxml.etree as etree
 import pds4_tools
 from loguru import logger
-from lxml import etree
-from mystrtools import convert_case
 from pds4_tools.reader.array_objects import ArrayStructure
 from pds4_tools.reader.table_objects import TableStructure
 from rich.columns import Columns
@@ -34,10 +31,6 @@ from SimbioReader.simbio_classes import (
     Vihi,
     instruments,  # noqa: F401 - compatibility re-export
 )
-from SimbioReader.tools import (
-    getElement,
-    getValue,
-)
 from SimbioReader.version_check import check_pypi_version
 
 installed_version = get_version("SimbioReader")
@@ -47,141 +40,6 @@ __version__ = version.full()
 
 
 
-
-# ============= To Check =====================
-
-
-class Detector:
-    """
-    A class representing a detector in a SIMBIO-SYS image.
-
-    This class extracts and initializes various attributes related to a detector
-    in a SIMBIO-SYS image, such as the first line, first sample, and number of lines.
-
-    Args:
-        dat (Element): An XML Element containing the detector information.
-
-    Attributes:
-        first_line (int): The first line number of the detector.
-        first_sample (int): The first sample number of the detector.
-        lines (int): The number of lines in the detector.
-    """
-
-    def __init__(self, dat: Element) -> None:
-        detector = getElement(dat, "img:Subframe")
-        self.first_line = int(getValue(detector, "img:first_line"))
-        self.first_sample = int(getValue(detector, "img:first_sample"))
-        self.lines = int(getValue(detector, "img:lines"))
-        self.samples = int(getValue(detector, "img:samples"))
-        self.line_fov = float(getValue(detector, "img:line_fov"))
-        self.sample_fov = float(getValue(detector, "img:sample_fov"))
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Detector object.
-
-        Returns:
-            str: A string representation of the Detector object.
-        """
-        return "Detector object"
-
-    def __repr__(self) -> str:
-        """
-        Returns a string representation of the Detector object for debugging.
-
-        Returns:
-            str: A string representation of the Detector object.
-        """
-        return self.__str__()
-
-    def show(self, title="Detector") -> Panel:
-        """
-        Displays the detector information in a formatted table.
-
-        Returns:
-            Panel: A Panel object containing the formatted detector information.
-        """
-        sep = " = "
-        dt = Table.grid()
-        dt.add_column(style="yellow", justify="right")
-        dt.add_column()
-        dt.add_column(style="cyan", justify="left")
-        dt.add_row("First Line", sep, str(self.first_line))
-        dt.add_row("First Sample", sep, str(self.first_sample))
-        dt.add_row("Lines", sep, str(self.lines))
-        dt.add_row("Samples", sep, str(self.samples))
-        dt.add_row("Line FOV", sep, str(self.line_fov))
-        dt.add_row("Sample FOV", sep, str(self.sample_fov))
-        return Panel(dt, title=title, border_style="yellow", expand=False)
-
-
-class HK:
-    """
-    A class representing housekeeping data for a SIMBIO-SYS image.
-
-    This class initializes various attributes from a pandas DataFrame containing
-    housekeeping data and provides methods to display this information.
-
-    Args:
-        df (pd.DataFrame): A pandas DataFrame containing housekeeping data.
-
-    Attributes:
-        df (pd.DataFrame): The DataFrame containing housekeeping data.
-    """
-
-    def __init__(self, df: pd.DataFrame):
-        """
-        Initializes the HK object by extracting information from the DataFrame.
-
-        Args:
-            df (pd.DataFrame): A pandas DataFrame containing housekeeping data.
-        """
-        self.df = df
-        for i in df.columns:
-            if type(df[i].values[0]) is str:
-                val = df[i].values[0].strip()
-            else:
-                val = df[i].values[0]
-            setattr(self, i.strip().lower(), val)
-
-    def show(self) -> Panel:
-        """
-        Displays the housekeeping information in a formatted table.
-
-        Returns:
-            Panel: A Panel object containing the formatted housekeeping information.
-        """
-        sep = " = "
-        dt = Table.grid()
-        dt.add_column(style="yellow", justify="right")
-        dt.add_column()
-        dt.add_column(style="cyan", justify="left")
-        for i in self.df.columns:
-            dt.add_row(
-                convert_case(i, "space").title(), sep, f"{self.df[i].values[0]}".strip()
-            )
-        return Panel(dt, title="HouseKeeping", border_style="yellow", expand=False)
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the HK object.
-
-        Returns:
-            str: A string representation of the HK object.
-        """
-        return "HK object"
-
-    def __repr__(self) -> str:
-        """
-        Returns a string representation of the HK object for debugging.
-
-        Returns:
-            str: A string representation of the HK object.
-        """
-        return self.__str__()
-
-
-# ================================
 
 # TODO: Implemnt informatio after the improve of the target information
 # Class used in 1.0
@@ -212,86 +70,6 @@ class Target:
 
 
 # ==============================================================
-
-
-class Data:
-    def __init__(
-        self,
-        channel: str,
-        level: str,
-        source_path: Path,
-        file_obs: list,
-        imaging: list,
-        geometry: list,
-        debug: bool = False,
-        verbose: bool = False,
-        console=None,
-    ):
-        if console is None:
-            self.console = Console()
-        else:
-            self.console = console
-        self.channel = channel
-        if self.channel == "vihi":
-            self.segments = []
-            self.seg_number = 0
-        else:
-            self.filters = []
-
-        self.items_number = len(file_obs)
-
-        self.level = level
-        for i, fo in enumerate(file_obs):
-            file_name = source_path.joinpath(getValue(fo, "file_name"))
-            if verbose or debug:
-                self.console.print(
-                    f"{MSG.INFO}Processing file {i + 1}/{self.items_number}: {file_name.name}"
-                )
-            if not file_name.exists():
-                raise FileNotFoundError(f"The data file {file_name} does not exist.")
-            if file_name.suffix.lower() == ".csv":
-                # read CSV file
-                if verbose or debug:
-                    self.console.print(f"{MSG.INFO}Reading CSV file: {file_name}")
-                df = pd.read_csv(file_name, sep=",", header=0)
-                self.hk = HK(df)
-            elif file_name.suffix.lower() in [".qub", ".dat"]:
-                if channel in ["stc", "hric"]:
-                    filter = getValue(imaging[i], "img:filter_name")
-                    self.filters.append(filter.lower())
-
-                    if debug:
-                        self.console.print(f"{MSG.DEBUG}Found filter: {filter}")
-                else:
-                    self.seg_number += 1
-                    self.segments.append(f"segment_{self.seg_number:03}")
-
-    def savePreview(
-        self,
-        img_type: str = "png",
-        quality: int = 100,
-        outFolder: Path = None,
-        tree: Document = None,
-    ) -> str | None:
-        """Report that legacy preview generation is no longer supported.
-
-        .. deprecated::
-            This method is obsolete and retained temporarily for API
-            compatibility. It must be removed in a future version.
-        """
-        message = (
-            "Data.savePreview() is obsolete and will be removed "
-            "in a future version of SimbioReader."
-        )
-        self.console.print(f"{MSG.WARNING}{message}")
-        raise DeprecatedMethodError(message)
-
-    def __str__(self):
-        return f"Data(channel={self.channel}, level={self.level}, items_number={self.items_number})"
-
-    def __repr__(self):
-        return self.__str__()
-
 
 
 @dataclass
@@ -424,7 +202,7 @@ class SimbioReader:
 
         # Load the data
         try:
-            data = pds4_tools.read(filename=str(self.lblx_file))
+            data = pds4_tools.read(filename=str(self.lblx_file),no_scale=True)
         except Exception as exc:
             message = f"Unable to read the PDS4 product: {exc}"
             raise LoadingError(self.lblx_file.name, message) from exc
@@ -459,9 +237,9 @@ class SimbioReader:
                     if self.verbosity > 1:
                         self.console.print(f"{MSG.INFO}{message}")
                     object.__setattr__(self, "image_data", item)
-                case "Array_3D_Image":
+                case "Array_3D_Spectrum":
                     object.__setattr__(self, "cube_file", Path(item.parent_filename))
-                    message = f"Identified a 3D Image File ({self.image_file.name}) - VIHI Cube"
+                    message = f"Identified a 3D Image File ({self.cube_file.name}) - VIHI Cube"
                     logger.info(message)
                     if self.verbosity > 1:
                         self.console.print(f"{MSG.INFO}{message}")
@@ -1121,18 +899,26 @@ class SimbioReader:
         return self.show()
 
     def __getattr__(self, name: str):
-        if name.startswith("segment") and self.channel in ["stc", "hric"]:
+        if name.startswith("segment") and self.channel in {
+            INSTRUMENT.STC,
+            INSTRUMENT.HRIC,
+        }:
             self.console.print(
                 f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
             )
-        elif name.startswith("segment") and self.channel == "vihi":
+            return None
+        if name.startswith("segment") and self.channel == INSTRUMENT.VIHI:
             self.console.print(f"{MSG.ERROR}Segment {name} not available.")
-        elif name.startswith("filter") and self.channel == "vihi":
+            return None
+        if name.startswith("filter") and self.channel == INSTRUMENT.VIHI:
             self.console.print(
                 f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
             )
+            return None
 
-        return None
+        raise AttributeError(
+            f"{type(self).__name__!s} object has no attribute {name!r}"
+        )
 
     def get_segment_by_file(
         self, file_name: str | Path
@@ -1151,8 +937,8 @@ class SimbioReader:
         self,
         img_type: str = "png",
         quality: int = 100,
-        outFolder: Path = None,
-        template: Path = None,
+        outFolder: Path| None = None,
+        template: Path | None= None,
         description: str = "This is the first version.",
     ) -> str | None:
         """Report that preview generation is no longer supported.
@@ -1180,7 +966,16 @@ class SimbioReader:
         raise DeprecatedMethodError(message)
 
     def __str__(self) -> str:
-        return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"
+        return (
+            f"SimbioReader(channel={self.channel.value}, "
+            f"processing_level={self.processing_level}, "
+            f"lvid={self.lvid})"
+        )
 
     def __repr__(self) -> str:
-        return self.__str__()
+        return (
+            f"SimbioReader(channel={self.channel.value!r}, "
+            f"processing_level={self.processing_level!r}, "
+            f"lid={self.lid!r}, "
+            f"version_id={self.version_id!r})"
+        )

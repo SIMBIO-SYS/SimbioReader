@@ -1,0 +1,182 @@
+digraph SimbioReaderClassMap {
+  graph [
+    rankdir=LR,
+    bgcolor="transparent",
+    fontname="Helvetica",
+    fontsize=12,
+    label="SimbioReader 1.0 — class composition map",
+    labelloc=t,
+    nodesep=0.25,
+    ranksep=0.75,
+    pad=0.15,
+    splines=ortho
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#f8fafc",
+    color="#475569",
+    fontname="Helvetica",
+    fontsize=10,
+    margin="0.08,0.05"
+  ];
+  edge [
+    color="#64748b",
+    fontcolor="#334155",
+    fontname="Helvetica",
+    fontsize=8,
+    arrowsize=0.65
+  ];
+
+  SimbioReader [
+    fillcolor="#dbeafe",
+    color="#2563eb",
+    penwidth=2,
+    label="SimbioReader\nfrozen dataclass / public entry point"
+  ];
+
+  subgraph cluster_product {
+    label="Product-level values";
+    color="#bfdbfe";
+    style="rounded";
+
+    TimeCoordinates [label="TimeCoordinates"];
+    Target [label="Target"];
+    SoftwareContext [label="SoftwareContext"];
+    Display [label="Display"];
+    ArrayStructure [
+      label="pds4_tools.ArrayStructure",
+      style="rounded,dashed,filled",
+      fillcolor="#ffffff"
+    ];
+    TableStructure [
+      label="pds4_tools.TableStructure",
+      style="rounded,dashed,filled",
+      fillcolor="#ffffff"
+    ];
+  }
+
+  subgraph cluster_instruments {
+    label="SIMBIO mission-area models";
+    color="#bbf7d0";
+    style="rounded";
+
+    Simbio [fillcolor="#dcfce7", label="Simbio\nexactly one instrument branch"];
+    INSTRUMENT [label="INSTRUMENT\nSTC | HRIC | VIHI"];
+    Compression [label="Compression"];
+
+    Stc [label="Stc"];
+    StcHousekeeping [label="StcHousekeeping"];
+    StcGeneralParameters [label="StcGeneralParameters"];
+    StcDetector [label="StcDetector"];
+
+    Hric [label="Hric"];
+    HricHousekeeping [label="HricHousekeeping"];
+    HricGeneralParameters [label="HricGeneralParameters"];
+    HricDetector [label="HricDetector"];
+
+    Vihi [label="Vihi"];
+    VihiFrameParameters [label="VihiFrameParameters"];
+    VihiFrameElaboration [label="VihiFrameElaboration"];
+    VihiHousekeeping [label="VihiHousekeeping"];
+  }
+
+  subgraph cluster_imaging {
+    label="Imaging discipline area";
+    color="#fde68a";
+    style="rounded";
+
+    Imaging [fillcolor="#fef3c7", label="Imaging"];
+    ImagingDetector [label="ImagingDetector"];
+    OpticalFilter [label="OpticalFilter"];
+    Subframe [label="Subframe"];
+    DeviceTemperature [label="DeviceTemperature"];
+  }
+
+  subgraph cluster_geometry {
+    label="Geometry discipline area";
+    color="#ddd6fe";
+    style="rounded";
+
+    Geometry [fillcolor="#ede9fe", label="Geometry"];
+    GeometryDisplay [label="GeometryDisplay"];
+    GeometryOrbiter [label="GeometryOrbiter"];
+    OrbiterIdentification [label="OrbiterIdentification"];
+    CoordinateSystem [label="CoordinateSystem"];
+    BodyIdentification [label="BodyIdentification"];
+    ReferenceFrame [label="ReferenceFrame"];
+    PixelDimensions [label="PixelDimensions"];
+    GeometryDistances [label="GeometryDistances"];
+    SurfaceGeometry [label="SurfaceGeometry"];
+    PixelIntercept [label="PixelIntercept"];
+    IlluminationGeometry [label="IlluminationGeometry"];
+    GeometryVectors [label="GeometryVectors"];
+    CartesianPositionVector [label="CartesianPositionVector"];
+    CartesianVelocityVector [label="CartesianVelocityVector"];
+  }
+
+  subgraph cluster_reference {
+    label="Product references";
+    color="#fecdd3";
+    style="rounded";
+
+    Reference [fillcolor="#ffe4e6", label="Reference"];
+    InternalReference [label="InternalReference"];
+    ExternalReference [label="ExternalReference"];
+  }
+
+  SimbioReader -> TimeCoordinates [dir=both, arrowtail=diamond, label=" time_coordinates"];
+  SimbioReader -> Target [dir=both, arrowtail=diamond, label=" target"];
+  SimbioReader -> SoftwareContext [dir=both, arrowtail=diamond, label=" software_context"];
+  SimbioReader -> Simbio [dir=both, arrowtail=diamond, label=" simbio"];
+  SimbioReader -> Display [dir=both, arrowtail=diamond, label=" display"];
+  SimbioReader -> Imaging [dir=both, arrowtail=diamond, label=" imaging"];
+  SimbioReader -> Geometry [dir=both, arrowtail=diamond, label=" geometry"];
+  SimbioReader -> Reference [dir=both, arrowtail=diamond, label=" reference"];
+  SimbioReader -> ArrayStructure [style=dashed, label=" data_arrays 0..*"];
+  SimbioReader -> TableStructure [style=dashed, label=" csv_data 0..1"];
+
+  Simbio -> INSTRUMENT [style=dashed, label=" channel"];
+  Simbio -> Compression [dir=both, arrowtail=diamond, label=" compression 0..1"];
+  Simbio -> Stc [dir=both, arrowtail=diamond, label=" stc 0..1"];
+  Simbio -> Hric [dir=both, arrowtail=diamond, label=" hric 0..1"];
+  Simbio -> Vihi [dir=both, arrowtail=diamond, label=" vihi 0..1"];
+
+  Stc -> StcHousekeeping [dir=both, arrowtail=diamond, label=" housekeeping"];
+  Stc -> StcGeneralParameters [dir=both, arrowtail=diamond, label=" general_parameters"];
+  StcGeneralParameters -> StcDetector [dir=both, arrowtail=diamond, label=" detector"];
+
+  Hric -> HricHousekeeping [dir=both, arrowtail=diamond, label=" housekeeping"];
+  Hric -> HricGeneralParameters [dir=both, arrowtail=diamond, label=" general_parameters"];
+  HricGeneralParameters -> HricDetector [dir=both, arrowtail=diamond, label=" detector"];
+
+  Vihi -> VihiFrameParameters [dir=both, arrowtail=diamond, label=" frame_parameters"];
+  Vihi -> VihiFrameElaboration [dir=both, arrowtail=diamond, label=" frame_elaboration"];
+  Vihi -> VihiHousekeeping [dir=both, arrowtail=diamond, label=" housekeeping"];
+
+  Imaging -> ImagingDetector [dir=both, arrowtail=diamond, label=" detector"];
+  Imaging -> OpticalFilter [dir=both, arrowtail=diamond, label=" optical_filter 0..1"];
+  Imaging -> Subframe [dir=both, arrowtail=diamond, label=" subframe"];
+  Imaging -> DeviceTemperature [dir=both, arrowtail=diamond, label=" device_temperatures 0..*"];
+
+  Geometry -> GeometryDisplay [dir=both, arrowtail=diamond, label=" image_display"];
+  Geometry -> GeometryOrbiter [dir=both, arrowtail=diamond, label=" orbiter"];
+  GeometryDisplay -> BodyIdentification [dir=both, arrowtail=diamond, label=" central_body, target"];
+  GeometryDisplay -> ReferenceFrame [dir=both, arrowtail=diamond, label=" reference_frame"];
+  GeometryOrbiter -> OrbiterIdentification [dir=both, arrowtail=diamond, label=" identification"];
+  GeometryOrbiter -> PixelDimensions [dir=both, arrowtail=diamond, label=" pixel_dimensions"];
+  GeometryOrbiter -> GeometryDistances [dir=both, arrowtail=diamond, label=" distances"];
+  GeometryOrbiter -> SurfaceGeometry [dir=both, arrowtail=diamond, label=" surface"];
+  GeometryOrbiter -> IlluminationGeometry [dir=both, arrowtail=diamond, label=" illumination"];
+  GeometryOrbiter -> GeometryVectors [dir=both, arrowtail=diamond, label=" vectors"];
+  OrbiterIdentification -> BodyIdentification [dir=both, arrowtail=diamond, label=" central_body, target"];
+  OrbiterIdentification -> CoordinateSystem [dir=both, arrowtail=diamond, label=" coordinate_system"];
+  CoordinateSystem -> BodyIdentification [dir=both, arrowtail=diamond, label=" origin"];
+  CoordinateSystem -> ReferenceFrame [dir=both, arrowtail=diamond, label=" reference_frame"];
+  SurfaceGeometry -> PixelIntercept [dir=both, arrowtail=diamond, label=" footprint_vertices 0..*"];
+  GeometryVectors -> CartesianPositionVector [dir=both, arrowtail=diamond, label=" positions 0..1"];
+  GeometryVectors -> CartesianVelocityVector [dir=both, arrowtail=diamond, label=" velocities 0..1"];
+
+  Reference -> InternalReference [dir=both, arrowtail=diamond, label=" internal_references 0..*"];
+  Reference -> ExternalReference [dir=both, arrowtail=diamond, label=" external_references 0..*"];
+}

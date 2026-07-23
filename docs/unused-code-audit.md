@@ -28,19 +28,19 @@ approvata.
 
 ## Nucleo legacy in `sr.py`
 
-Le quattro classi seguenti formano un sottosistema collegato internamente, ma
-il costruttore corrente di `SimbioReader` non crea più un oggetto `Data`.
-Non sono esportate dal package e non sono istanziate dai test.
+Le classi seguenti formavano un sottosistema collegato internamente, ma non
+erano più raggiungibili dal costruttore corrente di `SimbioReader`, esportate
+dal package o istanziate dai test. Sono state rimosse.
 
 | ID | Simbolo | Confidenza | Funzionalità precedente | Evidenza e nota per la rimozione |
 |---|---|---|---|---|
-| `UC-SR-001` | `Detector` | Alta | Estraeva detector e FOV da nodi DOM `img:Subframe` e produceva un pannello Rich. | Rimasta senza chiamanti dopo la rimozione di `SimbioObject`. Sostituita da `ImagingDetector`, `Subframe` e dai detector STC/HRIC. |
-| `UC-SR-002` | `HK` | Alta | Trasformava la prima riga di un DataFrame housekeeping in attributi dinamici e pannello Rich. | Usata soltanto da `Data`. Le nuove classi `StcHousekeeping`, `HricHousekeeping` e `VihiHousekeeping` forniscono dati tipizzati. |
+| `UC-SR-001` | `Detector` | Rimosso | Estraeva detector e FOV da nodi DOM `img:Subframe` e produceva un pannello Rich. | Rimossa: era senza chiamanti dopo la rimozione di `SimbioObject` ed è sostituita da `ImagingDetector`, `Subframe` e dai detector STC/HRIC. |
+| `UC-SR-002` | `HK` | Rimosso | Trasformava la prima riga di un DataFrame housekeeping in attributi dinamici e pannello Rich. | Rimossa insieme al nucleo legacy; le nuove classi `StcHousekeeping`, `HricHousekeeping` e `VihiHousekeeping` forniscono dati tipizzati. |
 | `UC-SR-003` | `SimbioObject` | Rimosso | Caricava direttamente array NumPy per filtri/segmenti, associando detector, filtro e struttura dati. | Classe rimossa insieme ai punti di costruzione legacy presenti in `Data`. |
-| `UC-SR-004` | `Data` | Alta | Catalogava file osservazionali, CSV, filtri STC/HRIC e segmenti VIHI. | Non viene più assegnata a `SimbioReader.data`; il reader usa ora strutture `pds4_tools` e modelli XML tipizzati. |
+| `UC-SR-004` | `Data` | Rimosso | Catalogava file osservazionali, CSV, filtri STC/HRIC e segmenti VIHI. | Rimossa: non veniva più assegnata a `SimbioReader.data`; il reader usa strutture `pds4_tools` e modelli XML tipizzati. |
 
-Queste classi dovrebbero essere valutate e, se approvate, rimosse insieme:
-eliminare solo una parte lascerebbe riferimenti interni incoerenti.
+Le dipendenze interne del nucleo legacy sono state eliminate insieme alle
+relative classi.
 
 ### Metodi del nucleo legacy
 
@@ -48,7 +48,7 @@ eliminare solo una parte lascerebbe riferimenti interni incoerenti.
 |---|---|---|---|---|
 | `UC-SR-005` | `SimbioObject.show()` | Rimosso | Mostrava riepilogo di filtro, detector e struttura dati. | Rimosso insieme a `SimbioObject`; è sostituito dal nuovo `SimbioReader.show()` basato sulle dataclass. |
 | `UC-SR-006` | `SimbioObject.savePreview()` | Rimosso | Convertiva l'array in PNG/TIFF e generava frammenti browse PDS4. | Rimosso insieme alla classe `SimbioObject`. |
-| `UC-SR-007` | `Data.savePreview()` | Gestito come obsoleto | Iterava filtri o segmenti delegando a `SimbioObject.savePreview()`. | Mantiene temporaneamente la firma per compatibilità, ma ora stampa un warning e solleva `DeprecatedMethodError`. È prevista la rimozione in una versione futura. |
+| `UC-SR-007` | `Data.savePreview()` | Rimosso | Iterava filtri o segmenti delegando a `SimbioObject.savePreview()`. | Rimosso insieme alla classe `Data` dopo l'approvazione di `UC-SR-004`. |
 
 ## Metodi legacy rimasti su `SimbioReader`
 
@@ -150,30 +150,27 @@ codice candidato alla rimozione.
 | `UC-AUX-002` | Variabile `ndt` in `infocli.subphases()` | Rimossa insieme a `infocli.py`. |
 | `UC-ERR-001` | Nome `DataStructure` in `SimbioObject.__init__()` | Risolto tramite la rimozione di `UC-SR-003` e dei relativi punti di costruzione. |
 
-Dopo la rimozione del nucleo legacy e del corpo storico della preview, vanno
-ricontrollati anche gli import di NumPy, pandas, Pillow, `hashlib`,
-`xml.dom.minidom`, `Filter` e `data_types`: oggi sono mantenuti quasi
-esclusivamente da quel codice.
+Dopo la rimozione del nucleo legacy e del corpo storico della preview sono
+stati ricontrollati gli import correlati. Le rimozioni hanno eliminato
+`pandas`, `xml.dom.minidom`, `Element`, `getValue`, `getElement` e
+`convert_case`, oltre alle dipendenze `pandas` e `mystrtools`.
 
 ## Funzioni di `tools.py`
 
-Non risultano funzioni completamente isolate:
+Il modulo `tools.py` è stato rimosso dopo la verifica dei chiamanti:
 
-- `getValue()` e `getElement()` sono testate e sono usate dal nucleo legacy;
-- `gen_filename()`, `lidUpdate()`, `lvidUpdate()`, `updateXML()` e
-  `pretty_print()` non sono più importate da `sr.py` dopo la rimozione di
-  `UC-SR-013`, ma restano funzioni pubbliche coperte dai test;
-- `getFromXml()`, `lidGenerator()` e `new_lvid()` sono dipendenze delle
-  funzioni precedenti e sono coperte dai test.
-
-Se vengono approvati `UC-SR-001`–`UC-SR-007`, occorre effettuare
-un secondo audit di `tools.py`: alcune funzioni potrebbero diventare realmente
-inutilizzate in produzione, pur restando richiamate dai test unitari.
+- `getValue()`, `getElement()`, `gen_filename()`, `lidUpdate()`,
+  `lvidUpdate()`, `updateXML()` e `pretty_print()` non erano richiamate da
+  alcun modulo di produzione;
+- `getFromXml()`, `lidGenerator()` e `new_lvid()` erano raggiunte soltanto
+  dalle altre funzioni inutilizzate dello stesso modulo;
+- i test e la pagina API dedicati esclusivamente al modulo sono stati rimossi
+  insieme ad esso.
 
 ## Ordine suggerito per l'analisi manuale
 
-1. Valutare insieme le voci residue `UC-SR-001`–`UC-SR-007` e
-   `UC-MOD-001`; `UC-EXC-001` è stato rimosso.
+1. Completato: rimossi `UC-SR-001`, `UC-SR-002`, `UC-SR-004` e
+   `UC-SR-007`; resta da valutare `UC-MOD-001`.
 2. Completato: rimossi `UC-SR-008`–`UC-SR-010` e `UC-SR-012`;
    `UC-SR-011` è stato adattato ai prodotti VIHI multi-array.
 3. Completato: eliminato il corpo irraggiungibile `UC-SR-013`, mantenendo lo
@@ -182,6 +179,6 @@ inutilizzate in produzione, pur restando richiamate dai test unitari.
    `UC-IMP-001` e `UC-IMP-002`.
 5. Correggere `UC-AUX-001` e `UC-AUX-002`.
 6. Trattare `UC-API-001` solo dopo una verifica di compatibilità esterna.
-7. Ripetere l'analisi statica di `tools.py` dopo le rimozioni approvate.
+7. Completato: rimosso `tools.py` dopo l'analisi statica dei chiamanti.
 8. Completato: `UC-CLI-009` è stato rimosso e la copertura indicata in
    `UC-CLI-008` è stata aggiornata.

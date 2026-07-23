@@ -1,5 +1,12 @@
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import TypeVar
+
+from .hric_class import Hric
+from .stc_class import Stc
+from .vihi_class import Vihi
+
+InstrumentData = TypeVar("InstrumentData", Stc, Hric, Vihi)
 
 
 class INSTRUMENT(StrEnum):
@@ -28,9 +35,9 @@ class Simbio:
     compression: Compression | None = None
     repetition_time: float | None = None
 
-    _stc: str | None = None
-    _vihi: str | None = None
-    _hric: str | None = None
+    _stc: Stc | None = None
+    _vihi: Vihi | None = None
+    _hric: Hric | None = None
 
     def __post_init__(self) -> None:
         try:
@@ -66,8 +73,8 @@ class Simbio:
     def _get_instrument_data(
         self,
         expected: INSTRUMENT,
-        value: str | None,
-    ) -> str:
+        value: InstrumentData | None,
+    ) -> InstrumentData:
         if self.channel is not expected:
             raise AttributeError(
                 f"The {expected.value} data are not available. "
@@ -77,13 +84,13 @@ class Simbio:
         return value
 
     @property
-    def stc(self) -> str:
+    def stc(self) -> Stc:
         return self._get_instrument_data(INSTRUMENT.STC, self._stc)
 
     @property
-    def hric(self) -> str:
+    def hric(self) -> Hric:
         return self._get_instrument_data(INSTRUMENT.HRIC, self._hric)
 
     @property
-    def vihi(self) -> str:
+    def vihi(self) -> Vihi:
         return self._get_instrument_data(INSTRUMENT.VIHI, self._vihi)

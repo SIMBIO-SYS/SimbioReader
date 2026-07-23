@@ -1,13 +1,6 @@
-import sys
-import types
 from pathlib import Path
 
 from click.testing import CliRunner
-
-if "mystrtools" not in sys.modules:
-    mystrtools_stub = types.ModuleType("mystrtools")
-    mystrtools_stub.convert_case = lambda value, *_args, **_kwargs: value
-    sys.modules["mystrtools"] = mystrtools_stub
 
 from SimbioReader.cli import cli
 

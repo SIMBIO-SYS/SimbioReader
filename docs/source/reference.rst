@@ -7,4 +7,3 @@ API reference
    simbioreader
    models
    simbioinfo
-   tools

@@ -4,7 +4,7 @@ import pytest
 from rich.console import Console
 
 from SimbioReader.exceptions import DeprecatedMethodError
-from SimbioReader.sr import Data, SimbioReader
+from SimbioReader.sr import SimbioReader
 
 
 def test_save_preview_reports_obsolescence_and_raises():
@@ -21,19 +21,5 @@ def test_save_preview_reports_obsolescence_and_raises():
             quality=100,
             outFolder=Path("/tmp"),
         )
-
-    assert "will be removed in a future" in console.export_text()
-
-
-def test_data_save_preview_reports_obsolescence_and_raises():
-    data = object.__new__(Data)
-    console = Console(record=True)
-    data.console = console
-
-    with pytest.raises(
-        DeprecatedMethodError,
-        match=r"Data\.savePreview\(\) is obsolete",
-    ):
-        data.savePreview()
 
     assert "will be removed in a future" in console.export_text()
