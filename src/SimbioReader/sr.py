@@ -535,14 +535,13 @@ class Data:
 
 @dataclass
 class Compression:
-    box:str
-    rate:str
-    ratio:str
+    box:float
+    rate:float
+    ratio:int
 
 @dataclass(slots=True, frozen=True)
 class Simbio:
     channel: INSTRUMENT
-    general_parameters: str
     compression: Compression | None = None
     
     _stc: str | None = None
@@ -783,6 +782,7 @@ class SimbioReader:
         namespaces = {
             "pds": root.nsmap[None],
             "psa": root.nsmap["psa"],
+            "bc_mpo_simbio-sys":root.nsmap["bc_mpo_simbio-sys"]
         }
 
         def set_value(xpath, attribute):
@@ -896,6 +896,30 @@ class SimbioReader:
         )
         if self.verbosity > 1:
             message = f"Setted the Software Context to {self.software_context}"
+            self.console.print(f"{MSG.DEBUG}{message}")
+        logger.debug(message)
+
+        # Setup SIMBIO_SYS General Parameters
+
+        SIMBIO=f"{OBSERVATION_AREA}/pds:Mission_Area[1]/bc_mpo_simbio-sys:SIMBIO[1]"
+        simbio=Simbio(channel=self.channel)
+        object.__setattr__(
+            simbio,
+            'compression',
+            Compression(
+                float(root.xpath(
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_box[1])"
+                )),
+                float(root.xpath(
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_rate[1])"
+                )),
+                int(root.xpath(
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:ibr[1])"
+                )))
+        )
+
+        if self.verbosity > 1:
+            message = f"Setted the Compression information to {simbio.compression}"
             self.console.print(f"{MSG.DEBUG}{message}")
         logger.debug(message)
 
