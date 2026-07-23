@@ -111,11 +111,4 @@ subphases = {
         "phase": "cruise",
         "LPName": "Instrument Check-Out #11",
     },
-    "None": {
-        "start": "2024-04-08 04:00:01",
-        "end": "2028-12-31 23:59:59",
-        "name": "None",
-        "phase": "None",
-        "LPName": "None",
-    },
 }

@@ -646,17 +646,15 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-devel = [
+dev = [
     { name = "pyright" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
     { name = "ruff" },
 ]
 docs = [
     { name = "sphinx" },
     { name = "sphinx-rtd-theme" },
-]
-test = [
-    { name = "pytest" },
-    { name = "pytest-cov" },
 ]
 
 [package.metadata]
@@ -676,17 +674,15 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-devel = [
-    { name = "pyright", specifier = ">=1.1.408,<2.0.0" },
-    { name = "ruff", specifier = ">=0.15.4,<0.16.0" },
+dev = [
+    { name = "pyright", specifier = ">=1.1.411" },
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "ruff", specifier = ">=0.15.22" },
 ]
 docs = [
     { name = "sphinx", specifier = ">=8.2.3,<9.0.0" },
     { name = "sphinx-rtd-theme", specifier = ">=3.0.2,<4.0.0" },
-]
-test = [
-    { name = "pytest", specifier = ">=9.0.2,<10.0.0" },
-    { name = "pytest-cov", specifier = ">=7.0.0,<8.0.0" },
 ]
 
 [[package]]

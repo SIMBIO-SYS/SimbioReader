@@ -1,0 +1,40 @@
+# Start Time            ,Mission Phase Acronym ,Mission Phase Name                         ,Path to folder                    
+2000-01-01T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2014-06-03T00:00:00.000Z ,sft-tbtv              ,SFT TBTV Campaign on PFM                   ,prelaunch/aiv_campaigns/sft-tbtv 
+2014-12-31T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2015-10-16T00:00:00.000Z ,sft2                  ,SFT2 Test Campaign on PFM                  ,prelaunch/aiv_campaigns/sft2     
+2015-10-24T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2016-01-28T00:00:00.000Z ,magnetic              ,Magnetic Test Campaign on PFM              ,prelaunch/aiv_campaigns/magnetic 
+2016-01-29T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2016-02-29T00:00:00.000Z ,svt1a                 ,SVT1a Test Campaign                        ,prelaunch/aiv_campaigns/svt1a    
+2016-03-03T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2017-04-27T00:00:00.000Z ,svt1b                 ,SVT1b Test Campaign                        ,prelaunch/aiv_campaigns/svt1b    
+2017-04-30T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2017-11-06T00:00:00.000Z ,mst                   ,MST Test Campaign                          ,prelaunch/aiv_campaigns/mst      
+2017-11-08T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2018-03-14T00:00:00.000Z ,svt1c                 ,SVT1c Test Campaign                        ,prelaunch/aiv_campaigns/svt1c    
+2018-03-24T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2018-07-30T00:00:00.000Z ,svt2                  ,SVT2 Test Campaign                         ,prelaunch/aiv_campaigns/svt2     
+2018-08-01T00:00:00.000Z ,testing               ,On-ground Testing and Calibration Campaign ,prelaunch/testing                
+2018-10-20T01:45:00.000Z ,necp                  ,Near-Earth Commissioning Phase             ,near_earth_commissioning         
+2018-12-15T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2020-04-07T00:00:00.000Z ,ega                   ,Earth Gravity Assist                       ,flybys/earth_flyby               
+2020-04-13T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2020-10-12T00:00:00.000Z ,vga1                  ,Venus Gravity Assist 1                     ,flybys/venus_flyby_1             
+2020-10-18T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2021-08-07T00:00:00.000Z ,vga2                  ,Venus Gravity Assist 2                     ,flybys/venus_flyby_2             
+2021-08-13T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2021-09-30T00:00:00.000Z ,mga1                  ,Mercury Gravity Assist 1                   ,flybys/mercury_flyby_1           
+2021-10-05T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2022-06-20T00:00:00.000Z ,mga2                  ,Mercury Gravity Assist 2                   ,flybys/mercury_flyby_2           
+2022-06-26T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2023-06-17T00:00:00.000Z ,mga3                  ,Mercury Gravity Assist 3                   ,flybys/mercury_flyby_3           
+2023-06-23T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2024-09-02T00:00:00.000Z ,mga4                  ,Mercury Gravity Assist 4                   ,flybys/mercury_flyby_4           
+2024-09-08T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2024-11-29T00:00:00.000Z ,mga5                  ,Mercury Gravity Assist 5                   ,flybys/mercury_flyby_5           
+2024-12-05T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2025-01-06T00:00:00.000Z ,mga6                  ,Mercury Gravity Assist 6                   ,flybys/mercury_flyby_6           
+2025-01-12T00:00:00.000Z ,cruise                ,Cruise                                     ,cruise                           
+2027-03-13T00:00:00.000Z ,mocp                  ,Mercury Orbit Commissioning Phase          ,mercury_commissioning            
+2027-04-06T00:00:00.000Z ,msp                   ,Mercury Science Phase                      ,mercury_science_orbit            

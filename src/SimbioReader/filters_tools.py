@@ -60,10 +60,10 @@ def show_filters(channel: str) -> Table:
     tb = Table(style="yellow")
     elem = next(iter(flt.values()))
     mask = {"desc": "Description"}
-    for item in elem.keys():
+    for item in elem:
         tb.add_column(item.title() if item not in ["desc"] else mask[item])
 
-    for name, item in flt.items():
-        tb.add_row(*[item[key] for key in elem.keys()])
+    for item in flt.values():
+        tb.add_row(*[item[key] for key in elem])
 
     return tb

@@ -1,15 +1,25 @@
 SimbioReader
 ============
 
-
-The SimbioReader is a package to read PDS4 Label and data file for SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo.
-
 .. autoclass:: SimbioReader.SimbioReader
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. autoclass:: SimbioReader.DataStructure
+Supporting value objects
+------------------------
 
-.. autoclass:: SimbioReader.SubFrame
+.. autoclass:: SimbioReader.sr.TimeCoordinates
+   :members:
 
-.. autoclass:: SimbioReader.Detector
+.. autoclass:: SimbioReader.sr.Target
+   :members:
 
-.. autoclass:: SimbioReader.HK
+.. autoclass:: SimbioReader.sr.SoftwareContext
+   :members:
+
+Exceptions
+----------
+
+.. automodule:: SimbioReader.exceptions
+   :members:

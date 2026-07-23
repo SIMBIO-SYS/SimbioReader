@@ -1,27 +1,23 @@
-.. SimbioReader documentation master file, created by
-   sphinx-quickstart on Sun Sep  1 12:41:43 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 SimbioReader documentation
 ==========================
 
+**SimbioReader** reads SIMBIO-SYS PDS4 products from ESA's BepiColombo
+mission. It exposes observational arrays and housekeeping tables together with
+typed metadata for STC, HRIC, VIHI, Display, Imaging, Geometry, and product
+references.
 
-**SimbioReader** is a Python library for reading the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo.
-
-Check out the :doc:`usage` section for further information.
+SimbioReader 1.0 requires Python 3.14 and provides both a Python API and the
+``simbioReader`` command-line interface.
 
 .. note::
 
-   This project is under active development.
-
+   Version 1.0 is under active development. ``savePreview`` remains only as an
+   obsolete compatibility stub and raises an exception when called.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    usage
-   tools
    cli
    reference
-

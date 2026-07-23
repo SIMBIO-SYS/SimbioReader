@@ -1,0 +1,627 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-model href="https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1M00.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://pds.nasa.gov/pds4/geom/v1/PDS4_GEOM_1M00_1970.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://pds.nasa.gov/pds4/disp/v1/PDS4_DISP_1M00_1510.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://psa.esa.int/psa/v1/PDS4_PSA_1M00_1500.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://psa.esa.int/psa/bc/v1/PDS4_BC_1M00_2010.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://pds.nasa.gov/pds4/img/v1/PDS4_IMG_1M00_1900.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="https://psa.esa.int/psa/bc/mpo/sim/v1/PDS4_BC_MPO_SIM_1M00_1000.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<Product_Observational
+	xmlns="http://pds.nasa.gov/pds4/pds/v1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:geom="http://pds.nasa.gov/pds4/geom/v1"
+	xmlns:img="http://pds.nasa.gov/pds4/img/v1"
+	xmlns:psa="http://psa.esa.int/psa/v1"
+	xmlns:disp="http://pds.nasa.gov/pds4/disp/v1"
+	xmlns:bc_mpo_simbio-sys="http://psa.esa.int/psa/bc/mpo/sim/v1"
+	xsi:schemaLocation="
+		http://pds.nasa.gov/pds4/pds/v1 https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1M00.xsd
+		http://pds.nasa.gov/pds4/geom/v1 https://pds.nasa.gov/pds4/geom/v1/PDS4_GEOM_1M00_1970.xsd
+		http://pds.nasa.gov/pds4/disp/v1 https://pds.nasa.gov/pds4/disp/v1/PDS4_DISP_1M00_1510.xsd
+		http://pds.nasa.gov/pds4/img/v1 https://pds.nasa.gov/pds4/img/v1/PDS4_IMG_1M00_1900.xsd
+		http://psa.esa.int/psa/v1 https://psa.esa.int/psa/v1/PDS4_PSA_1M00_1500.xsd
+		http://psa.esa.int/psa/bc/v1 https://psa.esa.int/psa/bc/v1/PDS4_BC_1M00_2010.xsd
+		http://psa.esa.int/psa/bc/mpo/sim/v1 https://psa.esa.int/psa/bc/mpo/sim/v1/PDS4_BC_MPO_SIM_1M00_1000.xsd"
+>
+  <Identification_Area>
+    <!-- PDS4 rules/recommendation for logical_identifier naming conventions TBD -->
+    <logical_identifier>urn:esa:psa:bc_mpo_simbio-sys:data_raw:sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001</logical_identifier>
+    <!-- Normally, the first versions delivered to the PSA should have version_id <1.0
+      The first version of products delivered/processed after the review will have version_id = 1.0 -->
+    <version_id>0.1</version_id>
+    <title>BEPICOLOMBO MPO SIMBIO-SYS MERCURY ORBIT HRIC RAW SCIENCE DATA PRODUCT</title>
+    <information_model_version>1.22.0.0</information_model_version>
+    <product_class>Product_Observational</product_class>
+    <Citation_Information>
+      <publication_year>2026</publication_year>
+      <keyword>
+        SIMBIO-SYS
+      </keyword>
+      <description>description</description>
+      <List_Author>
+        <Organization>
+          <organization_name>organizzazione 1</organization_name>
+        </Organization>
+        <Person>
+          <given_name>Gabriele</given_name>
+          <family_name>Cremonese</family_name>
+        </Person>
+        <!-- more authors here -->
+      </List_Author>
+    </Citation_Information>
+    <Modification_History>
+      <Modification_Detail>
+        <modification_date>2020-11-25</modification_date>
+        <version_id>0.1</version_id>
+        <description>PDS4 label for SIMBIO-SYS HRIC raw science data</description>
+      </Modification_Detail>
+    </Modification_History>
+  </Identification_Area>
+  <Observation_Area>
+    <Time_Coordinates>
+      <start_date_time>2021-04-24T08:55:01.04201Z</start_date_time>
+      <stop_date_time>2021-04-24T08:55:01.04201Z</stop_date_time>
+    </Time_Coordinates>
+    <Primary_Result_Summary>
+      <purpose>Science</purpose>
+      <processing_level>Raw</processing_level>
+      <description>HRIC INSTRUMENT RAW SCIENCE DATA</description>
+      <Science_Facets>
+        <wavelength_range>Visible</wavelength_range>
+        <discipline_name>Imaging</discipline_name>
+      </Science_Facets>
+    </Primary_Result_Summary>
+    <!-- Mission -->
+    <Investigation_Area>
+      <name>BepiColombo</name>
+      <type>Mission</type>
+      <Internal_Reference>
+        <lid_reference>urn:esa:psa:context:investigation:mission.bc</lid_reference>
+        <reference_type>data_to_investigation</reference_type>
+      </Internal_Reference>
+    </Investigation_Area>
+    <Observing_System>
+      <name>BepiColombo MPO SIMBIO-SYS</name>
+      <!-- Instrument Host -->
+      <Observing_System_Component>
+        <name>Mercury Planetary Orbiter</name>
+        <type>Host</type>
+        <Internal_Reference>
+          <lid_reference>urn:esa:psa:context:instrument_host:spacecraft.mpo</lid_reference>
+          <reference_type>is_instrument_host</reference_type>
+        </Internal_Reference>
+      </Observing_System_Component>
+      <!-- Instrument -->
+      <Observing_System_Component>
+        <name>SIMBIO-SYS</name>
+        <type>Instrument</type>
+        <description>Spectrometers and Images for MPO BepiColombo Integrated Observatory System</description>
+        <Internal_Reference>
+          <lid_reference>urn:esa:psa:context:instrument:mpo.simbio-sys</lid_reference>
+          <reference_type>is_instrument</reference_type>
+        </Internal_Reference>
+      </Observing_System_Component>
+    </Observing_System>
+    <!-- Target -->
+    <Target_Identification>
+      <name>MERCURY</name>
+      <type>Planet</type>
+      <Internal_Reference>
+        <lid_reference>urn:nasa:pds:context:target:planet.mercury</lid_reference>
+        <reference_type>data_to_target</reference_type>
+      </Internal_Reference>
+    </Target_Identification>
+    <!-- For VIHI could be necessary Discipline_area, for the wavelengths list and geomtery informations -->
+    <!-- =========================================================================================== -->
+    <!-- Mission Area                                                                                -->
+    <!-- =========================================================================================== -->
+    <Mission_Area>
+      <!-- =========================================================================================== -->
+      <!-- PSA & BepiColombo specific attributes                                                       -->
+      <!-- =========================================================================================== -->
+      <psa:Mission_Information>
+        <psa:spacecraft_clock_start_count>1/0683974499:50087</psa:spacecraft_clock_start_count>
+        <psa:spacecraft_clock_stop_count>1/0683974499:50087</psa:spacecraft_clock_stop_count>
+        <psa:Mission_Phase>
+          <psa:name>Cruise</psa:name>
+          <psa:id>cruise</psa:id>
+        </psa:Mission_Phase>
+        <psa:start_orbit_number>0</psa:start_orbit_number>
+        <psa:stop_orbit_number>0</psa:stop_orbit_number>
+      </psa:Mission_Information>
+      <psa:Sub-Instrument>
+        <psa:identifier>HRIC</psa:identifier>
+        <psa:name>High Resolution Imaging Channel</psa:name>
+        <psa:type>Imager</psa:type>
+        <!-- Add Description?? -->
+      </psa:Sub-Instrument>
+      <psa:Observation_Context>
+        <!-- Discussion needed to decide observation attributes required for SIMBIO-SYS -->
+        <psa:instrument_pointing_mode>Surface</psa:instrument_pointing_mode>
+        <psa:instrument_pointing_description>$POINTING_MODE</psa:instrument_pointing_description>
+        <psa:observation_identifier>$OBSERVATION_ID</psa:observation_identifier>
+      </psa:Observation_Context>
+      <psa:Processing_Context>
+        <!-- Discussion needed to decide processing context attributes applicable / required for SIMBIO-SYS -->
+        <psa:processing_software_title>SimGen - Raw Branch</psa:processing_software_title>
+        <psa:processing_software_version>3.3.2</psa:processing_software_version>
+        <psa:Processing_Inputs>
+          <psa:Processing_Input_Identification>
+            <psa:type>telemetry</psa:type>
+            <psa:file_name>telemetry_input_file_name.xml</psa:file_name>
+          </psa:Processing_Input_Identification>
+        </psa:Processing_Inputs>
+      </psa:Processing_Context>
+      <bc_mpo_simbio-sys:SIMBIO>
+        <bc_mpo_simbio-sys:SIMBIO_General_Parameters>
+          <bc_mpo_simbio-sys:integration_time>1</bc_mpo_simbio-sys:integration_time>
+          <bc_mpo_simbio-sys:Compression>
+            <bc_mpo_simbio-sys:compression_box>1</bc_mpo_simbio-sys:compression_box>
+            <bc_mpo_simbio-sys:compression_rate>1</bc_mpo_simbio-sys:compression_rate>
+            <bc_mpo_simbio-sys:ibr>1</bc_mpo_simbio-sys:ibr>
+          </bc_mpo_simbio-sys:Compression>
+          <bc_mpo_simbio-sys:repetition_time>1</bc_mpo_simbio-sys:repetition_time>
+        </bc_mpo_simbio-sys:SIMBIO_General_Parameters>
+        <bc_mpo_simbio-sys:HRIC>
+          <bc_mpo_simbio-sys:windows_read>1</bc_mpo_simbio-sys:windows_read>
+          <bc_mpo_simbio-sys:window>1</bc_mpo_simbio-sys:window>
+          <bc_mpo_simbio-sys:test_mode>1</bc_mpo_simbio-sys:test_mode>
+          <bc_mpo_simbio-sys:detector_clock unit="Hz">1</bc_mpo_simbio-sys:detector_clock>
+          <bc_mpo_simbio-sys:HRIC_HK>
+            <bc_mpo_simbio-sys:tec_current unit="A">0.188300</bc_mpo_simbio-sys:tec_current>
+            <bc_mpo_simbio-sys:pe_voltage unit="V">3.254898</bc_mpo_simbio-sys:pe_voltage>
+          </bc_mpo_simbio-sys:HRIC_HK>
+          <!-- Revise units used in template!! -->
+          <bc_mpo_simbio-sys:HRIC_General_Parameters>
+            <bc_mpo_simbio-sys:Ifov>
+              <bc_mpo_simbio-sys:hk_angle_param unit="arcsec">1</bc_mpo_simbio-sys:hk_angle_param>
+            </bc_mpo_simbio-sys:Ifov>
+            <bc_mpo_simbio-sys:Focal_Length>
+              <bc_mpo_simbio-sys:hk_length_param unit="m">1</bc_mpo_simbio-sys:hk_length_param>
+            </bc_mpo_simbio-sys:Focal_Length>
+            <bc_mpo_simbio-sys:f_number>1</bc_mpo_simbio-sys:f_number>
+            <bc_mpo_simbio-sys:Detector>
+              <bc_mpo_simbio-sys:detector_description>bla</bc_mpo_simbio-sys:detector_description>
+              <bc_mpo_simbio-sys:Pixel_Height>
+                <bc_mpo_simbio-sys:hk_length_param unit="micrometer">10</bc_mpo_simbio-sys:hk_length_param>
+              </bc_mpo_simbio-sys:Pixel_Height>
+              <bc_mpo_simbio-sys:Pixel_Width>
+                <bc_mpo_simbio-sys:hk_length_param unit="micrometer">10</bc_mpo_simbio-sys:hk_length_param>
+              </bc_mpo_simbio-sys:Pixel_Width>
+              <bc_mpo_simbio-sys:detector_type>1</bc_mpo_simbio-sys:detector_type>
+            </bc_mpo_simbio-sys:Detector>
+            <bc_mpo_simbio-sys:filter_available>1</bc_mpo_simbio-sys:filter_available>
+          </bc_mpo_simbio-sys:HRIC_General_Parameters>
+        </bc_mpo_simbio-sys:HRIC>
+      </bc_mpo_simbio-sys:SIMBIO>
+    </Mission_Area>
+    <Discipline_Area>
+      <disp:Display_Settings>
+        <Local_Internal_Reference>
+          <local_identifier_reference>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001</local_identifier_reference>
+          <local_reference_type>display_settings_to_array</local_reference_type>
+        </Local_Internal_Reference>
+        <disp:Display_Direction>
+          <disp:horizontal_display_axis>Sample</disp:horizontal_display_axis>
+          <disp:horizontal_display_direction>Left to Right</disp:horizontal_display_direction>
+          <disp:vertical_display_axis>Line</disp:vertical_display_axis>
+          <disp:vertical_display_direction>Bottom to Top</disp:vertical_display_direction>
+        </disp:Display_Direction>
+      </disp:Display_Settings>
+      <img:Imaging>
+        <Local_Internal_Reference>
+          <local_identifier_reference>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001</local_identifier_reference>
+          <local_reference_type>imaging_parameters_to_image_object</local_reference_type>
+        </Local_Internal_Reference>
+        <img:Detector>
+          <img:first_line>1</img:first_line>
+          <!-- The detector_first_line attribute specifies the starting row from the hardware, such as a charge-coupled device(CCD), that contains data -->
+          <img:first_sample>1</img:first_sample>
+          <!-- The detector_first_sample attribute specifies the starting column from the hardware, such as a charge-coupled device (CCD), that contains data -->
+          <img:lines>1</img:lines>
+          <!-- The detector_lines attribute specifies the number of rows extracted from the hardware, such as a charge-coupled device (CCD), that contain data -->
+        </img:Detector>
+        <img:Exposure>
+          <img:exposure_duration unit="ms">0</img:exposure_duration>
+          <!-- TBC Integration time -->
+        </img:Exposure>
+        <img:Optical_Filter>
+          <img:filter_name>winx</img:filter_name>
+          <img:filter_id>CUST-0</img:filter_id>
+          <img:bandwidth unit="nm">204.3</img:bandwidth>
+          <img:center_filter_wavelength unit="nm">699.5</img:center_filter_wavelength>
+          <img:comment>Comment</img:comment>
+        </img:Optical_Filter>
+        <img:Subframe>
+          <img:first_line>1</img:first_line>
+          <!-- would be 1st row of filter on the CCD -->
+          <img:first_sample>1</img:first_sample>
+          <!-- would be 1st sample of filter on the CCD -->
+          <img:lines>1</img:lines>
+          <!-- Adapted per filter -->
+          <img:samples>64</img:samples>
+          <!-- Adapted per filter -->
+          <img:line_fov unit="deg">2.31 </img:line_fov>
+          <img:sample_fov unit="deg">5.38</img:sample_fov>
+          <img:name>name</img:name>
+          <img:description>description</img:description>
+        </img:Subframe>
+        <img:Instrument_State>
+          <img:Device_Temperatures>
+            <img:Device_Temperature>
+              <img:device_name>TemperatureFPA1</img:device_name>
+              <img:temperature_value unit="K">268.032773</img:temperature_value>
+            </img:Device_Temperature>
+            <img:Device_Temperature>
+              <img:device_name>TemperatureFPA2</img:device_name>
+              <img:temperature_value unit="K">268.307282</img:temperature_value>
+            </img:Device_Temperature>
+            <img:Device_Temperature>
+              <img:device_name>TemperaturePE</img:device_name>
+              <img:temperature_value unit="K">287.629780</img:temperature_value>
+            </img:Device_Temperature>
+            <img:Device_Temperature>
+              <img:device_name>Temperature_FPA_Package</img:device_name>
+              <img:temperature_value unit="K">278.150934</img:temperature_value>
+            </img:Device_Temperature>
+            <img:Device_Temperature>
+              <img:device_name>Temperature_HRIC_Optical_Bench</img:device_name>
+              <img:temperature_value unit="K">276.656345</img:temperature_value>
+            </img:Device_Temperature>
+          </img:Device_Temperatures>
+        </img:Instrument_State>
+      </img:Imaging>
+      <geom:Geometry>
+        <!--  Need to put the reference to the kernel used for calculation -->
+        <geom:SPICE_Kernel_Files>
+          <geom:SPICE_Kernel_Identification>
+            <!-- Metakernel -->
+            <geom:kernel_type>mk</geom:kernel_type>
+            <geom:spice_kernel_file_name>xxxxxx</geom:spice_kernel_file_name>
+          </geom:SPICE_Kernel_Identification>
+        </geom:SPICE_Kernel_Files>
+        <!-- Not sure I see the use of this one. Parlty redundant with the display above. -->
+        <geom:Image_Display_Geometry>
+          <Local_Internal_Reference>
+            <local_identifier_reference>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001</local_identifier_reference>
+            <local_reference_type>display_to_data_object</local_reference_type>
+          </Local_Internal_Reference>
+          <geom:Display_Direction>
+            <geom:horizontal_display_axis>Line</geom:horizontal_display_axis>
+            <geom:horizontal_display_direction>Left to Right</geom:horizontal_display_direction>
+            <geom:vertical_display_axis>Sample</geom:vertical_display_axis>
+            <geom:vertical_display_direction>Bottom to Top</geom:vertical_display_direction>
+          </geom:Display_Direction>
+          <geom:Central_Body_Identification>
+            <geom:body_spice_name>MERCURY</geom:body_spice_name>
+            <geom:name>Mercury</geom:name>
+          </geom:Central_Body_Identification>
+          <geom:Geometry_Target_Identification>
+            <geom:body_spice_name>MERCURY</geom:body_spice_name>
+            <geom:name>Mercury</geom:name>
+          </geom:Geometry_Target_Identification>
+          <geom:Object_Orientation_RA_Dec>
+            <geom:right_ascension_angle unit="deg">0.0</geom:right_ascension_angle>
+            <geom:declination_angle unit="deg">0.0</geom:declination_angle>
+            <geom:celestial_north_clock_angle unit="deg">0.0</geom:celestial_north_clock_angle>
+            <geom:Reference_Frame_Identification>
+              <geom:frame_spice_name>IAU_MERCURY</geom:frame_spice_name>
+              <geom:name>IAU_MERCURY</geom:name>
+            </geom:Reference_Frame_Identification>
+          </geom:Object_Orientation_RA_Dec>
+        </geom:Image_Display_Geometry>
+        <geom:Geometry_Orbiter>
+          <geom:geometry_reference_time_utc>2019-11-27T07:03:00.103517Z</geom:geometry_reference_time_utc>
+          <!--  Need to put the reference to the coordinate system and target to which coordinates will be defined -->
+          <geom:Orbiter_Identification>
+            <geom:Central_Body_Identification>
+              <geom:body_spice_name>MERCURY</geom:body_spice_name>
+              <geom:name>Mercury</geom:name>
+            </geom:Central_Body_Identification>
+            <geom:Geometry_Target_Identification>
+              <geom:body_spice_name>MERCURY</geom:body_spice_name>
+              <geom:name>Mercury</geom:name>
+            </geom:Geometry_Target_Identification>
+            <geom:Coordinate_System_Identification>
+              <geom:coordinate_system_type>Planetocentric</geom:coordinate_system_type>
+              <geom:Coordinate_System_Origin_Identification>
+                <geom:body_spice_name>MERCURY</geom:body_spice_name>
+                <geom:name>Mercury</geom:name>
+              </geom:Coordinate_System_Origin_Identification>
+              <geom:Reference_Frame_Identification>
+                <geom:frame_spice_name>IAU_MERCURY</geom:frame_spice_name>
+                <geom:name>IAU_MERCURY</geom:name>
+              </geom:Reference_Frame_Identification>
+            </geom:Coordinate_System_Identification>
+          </geom:Orbiter_Identification>
+          <!-- Former Pixel_Size_Projected value -->
+          <geom:Pixel_Dimensions>
+            <geom:pixel_field_of_view_method>Average</geom:pixel_field_of_view_method>
+            <geom:Pixel_Size_Projected>
+              <geom:reference_location>Boresight Intercept Point</geom:reference_location>
+              <geom:horizontal_pixel_footprint unit="m">0.0</geom:horizontal_pixel_footprint>
+              <geom:vertical_pixel_footprint unit="m">0.0</geom:vertical_pixel_footprint>
+            </geom:Pixel_Size_Projected>
+          </geom:Pixel_Dimensions>
+          <!-- Added the target BS intercept. Changed some units -->
+          <geom:Distances>
+            <geom:Distances_Specific>
+              <geom:target_heliocentric_distance unit="AU">0.0</geom:target_heliocentric_distance>
+              <geom:spacecraft_target_center_distance unit="km">0.0</geom:spacecraft_target_center_distance>
+              <geom:spacecraft_target_boresight_intercept_distance unit="km">0.0</geom:spacecraft_target_boresight_intercept_distance>
+            </geom:Distances_Specific>
+          </geom:Distances>
+          <geom:Surface_Geometry>
+            <geom:Surface_Geometry_Specific>
+              <!-- Added labels to footprint vertices -->
+              <geom:Footprint_Vertices>
+                <geom:Pixel_Intercept>
+                  <geom:reference_pixel_location>Upper Left Corner</geom:reference_pixel_location>
+                  <geom:Reference_Pixel>
+                    <geom:vertical_coordinate_pixel unit="pixel">1</geom:vertical_coordinate_pixel>
+                    <geom:horizontal_coordinate_pixel unit="pixel">1</geom:horizontal_coordinate_pixel>
+                  </geom:Reference_Pixel>
+                  <geom:pixel_latitude unit="deg">0.0</geom:pixel_latitude>
+                  <geom:pixel_longitude unit="deg">0.0</geom:pixel_longitude>
+                </geom:Pixel_Intercept>
+                <geom:Pixel_Intercept>
+                  <geom:reference_pixel_location>Upper Right Corner</geom:reference_pixel_location>
+                  <geom:Reference_Pixel>
+                    <geom:vertical_coordinate_pixel unit="pixel">1</geom:vertical_coordinate_pixel>
+                    <geom:horizontal_coordinate_pixel unit="pixel">256</geom:horizontal_coordinate_pixel>
+                  </geom:Reference_Pixel>
+                  <geom:pixel_latitude unit="deg">0.0</geom:pixel_latitude>
+                  <geom:pixel_longitude unit="deg">0.0</geom:pixel_longitude>
+                </geom:Pixel_Intercept>
+                <geom:Pixel_Intercept>
+                  <geom:reference_pixel_location>Lower Left Corner</geom:reference_pixel_location>
+                  <geom:Reference_Pixel>
+                    <geom:vertical_coordinate_pixel unit="pixel">256</geom:vertical_coordinate_pixel>
+                    <geom:horizontal_coordinate_pixel unit="pixel">256</geom:horizontal_coordinate_pixel>
+                  </geom:Reference_Pixel>
+                  <geom:pixel_latitude unit="deg">0.0</geom:pixel_latitude>
+                  <geom:pixel_longitude unit="deg">0.0</geom:pixel_longitude>
+                </geom:Pixel_Intercept>
+                <geom:Pixel_Intercept>
+                  <geom:reference_pixel_location>Lower Right Corner</geom:reference_pixel_location>
+                  <geom:Reference_Pixel>
+                    <geom:vertical_coordinate_pixel unit="pixel">256</geom:vertical_coordinate_pixel>
+                    <geom:horizontal_coordinate_pixel unit="pixel">1</geom:horizontal_coordinate_pixel>
+                  </geom:Reference_Pixel>
+                  <geom:pixel_latitude unit="deg">0.0</geom:pixel_latitude>
+                  <geom:pixel_longitude unit="deg">0.0</geom:pixel_longitude>
+                </geom:Pixel_Intercept>
+              </geom:Footprint_Vertices>
+              <geom:subsolar_latitude unit="deg">0.0</geom:subsolar_latitude>
+              <geom:subsolar_longitude unit="deg">0.0</geom:subsolar_longitude>
+              <geom:subspacecraft_latitude unit="deg">0.0</geom:subspacecraft_latitude>
+              <geom:subspacecraft_longitude unit="deg">0.0</geom:subspacecraft_longitude>
+            </geom:Surface_Geometry_Specific>
+          </geom:Surface_Geometry>
+          <geom:Illumination_Geometry>
+            <geom:Illumination_Min_Max>
+              <geom:minimum_emission_angle unit="deg">0.0</geom:minimum_emission_angle>
+              <geom:maximum_emission_angle unit="deg">0.0</geom:maximum_emission_angle>
+              <geom:minimum_incidence_angle unit="deg">0.0</geom:minimum_incidence_angle>
+              <geom:maximum_incidence_angle unit="deg">0.0</geom:maximum_incidence_angle>
+              <geom:minimum_phase_angle unit="deg">0.0</geom:minimum_phase_angle>
+              <geom:maximum_phase_angle unit="deg">0.0</geom:maximum_phase_angle>
+            </geom:Illumination_Min_Max>
+          </geom:Illumination_Geometry>
+        </geom:Geometry_Orbiter>
+      </geom:Geometry>
+    </Discipline_Area>
+  </Observation_Area>
+  <Reference_List>
+    <Internal_Reference>
+      <lidvid_reference>urn:esa:psa:bc_mpo_simbio-sys:browse_raw:sim_raw_sc_browse_stc_template::0.1</lidvid_reference>
+      <reference_type>data_to_browse</reference_type>
+    </Internal_Reference>
+    <!-- references to other products related to this one can be added here eg geometry or miscellaneous etc. 
+    Internal reference to be used for a simple link, source_product_internal to be used if that other product was 
+    used to generate this particular one -->
+    <Internal_Reference>
+      <lid_reference>urn:esa:psa:bc_mpo_simbio-sys:document:eaicd</lid_reference>
+      <reference_type>data_to_document</reference_type>
+    </Internal_Reference>
+    <!-- Correct if not the right paper -->
+    <External_Reference>
+      <doi>10.1007/s11214-020-00704-8</doi>
+      <reference_text>Cremonese, G., Capaccioni, F., Capria, M.T. et al. 
+        SIMBIO-SYS: Scientific Cameras and Spectrometer for the BepiColombo Mission. Space Sci Rev 216, 75 (2020). 
+      </reference_text>
+    </External_Reference>
+  </Reference_List>
+  <!-- Taken from product sample sent in January 2025. Real life??  -->
+  <File_Area_Observational>
+    <!-- ============================================================== -->
+    <!-- File Information                                               -->
+    <!-- ============================================================== -->
+    <File>
+      <!-- original name <file_name>sim_raw_sc_hric_cust0_internal_cruise_cruise_2021-04-24__0_1.dat</file_name> -->
+      <file_name>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001__0_1.dat</file_name>
+      <creation_date_time>2026-07-15</creation_date_time>
+      <file_size unit="byte">131072</file_size>
+      <records>1</records>
+      <md5_checksum>22fa15abb85648646d719aa8b743737f</md5_checksum>
+    </File>
+    <!-- PDS4 definition for SIMBIO-SYS HRIC HK -->
+    <Array_2D_Image>
+      <local_identifier>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001</local_identifier>
+      <offset unit="byte">0</offset>
+      <axes>2</axes>
+      <axis_index_order>Last Index Fastest</axis_index_order>
+      <!--<description>To be completed by instrument team</description>-->
+      <Element_Array>
+        <data_type>UnsignedLSB2</data_type>
+        <unit>not_applicable</unit>
+        <scaling_factor>0</scaling_factor>
+        <value_offset>0</value_offset>
+      </Element_Array>
+      <Axis_Array>
+        <axis_name>Line</axis_name>
+        <elements>1</elements>
+        <sequence_number>1</sequence_number>
+      </Axis_Array>
+      <Axis_Array>
+        <axis_name>Sample</axis_name>
+        <elements>64</elements>
+        <sequence_number>2</sequence_number>
+      </Axis_Array>
+    </Array_2D_Image>
+  </File_Area_Observational>
+  <File_Area_Observational>
+    <File>
+      <!-- original name <file_name>sim_raw_sc_hric_cust0_internal_cruise_cruise_2021-04-24__0_1.csv</file_name> -->
+      <file_name>sim_raw_sc_hric_winx_internal_cruise_ico4b_2021-04-24_001__0_1.csv</file_name>
+      <creation_date_time>2026-07-15</creation_date_time>
+      <file_size unit="byte">546</file_size>
+      <records>1</records>
+      <md5_checksum>f980c90fc3931c753561ddfeeb3643c3</md5_checksum>
+    </File>
+    <Header>
+      <offset unit="byte">0</offset>
+      <object_length unit="byte">458</object_length>
+      <parsing_standard_id>7-Bit ASCII Text</parsing_standard_id>
+      <description>The first row of the table contains column headings.</description>
+    </Header>
+    <Table_Delimited>
+      <offset unit="byte">458</offset>
+      <parsing_standard_id>PDS DSV 1</parsing_standard_id>
+      <description>HRIC HK Data</description>
+      <records>1</records>
+      <record_delimiter>Carriage-Return Line-Feed</record_delimiter>
+      <field_delimiter>Comma</field_delimiter>
+      <Record_Delimited>
+        <fields>21</fields>
+        <groups>0</groups>
+        <Field_Delimited>
+          <name>ACQUISITION_TIME_SCET</name>
+          <field_number>1</field_number>
+          <data_type>ASCII_String</data_type>
+          <maximum_field_length unit="byte">18</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_LAST_EVENT</name>
+          <field_number>2</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_DETEC_STAT</name>
+          <field_number>3</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_STAT</name>
+          <field_number>4</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEST_MODE</name>
+          <field_number>5</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_TREF</name>
+          <field_number>6</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_N_P</name>
+          <field_number>7</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">3</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_N_I</name>
+          <field_number>8</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">3</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_N_E</name>
+          <field_number>9</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_ANTI_WIND_UP_STATUS</name>
+          <field_number>10</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_ANTI_WIND_UP_METHOD</name>
+          <field_number>11</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_COMMANDED_TEC_N_SS</name>
+          <field_number>12</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_PE_ADDRESS</name>
+          <field_number>13</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_CONTENTS_OF_PE_ADDR</name>
+          <field_number>14</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEMPERATURE_FPA1</name>
+          <field_number>15</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEMPERATURE_FPA2</name>
+          <field_number>16</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEMPERATURE_PE</name>
+          <field_number>17</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEMP_TELE1</name>
+          <field_number>18</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEMP_TELE2</name>
+          <field_number>19</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_PE_3.3_V_MEASURED</name>
+          <field_number>20</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>HRIC_TEC_CURRENT</name>
+          <field_number>21</field_number>
+          <data_type>ASCII_Integer</data_type>
+          <maximum_field_length unit="byte">4</maximum_field_length>
+        </Field_Delimited>
+      </Record_Delimited>
+    </Table_Delimited>
+  </File_Area_Observational>
+</Product_Observational>

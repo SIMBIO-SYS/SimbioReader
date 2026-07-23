@@ -13,7 +13,6 @@ def test_instruments_are_string_enum_values():
 def test_simbio_exposes_only_selected_instrument_data():
     simbio = Simbio(
         channel=INSTRUMENT.STC,
-        general_parameters="general",
         _stc="stc-data",
     )
 
@@ -25,7 +24,6 @@ def test_simbio_exposes_only_selected_instrument_data():
 def test_simbio_normalizes_string_channel():
     simbio = Simbio(
         channel="VIHI",
-        general_parameters="general",
         _vihi="vihi-data",
     )
 
@@ -37,21 +35,19 @@ def test_simbio_rejects_unknown_instrument():
     with pytest.raises(ValueError, match="Unknown instrument"):
         Simbio(
             channel="INVALID",
-            general_parameters="general",
             _stc="stc-data",
         )
 
 
 def test_simbio_requires_selected_instrument_data():
     with pytest.raises(ValueError, match="Data for instrument HRIC are required"):
-        Simbio(channel=INSTRUMENT.HRIC, general_parameters="general")
+        Simbio(channel=INSTRUMENT.HRIC)
 
 
 def test_simbio_rejects_data_for_other_instruments():
     with pytest.raises(ValueError, match="Data for VIHI cannot be provided"):
         Simbio(
             channel=INSTRUMENT.STC,
-            general_parameters="general",
             _stc="stc-data",
             _vihi="vihi-data",
         )
@@ -60,7 +56,6 @@ def test_simbio_rejects_data_for_other_instruments():
 def test_simbio_is_immutable():
     simbio = Simbio(
         channel=INSTRUMENT.HRIC,
-        general_parameters="general",
         _hric="hric-data",
     )
 

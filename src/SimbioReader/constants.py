@@ -24,7 +24,15 @@ progEpilog = (
 # VERSION = (0,6,2,'f',1)
 
 
-datamodel = "1.22.0.0"
+PSA_DATAMODEL_COMPATIBILITY = {
+    "version": "1.22.0.0",
+    "coded": "1M00_1500",
+}
+
+SIMBIO_DATAMODEL_COMPATIBILITY = {
+    "version": "1.12.0.0",
+    "coded": "1M00_1000",
+}
 
 data_types = {
     "UnsignedLSB2": {"envi": 2, "bits": 16},

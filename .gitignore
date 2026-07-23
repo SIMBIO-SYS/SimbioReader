@@ -12,3 +12,10 @@ prova.py
 .coverage
 coverage/coverage.json
 coverage/coverage.xml
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+**/.DS_STORE
+*.pyc

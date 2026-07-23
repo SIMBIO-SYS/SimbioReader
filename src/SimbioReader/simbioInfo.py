@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from SimbioReader.phases import phases
+from SimbioReader.mission_phases import MissionPhase, load_mission_phases
 from SimbioReader.subphases import subphases
 from SimbioReader.tests import tests
 
@@ -25,7 +25,11 @@ class Phase:
         extended_name (str): The extended name of the phase (LPName).
     """
 
-    def __init__(self, name: str = None, dt: datetime | str = None):
+    def __init__(
+        self,
+        name: str | None = None,
+        dt: datetime | str | None = None,
+    ):
         """
         Initializes a Phase object.
 
@@ -37,8 +41,16 @@ class Phase:
             ValueError: If neither name nor dt is provided, or if no phase is found.
         """
         if name:
-            phase_data = phases.get(name)
-            if not phase_data:
+            normalized_name = name.strip().casefold()
+            phase_data = next(
+                (
+                    phase
+                    for phase in load_mission_phases()
+                    if phase.acronym.casefold() == normalized_name
+                ),
+                None,
+            )
+            if phase_data is None:
                 raise ValueError(f"Phase '{name}' not found.")
         elif dt:
             if isinstance(dt, str):
@@ -49,12 +61,13 @@ class Phase:
         else:
             raise ValueError("You must provide a phase name or a date.")
 
-        self.name = phase_data["name"]
-        self.start = parse(phase_data["start"], ignoretz=True)
-        self.end = parse(phase_data["end"], ignoretz=True)
-        self.extended_name = phase_data["LPName"]
+        self.name = phase_data.acronym
+        self.start = phase_data.start
+        self.end = phase_data.end
+        self.extended_name = phase_data.name
+        self.folder = phase_data.folder
 
-    def _find_phase_by_date(self, dt):
+    def _find_phase_by_date(self, dt) -> MissionPhase | None:
         """
         Finds a phase by a given date.
 
@@ -64,10 +77,10 @@ class Phase:
         Returns:
             dict | None: The phase data if found, otherwise None.
         """
-        for phase_name, phase_data in phases.items():
-            start = parse(phase_data["start"], ignoretz=True)
-            end = parse(phase_data["end"], ignoretz=True)
-            if start <= dt <= end:
+        for phase_data in load_mission_phases():
+            if phase_data.start <= dt and (
+                phase_data.end is None or dt < phase_data.end
+            ):
                 return phase_data
         return None
 
@@ -99,15 +112,19 @@ class Phase:
         """
         tb = Table(style="yellow")
         tb.add_column("Phase Name")
+        tb.add_column("Acronym")
         tb.add_column("Start Time")
         tb.add_column("End Time")
-        for phase_name, phase_data in phases.items():
-            if phase_name == "None":
-                continue
+        for phase_data in load_mission_phases():
             tb.add_row(
-                f"{phase_data['LPName']} ({phase_name})",
-                parse(phase_data["start"]).strftime(dateFormat),
-                parse(phase_data["end"]).strftime(dateFormat),
+                phase_data.name,
+                phase_data.acronym,
+                phase_data.start.strftime(dateFormat),
+                (
+                    phase_data.end.strftime(dateFormat)
+                    if phase_data.end is not None
+                    else "Open-ended"
+                ),
             )
         return tb
 
@@ -120,12 +137,14 @@ class Phase:
         """
         tb = Table(style="yellow")
         tb.add_column("Phase Name")
+        tb.add_column("Acronym")
         tb.add_column("Start Time")
         tb.add_column("End Time")
         tb.add_row(
-            f"{self.extended_name} ({self.name})",
+            self.extended_name,
+            self.name,
             self.start.strftime(dateFormat),
-            self.end.strftime(dateFormat),
+            self.end.strftime(dateFormat) if self.end else "Open-ended",
         )
         return tb
 
@@ -133,7 +152,10 @@ class Phase:
 # Funzione di utilità per ottenere una fase
 
 
-def get_phase(name: str = None, dt: datetime | str = None) -> Phase:
+def get_phase(
+    name: str | None = None,
+    dt: datetime | str | None = None,
+) -> Phase:
     """
     Utility function to obtain a Phase object by name or date.
 
@@ -161,7 +183,11 @@ class SubPhase:
         extended_name (str): The extended name of the subphase (LPName).
     """
 
-    def __init__(self, name: str = None, dt: datetime | str = None):
+    def __init__(
+        self,
+        name: str | None = None,
+        dt: datetime | str | None = None,
+    ):
         """
         Initializes a SubPhase object.
 
@@ -200,7 +226,7 @@ class SubPhase:
         Returns:
             dict | None: The subphase data if found, otherwise None.
         """
-        for subphase_name, subphase_data in subphases.items():
+        for subphase_data in subphases.values():
             start = parse(subphase_data["start"], ignoretz=True)
             end = parse(subphase_data["end"], ignoretz=True)
             if start <= dt <= end:
@@ -240,8 +266,6 @@ class SubPhase:
         tb.add_column("Start Time")
         tb.add_column("End Time")
         for phase_name, phase_data in subphases.items():
-            if phase_name == "None":
-                continue
             tb.add_row(
                 phase_name,
                 phase_data["LPName"],
@@ -274,7 +298,10 @@ class SubPhase:
         return tb
 
 
-def get_subphase(name: str = None, dt: datetime | str = None) -> SubPhase:
+def get_subphase(
+    name: str | None = None,
+    dt: datetime | str | None = None,
+) -> SubPhase:
     """
     Utility function to obtain a SubPhase object by name or date.
 
@@ -346,7 +373,10 @@ class Test:
     """
 
     def __init__(
-        self, name: str = None, dt: datetime | str = None, subphase: str = None
+        self,
+        name: str | None = None,
+        dt: datetime | str | None = None,
+        subphase: str | None = None,
     ):
         """
         Initializes a Test object.
@@ -407,7 +437,7 @@ class Test:
         Returns:
             dict | None: The test data if found, otherwise None.
         """
-        for test_name, test_data in tests.items():
+        for test_data in tests.values():
             start = parse(test_data["start"], ignoretz=True)
             end = parse(test_data["end"], ignoretz=True)
             # console.print(f"Start: {start}, End: {end}, Date: {dt}")
@@ -455,10 +485,10 @@ class Test:
 
     @staticmethod
     def show_all(
-        phase: str = None,
-        subphase: str = None,
-        key: str = None,
-        date: datetime | str = None,
+        phase: str | None = None,
+        subphase: str | None = None,
+        key: str | None = None,
+        date: datetime | str | None = None,
     ) -> Table:
         """
         Displays a table showing all tests that match the provided filters.
@@ -478,25 +508,26 @@ class Test:
         tb.add_column("Start Time")
         tb.add_column("End Time")
         console.print(f"Phase: {phase}, SubPhase: {subphase}, Key: {key}, Date: {date}")
-        if date:
-            if isinstance(date, str):
-                date = parse(date, ignoretz=True)
-        for test_name, test_data in tests.items():
-            if subphase and not test_data["subphase"].lower() == subphase.lower():
+        if date and isinstance(date, str):
+            date = parse(date, ignoretz=True)
+        for test_data in tests.values():
+            if subphase and test_data["subphase"].lower() != subphase.lower():
                 continue
 
-            if not date and key:
-                if not compare_str(key, test_data["name"]):
-                    continue
+            if not date and key and not compare_str(key, test_data["name"]):
+                continue
 
             if date:
                 start = parse(test_data["start"], ignoretz=True)
                 end = parse(test_data["end"], ignoretz=True)
                 if not start <= date <= end:
                     continue
-            if phase:
-                if test_data["subphase"].lower() not in get_subphases_by_phase(phase):
-                    continue
+            if (
+                phase
+                and test_data["subphase"].lower()
+                not in get_subphases_by_phase(phase)
+            ):
+                continue
             tb.add_row(
                 test_data["name"],
                 test_data["subphase"],
@@ -560,7 +591,12 @@ class Filter:
             flt = stcFilters
         else:
             raise ValueError("Invalid channel.")
-        itm = [elem for elem in flt.values() if elem["name"].lower() == name.lower()]
+        normalized_name = name.strip().casefold().replace("-", "")
+        itm = [
+            elem
+            for elem in flt.values()
+            if elem["name"].strip().casefold().replace("-", "") == normalized_name
+        ]
         if len(itm) == 0:
             raise ValueError(f"No filter found with the name {name}.")
         elif len(itm) > 1:
@@ -634,10 +670,10 @@ def show_filters(channel: str) -> Table:
     tb = Table(style="yellow")
     elem = next(iter(flt.values()))
     mask = {"desc": "Description"}
-    for item in elem.keys():
+    for item in elem:
         tb.add_column(item.title() if item not in ["desc"] else mask[item])
 
-    for name, item in flt.items():
-        tb.add_row(*[item[key] for key in elem.keys()])
+    for item in flt.values():
+        tb.add_row(*[item[key] for key in elem])
 
     return tb

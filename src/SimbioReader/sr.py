@@ -1,40 +1,42 @@
-import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
-from enum import StrEnum
 
 # from SimbioReader.version import version
 from importlib.metadata import version as get_version
 from pathlib import Path
-from xml.dom.minidom import Document, Element, parse, parseString
+from xml.dom.minidom import Document, Element
 
-import numpy as np
 import pandas as pd
 import pds4_tools
-from dateutil import parser
 from loguru import logger
 from lxml import etree
 from mystrtools import convert_case
 from pds4_tools.reader.array_objects import ArrayStructure
 from pds4_tools.reader.table_objects import TableStructure
-from PIL import Image as im
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from semantic_version_tools import Vers
 
-from SimbioReader.constants import MSG, data_types
-from SimbioReader.exceptions import LoadingError, SizeError
-from SimbioReader.filters_tools import Filter
+from SimbioReader.constants import MSG
+from SimbioReader.exceptions import DeprecatedMethodError, LoadingError
+from SimbioReader.simbio_classes import (
+    INSTRUMENT,
+    Compression,
+    Display,
+    Geometry,
+    Hric,
+    Imaging,
+    Reference,
+    Simbio,
+    Stc,
+    Vihi,
+    instruments,  # noqa: F401 - compatibility re-export
+)
 from SimbioReader.tools import (
-    gen_filename,
     getElement,
     getValue,
-    lidUpdate,
-    lvidUpdate,
-    pretty_print,
-    updateXML,
 )
 from SimbioReader.version_check import check_pypi_version
 
@@ -44,17 +46,7 @@ version = Vers(installed_version)
 __version__ = version.full()
 
 
-class INSTRUMENT(StrEnum):
-    STC = "STC"
-    HRIC = "HRIC"
-    VIHI = "VIHI"
 
-
-instruments: list[INSTRUMENT] = [
-    INSTRUMENT.STC,
-    INSTRUMENT.VIHI,
-    INSTRUMENT.HRIC,
-]
 
 # ============= To Check =====================
 
@@ -222,194 +214,6 @@ class Target:
 # ==============================================================
 
 
-class SimbioObject:
-    def __init__(
-        self,
-        file_name: str,
-        channel: str,
-        imaging: Element,
-        geometry: Element,
-        file_obs: Element,
-        filter_name: Path | str | None = None,
-        console: Console | None = None,
-        debug: bool = False,
-        verbose: bool = False,
-    ):
-        # Set the console
-        self.console = console if console else Console()
-
-        self.file_name = Path(file_name)
-        self.filter_name = filter_name
-        self.channel = channel
-        self.imaging = imaging
-        self.geometry = geometry
-        self.debug = debug
-        self.exposure_time = getValue(imaging, "img:exposure_duration")
-        subFrame = getElement(imaging, "img:Subframe")
-        self.firstLine = int(getValue(subFrame, "img:first_line"))
-        self.firstSample = int(getValue(subFrame, "img:first_sample"))
-        self.lines = int(getValue(subFrame, "img:lines"))
-        self.samples = int(getValue(subFrame, "img:samples"))
-        self.lineFov = float(getValue(subFrame, "img:line_fov"))
-        self.sampleFov = float(getValue(subFrame, "img:sample_fov"))
-        self.data_structure = DataStructure(file_obs, self.channel)
-        self.samples = self.data_structure.sample
-        self.lines = self.data_structure.line
-        self.bands = self.data_structure.band
-        if self.channel.upper() != "VIHI":
-            flt = getElement(imaging, "img:Optical_Filter")
-            self.filter = Filter(
-                channel=self.channel, name=getValue(flt, "img:filter_name")
-            )
-        self.detector = Detector(imaging)
-        if self.data_structure.data_type == "UnsignedLSB2":
-            dtype = np.int16
-        elif self.data_structure.data_type == "IEEE754LSBSingle":
-            dtype = np.float32
-
-        if verbose:
-            console.print(f"{MSG.INFO}Loading: {self.file_name}")
-            if self.data_structure.axes == 3:
-                console.print(
-                    f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}"
-                )
-                imgSize = (
-                    self.samples
-                    * self.lines
-                    * self.bands
-                    * data_types[self.data_structure.data_type]["bits"]
-                )
-            else:
-                console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}")
-                imgSize = (
-                    self.samples
-                    * self.lines
-                    * data_types[self.data_structure.data_type]["bits"]
-                )
-
-            console.print(f"{MSG.INFO}File size: {self.file_name.stat().st_size * 8}")
-            console.print(f"{MSG.INFO}Computed File Size: {imgSize}")
-            if self.file_name.stat().st_size * 8 != imgSize:
-                raise SizeError(self.file_name.stat().st_size * 8, imgSize)
-        # print(img_data['samples'],img_data['lines'],img_data['bands'])
-        if self.data_structure.axes == 3:
-            self.img = np.fromfile(
-                self.file_name,
-                dtype=dtype,
-                count=self.samples * self.lines * self.bands,
-            )
-        else:
-            self.img = np.fromfile(
-                self.file_name, dtype=dtype, count=self.samples * self.lines
-            )
-        if self.data_structure.axes == 3:
-            if self.lines == 1:
-                self.img.shape = (self.samples, self.bands)
-            else:
-                self.img.shape = (self.lines, self.samples, self.bands)
-        else:
-            self.img.shape = (self.samples, self.lines)
-        if verbose:
-            self.console.print(
-                f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}"
-            )
-            # print(f"Size of the old image array: {self.img.size}")
-
-    def show(self) -> Panel:
-        sep = " =  "
-        tb = Table.grid()
-        tb.add_column(style="yellow", justify="right")
-        tb.add_column()
-        tb.add_column()
-        tb.add_row("File Name", sep, str(self.file_name))
-        tb.add_row("Filter Name", sep, self.filter_name)
-        tb.add_row("Channel", sep, self.channel.upper())
-        tb.add_row("Exposure Time (s)", sep, str(self.exposure_time))
-        pl = Panel(
-            tb, title="Simbio Filter General Info", border_style="cyan", expand=False
-        )
-        return Panel(
-            Columns(
-                [
-                    pl,
-                    self.filter.show(),
-                    self.data_structure.show(),
-                    self.detector.show(),
-                ]
-            ),
-            title=f"Filter {self.filter_name.upper()} Info",
-            border_style="magenta",
-            expand=False,
-        )
-
-    def __str__(self):
-        return f"Filter(name={self.filter_name})"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def savePreview(
-        self,
-        img_type: str = "png",
-        quality: int = 100,
-        outFolder: Path = None,
-        tree: Document = None,
-    ) -> str | None:
-        new_filename = gen_filename(self.file_name)
-        if img_type in ["png", "tif"]:
-            data = im.fromarray(self.img)
-            image_file = f"{outFolder}/{new_filename}.{img_type}"
-            if self.debug:
-                self.console.print(
-                    f"{MSG.DEBUG}Saving image {Path(image_file).name} with quality {quality}"
-                )
-            if "cal" in self.file_name.stem:
-                data.convert("RGB").save(image_file, quality=quality)
-            else:
-                data.save(image_file, quality=quality)
-            if tree:
-                fab = tree.createElement("File_Area_Browse")
-                fl = tree.createElement("File")
-                fln = tree.createElement("file_name")
-                fln.appendChild(tree.createTextNode(f"{new_filename}.{img_type}"))
-                fl.appendChild(fln)
-                fl_ct = tree.createElement("creation_date_time")
-                creatTime = datetime.now()
-                fl_ct.appendChild(tree.createTextNode(creatTime.strftime("%Y-%m-%d")))
-                fl.appendChild(fl_ct)
-                fl_fs = tree.createElement("file_size")
-                fl_fs.appendChild(
-                    tree.createTextNode(str(Path(image_file).stat().st_size))
-                )
-                fl_fs.setAttribute("unit", "byte")
-                fl.appendChild(fl_fs)
-                fl_md5 = tree.createElement("md5_checksum")
-                fl_md5.appendChild(
-                    tree.createTextNode(
-                        hashlib.md5(open(image_file, "rb").read()).hexdigest()
-                    )
-                )
-                fl.appendChild(fl_md5)
-                fab.appendChild(fl)
-
-                enc_img = tree.createElement("Encoded_Image")
-                enc_offset = tree.createElement("offset")
-                enc_offset.appendChild(tree.createTextNode("0"))
-                enc_offset.setAttribute("unit", "byte")
-                enc_stid = tree.createElement("encoding_standard_id")
-                enc_stid.appendChild(tree.createTextNode("PNG"))
-                enc_img.appendChild(enc_offset)
-                enc_img.appendChild(enc_stid)
-
-                fab.appendChild(enc_img)
-                return fab
-        elif img_type == "jpg":
-            data = im.fromarray(self.img, mode="L")
-            # print(data.getpixel((50,50)))
-            data.save(f"{outFolder}/{new_filename}.{img_type}", quality=quality)
-        # print(self.img[0,0])
-
-
 class Data:
     def __init__(
         self,
@@ -455,43 +259,12 @@ class Data:
                 if channel in ["stc", "hric"]:
                     filter = getValue(imaging[i], "img:filter_name")
                     self.filters.append(filter.lower())
-                    setattr(
-                        self,
-                        f"filter_{filter.lower()}",
-                        SimbioObject(
-                            file_name,
-                            filter_name=filter,
-                            channel=channel,
-                            imaging=imaging[i],
-                            geometry=geometry[i],
-                            file_obs=file_obs[i],
-                            console=self.console,
-                            debug=debug,
-                            verbose=verbose,
-                        ),
-                    )
 
                     if debug:
                         self.console.print(f"{MSG.DEBUG}Found filter: {filter}")
-                    pass
                 else:
                     self.seg_number += 1
                     self.segments.append(f"segment_{self.seg_number:03}")
-                    setattr(
-                        self,
-                        f"segment_{self.seg_number:03}",
-                        SimbioObject(
-                            file_name,
-                            channel=channel,
-                            imaging=imaging[i],
-                            geometry=geometry[i],
-                            file_obs=file_obs[i],
-                            console=self.console,
-                            debug=debug,
-                            verbose=verbose,
-                        ),
-                    )
-                    pass
 
     def savePreview(
         self,
@@ -500,109 +273,24 @@ class Data:
         outFolder: Path = None,
         tree: Document = None,
     ) -> str | None:
-        if self.channel == "vihi":
-            seg_prevs = []
-            for item in self.segments:
-                disp = getattr(self, f"{item}")
-                seg_prevs.append(
-                    disp.savePreview(
-                        img_type=img_type,
-                        quality=quality,
-                        outFolder=outFolder,
-                        tree=tree,
-                    )
-                )
-            return seg_prevs
-        else:
-            filter_prevs = []
-            for item in self.filters:
-                disp = getattr(self, f"filter_{item.lower()}")
-                filter_prevs.append(
-                    disp.savePreview(
-                        img_type=img_type,
-                        quality=quality,
-                        outFolder=outFolder,
-                        tree=tree,
-                    )
-                )
-            return filter_prevs
+        """Report that legacy preview generation is no longer supported.
+
+        .. deprecated::
+            This method is obsolete and retained temporarily for API
+            compatibility. It must be removed in a future version.
+        """
+        message = (
+            "Data.savePreview() is obsolete and will be removed "
+            "in a future version of SimbioReader."
+        )
+        self.console.print(f"{MSG.WARNING}{message}")
+        raise DeprecatedMethodError(message)
 
     def __str__(self):
         return f"Data(channel={self.channel}, level={self.level}, items_number={self.items_number})"
 
     def __repr__(self):
         return self.__str__()
-
-@dataclass
-class Compression:
-    box:float
-    rate:float
-    ratio:int
-
-@dataclass(slots=True, frozen=True)
-class Simbio:
-    channel: INSTRUMENT
-    compression: Compression | None = None
-    
-    _stc: str | None = None
-    _vihi: str | None = None
-    _hric: str | None = None
-
-    def __post_init__(self) -> None:
-        try:
-            channel = INSTRUMENT(self.channel)
-        except ValueError as exc:
-            valid = ", ".join(instrument.value for instrument in INSTRUMENT)
-            raise ValueError(
-                f"Unknown instrument {self.channel!r}. Expected one of: {valid}."
-            ) from exc
-
-        object.__setattr__(self, "channel", channel)
-
-        instrument_data = {
-            INSTRUMENT.STC: self._stc,
-            INSTRUMENT.HRIC: self._hric,
-            INSTRUMENT.VIHI: self._vihi,
-        }
-        if instrument_data[channel] is None:
-            raise ValueError(f"Data for instrument {channel.value} are required.")
-
-        unexpected = [
-            instrument.value
-            for instrument, value in instrument_data.items()
-            if instrument is not channel and value is not None
-        ]
-        if unexpected:
-            names = ", ".join(unexpected)
-            raise ValueError(
-                f"Data for {names} cannot be provided when the instrument is "
-                f"{channel.value}."
-            )
-
-    def _get_instrument_data(
-        self,
-        expected: INSTRUMENT,
-        value: str | None,
-    ) -> str:
-        if self.channel is not expected:
-            raise AttributeError(
-                f"The {expected.value} data are not available. "
-                f"The current instrument is {self.channel.value}."
-            )
-        assert value is not None
-        return value
-
-    @property
-    def stc(self) -> str:
-        return self._get_instrument_data(INSTRUMENT.STC, self._stc)
-
-    @property
-    def hric(self) -> str:
-        return self._get_instrument_data(INSTRUMENT.HRIC, self._hric)
-
-    @property
-    def vihi(self) -> str:
-        return self._get_instrument_data(INSTRUMENT.VIHI, self._vihi)
 
 
 
@@ -626,6 +314,7 @@ class SimbioReader:
     # Data Files
     image_file: Path
     image_data: ArrayStructure
+    data_arrays: tuple[ArrayStructure, ...]
     lblx_file: Path
     csv_file: Path
     csv_data: TableStructure
@@ -645,6 +334,10 @@ class SimbioReader:
     target: Target
     software_context: SoftwareContext
     simbio: Simbio
+    display: Display
+    imaging: Imaging
+    geometry: Geometry
+    reference: Reference
 
     debug: bool
     verbosity: int
@@ -746,7 +439,10 @@ class SimbioReader:
                 self.console.print(f"\t{idx + 1}. {item.type}")
 
         # Initialize the dat/qub file and csv file
+        data_arrays = []
         for item in data.structures:
+            if item.type.startswith("Array_"):
+                data_arrays.append(item)
             match item.type:
                 case "Table_Delimited":
                     object.__setattr__(self, "csv_file", Path(item.parent_filename))
@@ -773,6 +469,7 @@ class SimbioReader:
                     pass
                 case _:
                     pass
+        object.__setattr__(self, "data_arrays", tuple(data_arrays))
 
         # Read the lblx file to initialize the variables
         tree = etree.parse(self.lblx_file)
@@ -782,7 +479,10 @@ class SimbioReader:
         namespaces = {
             "pds": root.nsmap[None],
             "psa": root.nsmap["psa"],
-            "bc_mpo_simbio-sys":root.nsmap["bc_mpo_simbio-sys"]
+            "disp": root.nsmap["disp"],
+            "img": root.nsmap["img"],
+            "geom": root.nsmap["geom"],
+            "bc_mpo_simbio-sys": root.nsmap["bc_mpo_simbio-sys"],
         }
 
         def set_value(xpath, attribute):
@@ -901,20 +601,67 @@ class SimbioReader:
 
         # Setup SIMBIO_SYS General Parameters
 
-        SIMBIO=f"{OBSERVATION_AREA}/pds:Mission_Area[1]/bc_mpo_simbio-sys:SIMBIO[1]"
-        simbio=Simbio(channel=self.channel)
+        SIMBIO = (
+            f"{OBSERVATION_AREA}/pds:Mission_Area[1]/"
+            "bc_mpo_simbio-sys:SIMBIO[1]"
+        )
+        instrument_data = {}
+        if self.channel == INSTRUMENT.STC:
+            stc_elements = root.xpath(
+                f"{SIMBIO}/bc_mpo_simbio-sys:STC[1]",
+                namespaces=namespaces,
+            )
+            if not stc_elements:
+                raise LoadingError(
+                    self.pdsLabel,
+                    "Missing STC metadata in the SIMBIO mission area",
+            )
+            instrument_data["_stc"] = Stc.from_xml(stc_elements[0], namespaces)
+        elif self.channel == INSTRUMENT.HRIC:
+            hric_elements = root.xpath(
+                f"{SIMBIO}/bc_mpo_simbio-sys:HRIC[1]",
+                namespaces=namespaces,
+            )
+            if not hric_elements:
+                raise LoadingError(
+                    self.pdsLabel,
+                    "Missing HRIC metadata in the SIMBIO mission area",
+                )
+            instrument_data["_hric"] = Hric.from_xml(
+                hric_elements[0],
+                namespaces,
+            )
+        elif self.channel == INSTRUMENT.VIHI:
+            vihi_elements = root.xpath(
+                f"{SIMBIO}/bc_mpo_simbio-sys:VIHI[1]",
+                namespaces=namespaces,
+            )
+            if not vihi_elements:
+                raise LoadingError(
+                    self.pdsLabel,
+                    "Missing VIHI metadata in the SIMBIO mission area",
+                )
+            instrument_data["_vihi"] = Vihi.from_xml(
+                vihi_elements[0],
+                namespaces,
+            )
+
+        simbio = Simbio(channel=self.channel, **instrument_data)
         object.__setattr__(
             simbio,
             'compression',
             Compression(
                 float(root.xpath(
-                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_box[1])"
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_box[1])",
+                    namespaces=namespaces,
                 )),
                 float(root.xpath(
-                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_rate[1])"
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_rate[1])",
+                    namespaces=namespaces,
                 )),
                 int(root.xpath(
-                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:ibr[1])"
+                    f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:ibr[1])",
+                    namespaces=namespaces,
                 )))
         )
 
@@ -922,22 +669,53 @@ class SimbioReader:
             message = f"Setted the Compression information to {simbio.compression}"
             self.console.print(f"{MSG.DEBUG}{message}")
         logger.debug(message)
+        object.__setattr__(simbio,
+                           'repetition_time',
+                           float(root.xpath(
+                               f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:repetition_time[1])",
+                               namespaces=namespaces,
+                           )
+                                      )
+                                      )
+        object.__setattr__(self,'simbio',simbio)
 
-        last_row = "qui"
-        return
-
-        # Read the channels data
-        self.data = Data(
-            channel=self.channel,
-            level=self.level,
-            source_path=self.pdsLabel.parent,
-            file_obs=label.getElementsByTagName("File_Area_Observational"),
-            imaging=label.getElementsByTagName("img:Imaging"),
-            geometry=label.getElementsByTagName("geom:Geometry"),
-            debug=debug,
-            verbose=verbose,
-            console=self.console,
+        discipline_area = f"{OBSERVATION_AREA}/pds:Discipline_Area[1]"
+        discipline_models = (
+            ("display", "disp:Display_Settings", Display),
+            ("imaging", "img:Imaging", Imaging),
+            ("geometry", "geom:Geometry", Geometry),
         )
+        for attribute, element_name, model in discipline_models:
+            elements = root.xpath(
+                f"{discipline_area}/{element_name}[1]",
+                namespaces=namespaces,
+            )
+            if not elements:
+                raise LoadingError(
+                    self.pdsLabel,
+                    f"Missing {element_name} metadata in the discipline area",
+                )
+            object.__setattr__(
+                self,
+                attribute,
+                model.from_xml(elements[0], namespaces),
+            )
+
+        reference_lists = root.xpath(
+            "/pds:Product_Observational[1]/pds:Reference_List[1]",
+            namespaces=namespaces,
+        )
+        if not reference_lists:
+            raise LoadingError(
+                self.pdsLabel,
+                "Missing Reference_List metadata",
+            )
+        object.__setattr__(
+            self,
+            "reference",
+            Reference.from_xml(reference_lists[0], namespaces),
+        )
+
 
     @property
     def lvid(self) -> str:
@@ -957,40 +735,346 @@ class SimbioReader:
         data_structure: bool = False,
         filters: bool = False,
         all_info: bool = False,
+        no_symbols: bool = False,
     ) -> Panel:
+        """Return a Rich summary built from the current metadata models."""
         columns = [self.info(), self.target.show()]
-        if hk or all_info:
-            columns.append(self.data.hk.show())
-        if detector or all_info:
-            for item in self.data.filters:
-                disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(
-                    disp.detector.show(title=f"Detector Info - Filter {item.upper()}")
+        instrument = self._instrument_metadata()
+
+        if hk:
+            columns.extend(
+                [
+                    self._housekeeping_panel(
+                        f"{self.channel.value} Housekeeping",
+                        instrument.housekeeping,
+                        use_symbols=not no_symbols,
+                    ),
+                    self._csv_data_panel(),
+                ]
+            )
+
+        if detector:
+            detector_models = [("Imaging Detector", self.imaging.detector)]
+            general_parameters = getattr(
+                instrument,
+                "general_parameters",
+                None,
+            )
+            instrument_detector = getattr(
+                general_parameters,
+                "detector",
+                None,
+            )
+            if instrument_detector is not None:
+                detector_models.insert(
+                    0,
+                    (
+                        f"{self.channel.value} Detector",
+                        instrument_detector,
+                    ),
                 )
-        if data_structure or all_info:
-            for item in self.data.filters:
-                disp = getattr(self.data, f"filter_{item.lower()}")
+            columns.extend(
+                self._measurement_panel(
+                    title,
+                    model,
+                    use_symbols=not no_symbols,
+                )
+                for title, model in detector_models
+            )
+
+        if all_info:
+            columns.extend(
+                [
+                    self._model_panel(
+                        "SIMBIO",
+                        self.simbio,
+                        use_symbols=not no_symbols,
+                    ),
+                    self._model_panel(
+                        "Display",
+                        self.display,
+                        use_symbols=not no_symbols,
+                    ),
+                    self._model_panel(
+                        "Imaging",
+                        self.imaging,
+                        use_symbols=not no_symbols,
+                    ),
+                    self._model_panel(
+                        "Geometry",
+                        self.geometry,
+                        use_symbols=not no_symbols,
+                        leaf_names=True,
+                        two_columns=True,
+                    ),
+                    self._model_panel(
+                        "References",
+                        self.reference,
+                        use_symbols=not no_symbols,
+                    ),
+                ]
+            )
+        else:
+            if data_structure:
+                columns.extend(
+                    [
+                        self._model_panel(
+                            "Display",
+                            self.display,
+                            use_symbols=not no_symbols,
+                        ),
+                        self._model_panel(
+                            "Imaging Subframe",
+                            self.imaging.subframe,
+                            use_symbols=not no_symbols,
+                        ),
+                        self._model_panel(
+                            "Geometry",
+                            self.geometry,
+                            use_symbols=not no_symbols,
+                            leaf_names=True,
+                            two_columns=True,
+                        ),
+                    ]
+                )
+            if filters:
                 columns.append(
-                    disp.data_structure.show(
-                        title=f"Data Structure Info - Filter {item.upper()}"
+                    self._model_panel(
+                        "Optical Filter",
+                        self.imaging.optical_filter,
+                        use_symbols=not no_symbols,
                     )
                 )
-
-        if filters and hasattr(self.data, "filters"):
-            for item in self.data.filters:
-                disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(disp.show())
         col = Columns(
-            columns,  # [self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
+            columns,
             expand=True,
         )
 
         return Panel(
             col,
-            title=f"SimbioReader Summary: {self.pdsLabel.stem}",
+            title=f"SimbioReader Summary: {self.lblx_file.stem}",
             border_style="green",
             expand=False,
         )
+
+    def _instrument_metadata(self) -> Stc | Hric | Vihi:
+        match self.channel:
+            case INSTRUMENT.STC:
+                return self.simbio.stc
+            case INSTRUMENT.HRIC:
+                return self.simbio.hric
+            case INSTRUMENT.VIHI:
+                return self.simbio.vihi
+
+    @staticmethod
+    def _flatten_model(
+        value,
+        prefix: str = "",
+        use_symbols: bool = True,
+    ) -> list[tuple[str, str]]:
+        if value is None:
+            return [(prefix or "Value", "Not available")]
+        if is_dataclass(value):
+            rows = []
+            model_fields = {field.name for field in fields(value)}
+            unit_fields = SimbioReader._model_unit_fields(model_fields)
+            unit_field_names = set(unit_fields.values())
+            for field in fields(value):
+                if field.name in unit_field_names:
+                    continue
+                label = f"{prefix}.{field.name}" if prefix else field.name
+                field_value = getattr(value, field.name)
+                unit_field = unit_fields.get(field.name)
+                if unit_field:
+                    unit = getattr(value, unit_field)
+                    if unit and use_symbols:
+                        unit = SimbioReader._unit_symbol(unit)
+                    rows.append(
+                        (
+                            label,
+                            f"{field_value} {unit}" if unit else str(field_value),
+                        )
+                    )
+                    continue
+                rows.extend(
+                    SimbioReader._flatten_model(
+                        field_value,
+                        label,
+                        use_symbols=use_symbols,
+                    )
+                )
+            return rows
+        if isinstance(value, (tuple, list)):
+            if not value:
+                return [(prefix or "Items", "None")]
+            rows = []
+            for index, item in enumerate(value, start=1):
+                rows.extend(
+                    SimbioReader._flatten_model(
+                        item,
+                        f"{prefix}[{index}]",
+                        use_symbols=use_symbols,
+                    )
+                )
+            return rows
+        return [(prefix or "Value", str(value))]
+
+    @classmethod
+    def _model_panel(
+        cls,
+        title: str,
+        model,
+        use_symbols: bool = True,
+        leaf_names: bool = False,
+        two_columns: bool = False,
+    ) -> Panel:
+        table = Table.grid()
+        column_groups = 2 if two_columns else 1
+        for _ in range(column_groups):
+            table.add_column(style="yellow", justify="right")
+            table.add_column()
+            table.add_column(style="cyan", justify="left")
+
+        rows = cls._flatten_model(model, use_symbols=use_symbols)
+        formatted_rows = [
+            (
+                (name.rsplit(".", 1)[-1] if leaf_names else name)
+                .replace("_", " ")
+                .title(),
+                " = ",
+                value,
+            )
+            for name, value in rows
+        ]
+        if two_columns:
+            midpoint = (len(formatted_rows) + 1) // 2
+            left_rows = formatted_rows[:midpoint]
+            right_rows = formatted_rows[midpoint:]
+            empty = ("", "", "")
+            for index, left_row in enumerate(left_rows):
+                right_row = right_rows[index] if index < len(right_rows) else empty
+                table.add_row(*left_row, *right_row)
+        else:
+            for row in formatted_rows:
+                table.add_row(*row)
+        return Panel(table, title=title, border_style="green", expand=False)
+
+    @classmethod
+    def _housekeeping_panel(
+        cls,
+        title: str,
+        model,
+        use_symbols: bool = True,
+    ) -> Panel:
+        """Render housekeeping values together with their measurement units."""
+        return cls._measurement_panel(
+            title,
+            model,
+            use_symbols=use_symbols,
+        )
+
+    @classmethod
+    def _measurement_panel(
+        cls,
+        title: str,
+        model,
+        use_symbols: bool = True,
+    ) -> Panel:
+        """Render model values together with their measurement units."""
+        model_fields = {field.name for field in fields(model)}
+        unit_fields = cls._model_unit_fields(model_fields)
+        table = Table.grid()
+        table.add_column(style="yellow", justify="right")
+        table.add_column()
+        table.add_column(style="cyan", justify="left")
+        unit_field_names = set(unit_fields.values())
+        for field in fields(model):
+            if field.name in unit_field_names:
+                continue
+            value = getattr(model, field.name)
+            unit_field = unit_fields.get(field.name)
+            unit = getattr(model, unit_field) if unit_field else None
+            if unit and use_symbols:
+                unit = cls._unit_symbol(unit)
+            formatted_value = f"{value} {unit}" if unit else str(value)
+            table.add_row(
+                field.name.replace("_", " ").title(),
+                " = ",
+                formatted_value,
+            )
+        return Panel(table, title=title, border_style="green", expand=False)
+
+    @staticmethod
+    def _model_unit_fields(model_fields: set[str]) -> dict[str, str]:
+        unit_fields = {}
+        for field_name in model_fields:
+            if field_name.endswith("_measurement_unit"):
+                value_name = field_name.removesuffix("_measurement_unit")
+                if value_name in model_fields:
+                    unit_fields[value_name] = field_name
+            elif field_name.endswith("_unit"):
+                value_name = field_name.removesuffix("_unit")
+                if value_name in model_fields:
+                    unit_fields[value_name] = field_name
+        return unit_fields
+
+    @staticmethod
+    def _unit_symbol(unit: str) -> str:
+        symbols = {
+            "arcmin": "′",
+            "arcsec": "″",
+            "byte": "B",
+            "deg": "°",
+            "micrometer": "µm",
+            "pixel": "px",
+            "second": "s",
+        }
+        return symbols.get(unit, unit)
+
+    def _csv_data_panel(self) -> Panel:
+        """Render the product CSV table loaded by pds4_tools."""
+        table = Table(show_header=True, header_style="bold yellow")
+        csv_structure = getattr(self, "csv_data", None)
+        if csv_structure is None:
+            table.add_column("Status")
+            table.add_row("CSV housekeeping data not available")
+            return Panel(
+                table,
+                title="CSV Housekeeping Data",
+                border_style="green",
+                expand=False,
+            )
+
+        csv_data = csv_structure.data
+        column_names = csv_data.dtype.names or ()
+        if not column_names:
+            table.add_column("Row", justify="right")
+            table.add_column("Value")
+            for row_number, row in enumerate(csv_data, start=1):
+                table.add_row(str(row_number), str(row))
+        else:
+            table.add_column("Row", justify="right")
+            table.add_column("Parameter", style="yellow")
+            table.add_column("Value", style="cyan")
+            for row_number, row in enumerate(csv_data, start=1):
+                for column_name in column_names:
+                    table.add_row(
+                        str(row_number),
+                        column_name.replace("_", " ").title(),
+                        self._format_csv_value(row[column_name]),
+                    )
+        return Panel(
+            table,
+            title="CSV Housekeeping Data",
+            border_style="green",
+            expand=False,
+        )
+
+    @staticmethod
+    def _format_csv_value(value) -> str:
+        if isinstance(value, bytes):
+            return value.decode(errors="replace")
+        return str(value)
 
     def info(self) -> Panel:
         dt = Table.grid()
@@ -999,55 +1083,42 @@ class SimbioReader:
         dt.add_column(style="cyan", justify="left")
 
         sep = " = "
-        dt.add_row("Channel", sep, self.channel.upper())
-        dt.add_row("Processing Level", sep, self.level)
-        dt.add_row("Mission Phase", sep, self.phaseName)
+        dt.add_row("Channel", sep, self.channel.value)
+        dt.add_row("Processing Level", sep, self.processing_level)
+        dt.add_row("Mission Phase", sep, self.mission_phase)
         dt.add_row("Logical Identifier", sep, self.lid)
-        dt.add_row("Version", sep, self.version)
+        dt.add_row("Version", sep, self.version_id)
         dt.add_row("Title", sep, self.title)
-        dt.add_row("Data Model Version", sep, self.dataModelVersion)
-        dt.add_row("Observation Start Time", sep, self.startTime.isoformat())
-        dt.add_row("Observation Stop Time", sep, self.stopTime.isoformat())
-        dt.add_row("Spacecraft Clock Start Count", sep, self.start_scet)
-        dt.add_row("Spacecraft Clock Stop Count", sep, self.stop_scet)
+        dt.add_row(
+            "Data Model Version",
+            sep,
+            self.information_model_version,
+        )
+        dt.add_row(
+            "Observation Start Time",
+            sep,
+            self.time_coordinates.start_utc.isoformat(),
+        )
+        dt.add_row(
+            "Observation Stop Time",
+            sep,
+            self.time_coordinates.end_utc.isoformat(),
+        )
+        dt.add_row(
+            "Spacecraft Clock Start Count",
+            sep,
+            self.time_coordinates.start_scet,
+        )
+        dt.add_row(
+            "Spacecraft Clock Stop Count",
+            sep,
+            self.time_coordinates.end_scet,
+        )
 
         return Panel(dt, title="SimbioReader Info", border_style="green", expand=False)
 
-    def filters_summary(self) -> Panel:
-        tb = Table()
-        tb.add_column("", style="yellow", justify="right")
-        tb.add_column("Filter Names", style="yellow", justify="center")
-        for item in self.data.filters:
-            tb.add_row(":green_circle:", item.upper())
-            # disp = getattr(self.data, f"filter_{item.lower()}")
-
-        return Panel(
-            tb,
-            title="Filters Summary",
-            border_style="green",
-            expand=False,
-        )
-
     def summary(self) -> Panel:
-        filters = []
-        for item in self.data.filters:
-            disp = getattr(self.data, f"filter_{item.lower()}")
-            filters.append(disp.show())
-        col = Columns(
-            [
-                self.info(),
-                self.target.show(),
-                self.filters_summary(),
-            ],  # , self.data.hk.show(), *filters],
-            expand=True,
-        )
-
-        return Panel(
-            col,
-            title=f"SimbioReader Summary: {self.pdsLabel.stem}",
-            border_style="green",
-            expand=False,
-        )
+        return self.show()
 
     def __getattr__(self, name: str):
         if name.startswith("segment") and self.channel in ["stc", "hric"]:
@@ -1063,29 +1134,17 @@ class SimbioReader:
 
         return None
 
-    def get_filter_by_file(self, file_name: Path) -> SimbioObject | None:
-        if isinstance(file_name, str):
-            file_name = Path(file_name)
-        for item in self.data.filters:
-            disp = getattr(self.data, f"filter_{item.lower()}")
-            if disp.file_name.name == file_name.name:
-                return disp
-        return None
+    def get_segment_by_file(
+        self, file_name: str | Path
+    ) -> ArrayStructure | None:
+        """Return a VIHI array by data-file name for multi-array products."""
+        if self.channel != INSTRUMENT.VIHI or len(self.data_arrays) <= 1:
+            return None
 
-    def get_filters(self) -> list:
-        filters = []
-        for item in self.data.filters:
-            disp = getattr(self.data, f"filter_{item.lower()}")
-            filters.append(disp)
-        return filters
-
-    def get_segment_by_file(self, file_name: Path) -> SimbioObject | None:
-        if isinstance(file_name, str):
-            file_name = Path(file_name)
-        for item in self.data.segments:
-            disp = getattr(self.data, f"{item}")
-            if disp.file_name.name == file_name.name:
-                return disp
+        requested_name = Path(file_name).name
+        for data_array in self.data_arrays:
+            if Path(data_array.parent_filename).name == requested_name:
+                return data_array
         return None
 
     def savePreview(
@@ -1096,7 +1155,11 @@ class SimbioReader:
         template: Path = None,
         description: str = "This is the first version.",
     ) -> str | None:
-        """Saves a preview image of the loaded data.
+        """Report that preview generation is no longer supported.
+
+        .. deprecated::
+            This method is obsolete and retained temporarily for API
+            compatibility. It must be removed in a future version.
 
         Args:
             img_type: The desired image format. Supported formats are 'png', 'tif', and 'jpg'. Defaults to 'png'.
@@ -1106,84 +1169,15 @@ class SimbioReader:
                     is forced to png
 
         Raises:
-            ValueError: If the provided image format is not supported.
-            TypeError: If the `out_folder` argument is not a `Path` object.
+            DeprecatedMethodError: Always raised because the method is obsolete.
         """
-        if self.debug:
-            self.console.print(
-                f"{MSG.DEBUG}Saving preview image with type: {img_type}, for {self.pdsLabel.name}"
-            )
-        if template:
-            img_type = "png"
-        if outFolder is None:
-            dest = self.pdsLabel.parent
-        else:
-            if type(outFolder) is not Path:
-                outFolder = Path(outFolder)
-            dest = outFolder
-            if dest.exists() is False:
-                dest.mkdir(parents=True, exist_ok=True)
-        # ret=self.data.savePreview(img_type=img_type,quality=quality,outFolder=dest)
-        if "vihi" in self.channel:
-            self.console.print("VIHI")
-        if template:
-            if not isinstance(template, Path):
-                template = Path(template)
-            if not template.exists():
-                raise FileNotFoundError(f"The template {template.name} was not found")
-            new_filename = gen_filename(self.pdsLabel)
-            new_label = dest.joinpath(new_filename).with_suffix(".lblx")
-            # template.rename(new_label)
-            # from xml.dom.minidom import parse, parseString, Element
-            tree = parse(template.as_posix())
-            for item in tree.getElementsByTagName("File_Area_Browse"):
-                item.parentNode.removeChild(item)
-
-            if "cal" in Path(new_filename).stem:
-                calib = True
-            else:
-                calib = False
-            new_lid = lidUpdate(tree, new_label, calib=calib)
-            creatTime = datetime.now()
-            updateXML(tree, "modification_date", creatTime.strftime("%Y-%m-%d"), idx=0)
-            file_version = str(new_filename).split("__")[1].split(".")[0]
-            file_version = file_version.replace("_", ".")
-            updateXML(tree, "version_id", file_version, idx=0)
-            updateXML(tree, "version_id", file_version, idx=1)
-            updateXML(tree, "description", description, idx=0)
-            lvidUpdate(tree, new_label, file_version)
-            ret = self.data.savePreview(
-                img_type=img_type, quality=quality, outFolder=dest, tree=tree
-            )
-            br = getElement(tree, "Product_Browse")
-            for item in ret:
-                br.appendChild(item)
-
-            dom2 = parseString(pretty_print(tree))
-            with open(new_label, "w") as xmlFile:
-                dom2.writexml(xmlFile, encoding="utf-8")
-            return f"{new_lid}::{file_version}"
-        else:
-            ret = self.data.savePreview(
-                img_type=img_type, quality=quality, outFolder=dest
-            )
-
-    def image(self) -> im:
-        """Returns a PIL Image object representing the loaded image data.
-
-        This method returns a Pillow (PIL Fork) Image object containing the image data
-        loaded from the Simbio file. The image data is assumed to be a single-band
-        or multi-band array, depending on the channel type.
-
-        Returns:
-            A PIL Image object representing the loaded image data.
-
-        Raises:
-            ValueError: If the loaded image data cannot be converted to a PIL Image
-            object due to unsupported data type or shape.
-        """
-        data = im.fromarray(self.img)
-        return data
+        # TODO: Remove savePreview in a future major release.
+        message = (
+            "savePreview() is obsolete and will be removed in a future "
+            "version of SimbioReader."
+        )
+        self.console.print(f"{MSG.WARNING}{message}")
+        raise DeprecatedMethodError(message)
 
     def __str__(self) -> str:
         return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"
