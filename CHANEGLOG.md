@@ -1,5 +1,11 @@
 # SimbioReader Changelog
 
+## 0.8.0
+
+- support multiple, non-contiguous date intervals for the same mission phase (e.g. `cruise` split around a Mercury gravity assist)
+- `simbioInfo phases --all` now lists phase intervals sorted chronologically by start time instead of grouped by phase name
+- add mission phase `mga6` (Mercury Gravity Assist 6) and subphases `msb6`, `ico13`, `ico14`, `ico17` with their associated tests
+
 ## 0.7.0
 
 - added method get_filters

@@ -36,9 +36,10 @@ class Phase:
             ValueError: If neither name nor dt is provided, or if no phase is found.
         """
         if name:
-            phase_data = phases.get(name)
-            if not phase_data:
+            intervals = phases.get(name)
+            if not intervals:
                 raise ValueError(f"Phase '{name}' not found.")
+            phase_data = self._merge_intervals(name, intervals)
         elif dt:
             if isinstance(dt, str):
                 dt = parse(dt,ignoretz=True)
@@ -47,27 +48,56 @@ class Phase:
                 raise ValueError(f"No phase found for the given date. (dt: {dt})")
         else:
             raise ValueError("You must provide a phase name or a date.")
-        
+
         self.name = phase_data["name"]
-        self.start = parse(phase_data["start"],ignoretz=True)
-        self.end = parse(phase_data["end"],ignoretz=True)
+        self.start = phase_data["start"]
+        self.end = phase_data["end"]
         self.extended_name = phase_data["LPName"]
+
+    @staticmethod
+    def _merge_intervals(name, intervals):
+        """
+        Combines every interval registered for a phase name into a single span,
+        since a phase name (e.g. "cruise") may now be split across several
+        non-contiguous date intervals.
+
+        Args:
+            name (str): The name of the phase.
+            intervals (list[dict]): The list of intervals registered for that name.
+
+        Returns:
+            dict: Phase data with the earliest start and latest end of all intervals.
+        """
+        starts = [parse(interval["start"], ignoretz=True) for interval in intervals]
+        ends = [parse(interval["end"], ignoretz=True) for interval in intervals]
+        return {
+            "name": name,
+            "start": min(starts),
+            "end": max(ends),
+            "LPName": intervals[0]["LPName"],
+        }
 
     def _find_phase_by_date(self, dt):
         """
-        Finds a phase by a given date.
+        Finds the phase interval that contains a given date.
 
         Args:
             dt (datetime): The date to find the corresponding phase.
 
         Returns:
-            dict | None: The phase data if found, otherwise None.
+            dict | None: The matching interval's phase data if found, otherwise None.
         """
-        for phase_name, phase_data in phases.items():
-            start = parse(phase_data["start"],ignoretz=True)
-            end = parse(phase_data["end"],ignoretz=True)
-            if start <= dt <= end:
-                return phase_data
+        for phase_name, intervals in phases.items():
+            for interval in intervals:
+                start = parse(interval["start"],ignoretz=True)
+                end = parse(interval["end"],ignoretz=True)
+                if start <= dt <= end:
+                    return {
+                        "name": phase_name,
+                        "start": start,
+                        "end": end,
+                        "LPName": interval["LPName"],
+                    }
         return None
 
     def __str__(self)-> str:
@@ -100,12 +130,17 @@ class Phase:
         tb.add_column('Phase Name')
         tb.add_column('Start Time')
         tb.add_column('End Time')
-        for phase_name, phase_data in phases.items():
-            if phase_name == "None":
-                continue
-            tb.add_row(f"{phase_data['LPName']} ({phase_name})",
-                       parse(phase_data['start']).strftime(dateFormat),
-                       parse(phase_data['end']).strftime(dateFormat))
+        rows = [
+            (phase_name, interval)
+            for phase_name, intervals in phases.items()
+            if phase_name != "None"
+            for interval in intervals
+        ]
+        rows.sort(key=lambda row: parse(row[1]['start'], ignoretz=True))
+        for phase_name, interval in rows:
+            tb.add_row(f"{interval['LPName']} ({phase_name})",
+                       parse(interval['start']).strftime(dateFormat),
+                       parse(interval['end']).strftime(dateFormat))
         return tb
     
     def show(self):
