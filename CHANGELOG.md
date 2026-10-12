@@ -2,6 +2,27 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.1] - 2026-10-12
+
+### Fixed
+
+- Preserve `compression_box` as text, including dimensions such as `128x128`
+  and `64x128`, so reading science products does not fail before calibration.
+
+### Verification
+
+- All 72 SimbioReader tests passed, including regression cases for `1`,
+  `128x128`, and `64x128` compression boxes.
+- Two real HRIC ICO17 products completed calibration with local calibration
+  data and SPICE kernels, with downloads disabled. Calibrated LIDs, processing
+  level, float32 type, file names, sizes, MD5 checksums, raw source references,
+  and browse-label XML were verified.
+
+### Compatibility
+
+- `Compression.box` is now a string rather than a float. Numeric label values
+  such as `1` are preserved as text; rate and ratio types are unchanged.
+
 ## Unreleased — Version 1.0.0 development branch
 
 Changes since the branch diverged from `main` at commit `90819e5`.

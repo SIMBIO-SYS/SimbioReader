@@ -429,10 +429,10 @@ class SimbioReader:
             simbio,
             'compression',
             Compression(
-                float(root.xpath(
+                root.xpath(
                     f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_box[1])",
                     namespaces=namespaces,
-                )),
+                ).strip(),
                 float(root.xpath(
                     f"string({SIMBIO}/bc_mpo_simbio-sys:SIMBIO_General_Parameters[1]/bc_mpo_simbio-sys:Compression[1]/bc_mpo_simbio-sys:compression_rate[1])",
                     namespaces=namespaces,

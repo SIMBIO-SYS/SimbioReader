@@ -79,3 +79,23 @@ def test_simbio_reader_loads_product_structures():
     assert len(reader.data_arrays) == 1
     assert reader.image_file.name == LABEL.with_suffix(".dat").name
     assert reader.csv_file.name == LABEL.with_suffix(".csv").name
+
+
+@pytest.mark.parametrize("box", ["1", "128x128", "64x128"])
+def test_simbio_reader_preserves_compression_box(tmp_path, box):
+    import shutil
+
+    from lxml import etree
+
+    product = tmp_path / PRODUCT_DIRECTORY.name
+    shutil.copytree(PRODUCT_DIRECTORY, product)
+    label = product / LABEL.name
+    tree = etree.parse(label)
+    element = tree.xpath("//*[local-name()='compression_box']")[0]
+    element.text = box
+    tree.write(label, encoding="UTF-8", xml_declaration=True)
+
+    compression = _reader(label).simbio.compression
+    assert compression.box == box
+    assert isinstance(compression.rate, float)
+    assert isinstance(compression.ratio, int)

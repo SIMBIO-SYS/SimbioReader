@@ -24,7 +24,7 @@ instruments: list[INSTRUMENT] = [
 
 @dataclass
 class Compression:
-    box: float
+    box: str
     rate: float
     ratio: int
 

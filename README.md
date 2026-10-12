@@ -1,4 +1,4 @@
-![Version 1.0.0-dev.2](https://img.shields.io/badge/version-1.0.0--dev.2-blue?style=plastic)
+![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
@@ -57,6 +57,17 @@ The principal metadata attributes are:
 - `reference`, containing internal and external references;
 - `data_arrays`, plus `image_data`, `cube_data`, and `csv_data` when present;
 - `time_coordinates`, `target`, and `software_context`.
+
+### Compression metadata
+
+From version 1.0.1, `product.simbio.compression.box` is a string preserving
+`compression_box` from the label, including `"128x128"`, `"64x128"`, or `"1"`.
+It describes a compression block and must not be treated as a scalar float.
+`compression.rate` remains a float and `compression.ratio` remains an integer.
+Code that previously used a numeric `box` must handle the textual value.
+
+This fixes a reader error that stopped SimCal before calibration and label
+updates. See [the 1.0.1 release notes](CHANGELOG.md) for validation details.
 
 `savePreview()` is retained only as an obsolete compatibility stub. Calling it
 prints a deprecation message and raises `DeprecatedMethodError`.
