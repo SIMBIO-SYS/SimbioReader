@@ -1,6 +1,6 @@
 [project]
 name = "SimbioReader"
-version = "1.0.1"
+version = "1.0.2"
 description = "Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
     "numpy>=2.3.3,<3.0.0",
@@ -13,6 +13,7 @@ dependencies = [
     "loguru>=0.7.3",
     "pds4-tools>=1.4",
     "lxml>=6.1.1",
+    "python-dateutil>=2.9,<3",
 ]
 requires-python = ">=3.14,<4.0"
 authors = [{ name = "Romolo Politi", email = "Romolo.Politi@inaf.it" }]

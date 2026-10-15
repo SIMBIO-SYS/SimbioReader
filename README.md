@@ -122,3 +122,8 @@ The Sphinx sources are under `docs/source`. Additional maintenance documents:
 - [unused-code audit](docs/unused-code-audit.md);
 - [handoff](handoff/HANDOFF.md);
 - [changelog](CHANGELOG.md).
+
+## 1.0.2 dependency and runtime update
+
+Use Python 3.14 (`uv sync --locked`) with the refreshed dependency lockfile.
+PDS4 generated product versions remain `0.1`; software versions are independent.

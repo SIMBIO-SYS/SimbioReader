@@ -23,7 +23,24 @@ All notable changes to SimbioReader are documented in this file.
 - `Compression.box` is now a string rather than a float. Numeric label values
   such as `1` are preserved as text; rate and ratio types are unchanged.
 
-## Unreleased — Version 1.0.0 development branch
+### Verification
+
+- All 72 local tests pass on Python 3.14.8 after dependency synchronization.
+- Offline lockfile checks and installed dependency consistency checks pass.
+
+## Unreleased
+
+## [1.0.2] - 2026-10-15
+
+### Fixed
+
+- Declare python-dateutil as a runtime dependency for mission-phase and metadata imports, so synchronized environments can collect the complete suite.
+
+### Changed
+
+- Refresh dependency locks and synchronize development environments on Python 3.14.
+- Advance the software version to `1.0.2`; generated PDS4 product VID remains `0.1`.
+ — Version 1.0.0 development branch
 
 Changes since the branch diverged from `main` at commit `90819e5`.
 
