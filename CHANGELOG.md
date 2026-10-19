@@ -2,7 +2,13 @@
 
 All notable changes to SimbioReader are documented in this file.
 
-## Unreleased
+## 0.9.0
+
+### Added
+
+- Add the `fimgs` (Mercury First Images) subphase and `first_images` test
+  for 2026-10-18, 07:00:00 to 21:00:00.
+- Add `simbioReader --summarize` (`-s`) and product, target and filter summary panels.
 
 ### Fixed
 
@@ -14,12 +20,13 @@ All notable changes to SimbioReader are documented in this file.
 - Migrate project management from Poetry to uv, with `uv.lock`, the
   `uv_build` backend, and updated development and CI commands.
 
-- Advance the development version to `0.6.8-dev.1` and require Python 3.14.
+- Require Python 3.14 or later.
 
 ### Documentation
 
 - Add the detailed Italian data-flow guide in `FLUSSO_DATI.md`.
-- Correct the README constructor example and synchronize its version badges.
+- Align README and Sphinx examples with the current CLI and Python API.
+- Read the Sphinx release version directly from `pyproject.toml`.
 
 ## 0.8.0
 

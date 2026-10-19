@@ -3,7 +3,8 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import sys
-import os
+import tomllib
+from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -11,8 +12,9 @@ import os
 project = 'SimbioReader'
 copyright = '2024, Romolo Politi'
 author = 'Romolo Politi'
-release = '0.2.2'
-sys.path.insert(0, os.path.abspath('../../src'))
+ROOT = Path(__file__).resolve().parents[2]
+release = tomllib.loads((ROOT / 'pyproject.toml').read_text())['project']['version']
+sys.path.insert(0, str(ROOT / 'src'))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -28,7 +30,7 @@ extensions = [
     'sphinx.ext.todo',
 ]
 
-templates_path = ['_templates']
+templates_path = []
 exclude_patterns = []
 
 
@@ -37,7 +39,7 @@ exclude_patterns = []
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_rtd_theme" #'furo'
-html_static_path = ['_static']
+html_static_path = []
 
 
 autodoc_default_options = {
