@@ -1,7 +1,7 @@
 CLI
 ###
 
-The pacchage has some Command line interface (CLI) tools to help the user to diplay the label file and other information about the mission.
+The package provides two command line tools for inspecting products and the bundled mission database.
 
 
 simbioReader
@@ -16,20 +16,24 @@ will show the main information about the product.
 
 Are avalaible some options:
 
+* **\--summarize**, **-s** displays product, target and filter summaries for products with filter metadata
+* **\--debug**, **-d** enables debug output
+* **\--verbose**, **-v** enables verbose output
 * **\--all** will display all the avilable information
 * **\--hk** wil display also the housekeeping
 * **\--detector** will display all the detector information
 * **\--data-structure** will display the data structure of the file
-* **\--filter** will display the information about the used filter if the data come from HRIC or STC, otherwise the option will be ignored
+* **\--filters** will display the information about the used filter if the data come from HRIC or STC, otherwise the option will be ignored
 
 For any details you can use the option **\--help**.
 
-Using the option **\--version** will be shown the software version and the datamodel version implemented in it.
+Use ``simbioReader FILE --version`` to display the software and data-model versions.
+An existing ``FILE`` is currently required even when requesting the version.
 
 simbioInfo filters
 ******************
 
-The subcommand **filter** has an argument, the channel and an option *\--name*.
+The subcommand **filters** has an argument, the channel and an option *\--name*.
 
 If the user provides only the channel, all the filters specific to that channel will be shown. 
 If the user adds the -name option, only the selected filter will be displayed, if found.
@@ -41,7 +45,7 @@ Examples
 
 .. code-block:: bash
 
-    simbioInfo filter hric
+    simbioInfo filters hric
 
 
 will show all the filters of the channel HRIC
@@ -49,7 +53,7 @@ will show all the filters of the channel HRIC
 
 .. code-block:: bash
 
-    simbioInfo filter hric --name pan-l
+    simbioInfo filters hric --name pan-l
 
 will show the *HRIC* filter with the name *PAN-L*
 
@@ -78,7 +82,7 @@ will show all the past mission phases.
 
 .. code-block:: bash
 
-    simbioInfo phases --date 2024-04-081
+    simbioInfo phases --date 2024-04-08
 
 will show the phase that include the day *2024-04-08*.
 
@@ -113,9 +117,9 @@ will show all the past mission subphases.
 
 .. code-block:: bash
 
-    simbioInfo phases --date 2024-04-081
+    simbioInfo subphases --date 2024-04-08
 
-will show the phase that include the day *2024-04-08*, the **ico11** subphase.
+will show the subphase containing *2024-04-08*.
 
 .. code-block:: bash
 
@@ -167,3 +171,15 @@ will show the test that SIMBIO-SYS was performing at 2:00:00 on 2024-04-08, the 
 will show the test with the name that contain the string *hric functional* performed during the subphase *ico9*
 
 A description of argument and options coul be required using the option **\--help**
+
+Mission database updates
+************************
+
+Phases can contain multiple non-contiguous intervals; ``phases --all`` lists
+these intervals chronologically. The bundled ``fimgs`` subphase and
+``first_images`` test cover 2026-10-18 from 07:00:00 to 21:00:00.
+
+.. code-block:: console
+
+    simbioInfo subphases --name fimgs
+    simbioInfo tests --subphase fimgs

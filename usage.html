@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; SimbioReader 0.2.2 documentation</title>
+  <title>Usage &mdash; SimbioReader 0.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=39bb1c6d"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -46,12 +46,13 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-a-product">Read a product</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-and-documentation">Development and documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reaference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 </ul>
 
         </div>
@@ -81,24 +82,47 @@
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
 <section id="installation">
-<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
-<p>To install the reader you can use the command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>SimbioReader
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Python 3.14 or later is required.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python3 -m pip install SimbioReader</span>
 </pre></div>
 </div>
-<p>or using uv:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>add<span class="w"> </span>SimbioReader
+<p>Alternatively, add the package to a uv project:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv add SimbioReader</span>
 </pre></div>
 </div>
 </section>
-<section id="id2">
-<h2>Usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<p>The package contain a class that read and decode the SIMBIO-SYS image</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimbioReader</span> <span class="k">as</span> <span class="n">SR</span>
+<section id="read-a-product">
+<h2>Read a product<a class="headerlink" href="#read-a-product" title="Link to this heading"></a></h2>
+<p>Pass an existing PDS4 <code class="docutils literal notranslate"><span class="pre">.lblx</span></code> label, a supported data file with its label,
+or a directory containing exactly one <code class="docutils literal notranslate"><span class="pre">.lblx</span></code> label. Keep the data files
+referenced by the label alongside the product.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="nb">print</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">SimbioReader</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimbioReader</span> <span class="k">as</span> <span class="n">SR</span>
 
-<span class="n">dat</span> <span class="o">=</span> <span class="n">SimbioReader</span><span class="p">(</span><span class="s2">"sim_raw_sc_vihi_internal_cruise_ico4_2020-12-14_001.dat"</span><span class="p">)</span>
+<span class="n">dat</span> <span class="o">=</span> <span class="n">SR</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"product.lblx"</span><span class="p">),</span> <span class="n">updateCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">show</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">lvid</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">updateCheck=False</span></code> disables the constructor’s package update check.
+<code class="docutils literal notranslate"><span class="pre">show()</span></code> returns a Rich panel; print it to display it.
+For products with filter metadata, <code class="docutils literal notranslate"><span class="pre">get_filters()</span></code> returns the decoded
+filter objects and <code class="docutils literal notranslate"><span class="pre">summary()</span></code> returns a product, target and filter summary.</p>
+</section>
+<section id="development-and-documentation">
+<h2>Development and documentation<a class="headerlink" href="#development-and-documentation" title="Link to this heading"></a></h2>
+<p>From the repository root:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">uv sync --locked --group test --group devel</span>
+<span class="go">uv run pytest</span>
+<span class="go">uv run ruff check src test</span>
+<span class="go">uv build</span>
+<span class="go">uv run --no-project --with-requirements docs/requirements.txt --with . python -m sphinx -b html docs/source docs/build/html</span>
+</pre></div>
+</div>
+<p>The repository also contains <code class="docutils literal notranslate"><span class="pre">FLUSSO_DATI.md</span></code>, a detailed Italian guide to
+parsing and data flow.</p>
 </section>
 </section>
 

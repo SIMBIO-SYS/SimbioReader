@@ -6,20 +6,20 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI &mdash; SimbioReader 0.2.2 documentation</title>
+  <title>CLI &mdash; SimbioReader 0.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=39bb1c6d"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reaference" href="reference.html" />
+    <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Tools" href="tools.html" /> 
 </head>
 
@@ -64,9 +64,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#id3">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#mission-database-updates">Mission database updates</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reaference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 </ul>
 
         </div>
@@ -95,7 +96,7 @@
              
   <section id="cli">
 <h1>CLI<a class="headerlink" href="#cli" title="Link to this heading"></a></h1>
-<p>The pacchage has some Command line interface (CLI) tools to help the user to diplay the label file and other information about the mission.</p>
+<p>The package provides two command line tools for inspecting products and the bundled mission database.</p>
 <section id="simbioreader">
 <h2>simbioReader<a class="headerlink" href="#simbioreader" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioReader<span class="w"> </span>sim_raw_sc_vihi_internal_cruise_ico6_2021-11-22_001.dat
@@ -104,28 +105,32 @@
 <p>will show the main information about the product.</p>
 <p>Are avalaible some options:</p>
 <ul class="simple">
+<li><p><strong>--summarize</strong>, <strong>-s</strong> displays product, target and filter summaries for products with filter metadata</p></li>
+<li><p><strong>--debug</strong>, <strong>-d</strong> enables debug output</p></li>
+<li><p><strong>--verbose</strong>, <strong>-v</strong> enables verbose output</p></li>
 <li><p><strong>--all</strong> will display all the avilable information</p></li>
 <li><p><strong>--hk</strong> wil display also the housekeeping</p></li>
 <li><p><strong>--detector</strong> will display all the detector information</p></li>
 <li><p><strong>--data-structure</strong> will display the data structure of the file</p></li>
-<li><p><strong>--filter</strong> will display the information about the used filter if the data come from HRIC or STC, otherwise the option will be ignored</p></li>
+<li><p><strong>--filters</strong> will display the information about the used filter if the data come from HRIC or STC, otherwise the option will be ignored</p></li>
 </ul>
 <p>For any details you can use the option <strong>--help</strong>.</p>
-<p>Using the option <strong>--version</strong> will be shown the software version and the datamodel version implemented in it.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">simbioReader</span> <span class="pre">FILE</span> <span class="pre">--version</span></code> to display the software and data-model versions.
+An existing <code class="docutils literal notranslate"><span class="pre">FILE</span></code> is currently required even when requesting the version.</p>
 </section>
 <section id="simbioinfo-filters">
 <h2>simbioInfo filters<a class="headerlink" href="#simbioinfo-filters" title="Link to this heading"></a></h2>
-<p>The subcommand <strong>filter</strong> has an argument, the channel and an option <em>--name</em>.</p>
+<p>The subcommand <strong>filters</strong> has an argument, the channel and an option <em>--name</em>.</p>
 <p>If the user provides only the channel, all the filters specific to that channel will be shown.
 If the user adds the -name option, only the selected filter will be displayed, if found.</p>
 <p>A description of argument and options coul be required using the option <strong>--help</strong></p>
 <section id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>hric
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filters<span class="w"> </span>hric
 </pre></div>
 </div>
 <p>will show all the filters of the channel HRIC</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filter<span class="w"> </span>hric<span class="w"> </span>--name<span class="w"> </span>pan-l
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>filters<span class="w"> </span>hric<span class="w"> </span>--name<span class="w"> </span>pan-l
 </pre></div>
 </div>
 <p>will show the <em>HRIC</em> filter with the name <em>PAN-L</em></p>
@@ -147,7 +152,7 @@ If the user adds the -name option, only the selected filter will be displayed, i
 </pre></div>
 </div>
 <p>will show all the past mission phases.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-081
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-08
 </pre></div>
 </div>
 <p>will show the phase that include the day <em>2024-04-08</em>.</p>
@@ -173,10 +178,10 @@ If the user adds the -name option, only the selected filter will be displayed, i
 </pre></div>
 </div>
 <p>will show all the past mission subphases.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>phases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-081
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>subphases<span class="w"> </span>--date<span class="w"> </span><span class="m">2024</span>-04-08
 </pre></div>
 </div>
-<p>will show the phase that include the day <em>2024-04-08</em>, the <strong>ico11</strong> subphase.</p>
+<p>will show the subphase containing <em>2024-04-08</em>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>simbioInfo<span class="w"> </span>subphases<span class="w"> </span>--name<span class="w"> </span>ico9
 </pre></div>
 </div>
@@ -216,6 +221,16 @@ If the user adds the -name option, only the selected filter will be displayed, i
 <p>A description of argument and options coul be required using the option <strong>--help</strong></p>
 </section>
 </section>
+<section id="mission-database-updates">
+<h2>Mission database updates<a class="headerlink" href="#mission-database-updates" title="Link to this heading"></a></h2>
+<p>Phases can contain multiple non-contiguous intervals; <code class="docutils literal notranslate"><span class="pre">phases</span> <span class="pre">--all</span></code> lists
+these intervals chronologically. The bundled <code class="docutils literal notranslate"><span class="pre">fimgs</span></code> subphase and
+<code class="docutils literal notranslate"><span class="pre">first_images</span></code> test cover 2026-10-18 from 07:00:00 to 21:00:00.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">simbioInfo subphases --name fimgs</span>
+<span class="go">simbioInfo tests --subphase fimgs</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -223,7 +238,7 @@ If the user adds the -name option, only the selected filter will be displayed, i
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tools.html" class="btn btn-neutral float-left" title="Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="reference.html" class="btn btn-neutral float-right" title="Reaference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="reference.html" class="btn btn-neutral float-right" title="Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
