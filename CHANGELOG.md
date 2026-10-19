@@ -2,6 +2,10 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.3] - 2026-10-19
+
+- Update mission database
+
 ## [1.0.1] - 2026-10-12
 
 ### Fixed

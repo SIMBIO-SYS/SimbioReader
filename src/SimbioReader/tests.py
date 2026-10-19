@@ -563,4 +563,106 @@ tests = {
         "end": "2024-04-08T03:56:01",
         "subphase": "ico11",
     },
+    "msb6": {
+        "name": "Mercury Swing-by 6",
+        "start": "2025-01-08T03:00:00",
+        "end": "2025-01-08T06:15:01",
+        "subphase": "msb6",
+    },
+    "stress_ico13": {
+        "name": "Stress Test",
+        "start": "2025-04-07T00:00:00",
+        "end": "2025-04-07T05:27:01",
+        "subphase": "ico13",
+    },
+    "hric_func_ico13": {
+        "name": "HRIC Functional Test",
+        "start": "2025-04-07T00:30:00",
+        "end": "2025-04-07T01:02:00",
+        "subphase": "ico13",
+    },
+    "hric_time_shift_ico13": {
+        "name": "HRIC Time Shift Test",
+        "start": "2025-04-07T01:05:00",
+        "end": "2025-04-07T01:22:30",
+        "subphase": "ico13",
+    },
+    "hric_dc_ico13": {
+        "name": "HRIC Dark Current Test",
+        "start": "2025-04-07T01:25:00",
+        "end": "2025-04-07T01:34:00",
+        "subphase": "ico13",
+    },
+    "stc_func_ico13": {
+        "name": "STC Functional Test",
+        "start": "2025-04-07T01:50:00",
+        "end": "2025-04-07T02:26:00",
+        "subphase": "ico13",
+    },
+    "stc_perf_ico13": {
+        "name": "STC Performance Test",
+        "start": "2025-04-07T02:28:00",
+        "end": "2025-04-07T03:11:00",
+        "subphase": "ico13",
+    },
+    "vihi_perf_ico13": {
+        "name": "VIHI Performance Test",
+        "start": "2025-04-07T03:25:00",
+        "end": "2025-04-07T03:41:00",
+        "subphase": "ico13",
+    },
+    "orbit_ico13": {
+        "name": "Orbit Test",
+        "start": "2025-04-07T04:15:00",
+        "end": "2025-04-07T05:25:00",
+        "subphase": "ico13",
+    },
+    "hric_lfb_ico13": {
+        "name": "HRIC LFB Test",
+        "start": "2025-04-07T05:34:00",
+        "end": "2025-04-07T05:41:00",
+        "subphase": "ico13",
+    },
+    "stc_func_ico14": {
+        "name": "STC Functional Test",
+        "start": "2025-10-13T01:00:00",
+        "end": "2025-10-13T01:32:00",
+        "subphase": "ico14",
+    },
+    "stc_perf_ico14": {
+        "name": "STC Performance Test",
+        "start": "2025-10-13T01:32:00",
+        "end": "2025-10-13T02:07:00",
+        "subphase": "ico14",
+    },
+    "vihi_perf_ico14": {
+        "name": "VIHI Performance Test",
+        "start": "2025-10-13T02:07:00",
+        "end": "2025-10-13T02:39:00",
+        "subphase": "ico14",
+    },
+    "hric_perf_ico14": {
+        "name": "HRIC Performance Test",
+        "start": "2025-10-13T02:39:00",
+        "end": "2025-10-13T03:32:00",
+        "subphase": "ico14",
+    },
+    "interf_ico14": {
+        "name": "Interference Test",
+        "start": "2025-10-13T03:32:00",
+        "end": "2025-10-13T06:47:00",
+        "subphase": "ico14",
+    },
+    "thermal_test_ico17": {
+        "name": "Thermal Test",
+        "start": "2026-09-15T07:00:00",
+        "end": "2026-09-16T09:47:00",
+        "subphase": "ico17",
+    },
+    "first_images":{
+        "name": "Mercury first images",
+        "start": "2026-10-18T07:00:00",
+        "end": "2026-10-18T21:00:00",
+        "subphase":"fimgs"
+    }
 }

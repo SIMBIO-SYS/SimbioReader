@@ -1,4 +1,4 @@
-![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-blue?style=plastic)
+![Version 1.0.3](https://img.shields.io/badge/version-1.0.3-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
