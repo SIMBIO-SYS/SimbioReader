@@ -1,9 +1,12 @@
-from rich.console import Console
-from SimbioReader.sr import SimbioReader,version
-import rich_click as click
-from SimbioReader.constants import CONTEXT_SETTINGS,datamodel, progEpilog
-from rich_click import rich_config
 from pathlib import Path
+
+import rich_click as click
+from rich.console import Console
+from rich_click import rich_config
+
+from SimbioReader.constants import CONTEXT_SETTINGS, datamodel, progEpilog
+from SimbioReader.sr import SimbioReader, version
+
 # from semantic_version_tools import Vers
 # from importlib.metadata import version as get_version
 

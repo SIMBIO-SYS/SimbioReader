@@ -1,23 +1,26 @@
 import hashlib
 from datetime import datetime
+
+# from SimbioReader.version import version
+from importlib.metadata import version as get_version
 from pathlib import Path
 from xml.dom.minidom import Document, Element, parse, parseString
 
 import numpy as np
 import pandas as pd
 from dateutil import parser
+from mystrtools import convert_case
 from PIL import Image as im
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from semantic_version_tools import Vers
 from update_checker import UpdateChecker
-from PIL import Image as im
 
 from SimbioReader.constants import MSG, data_types
 from SimbioReader.exceptions import SizeError
 from SimbioReader.filters_tools import Filter
-from mystrtools import convert_case
 from SimbioReader.tools import (
     gen_filename,
     getElement,
@@ -27,10 +30,6 @@ from SimbioReader.tools import (
     pretty_print,
     updateXML,
 )
-
-# from SimbioReader.version import version
-from importlib.metadata import version as get_version
-from semantic_version_tools import Vers
 
 version = Vers(get_version("SimbioReader"))
 
@@ -155,7 +154,7 @@ class DataStructure:
         Returns:
             str: A string in the format 'DataStructure Object'.
         """
-        return f"DataStructure object"
+        return "DataStructure object"
 
     def __repr__(self) -> str:
         """
@@ -241,7 +240,7 @@ class HK:
         Returns:
             str: A string representation of the HK object.
         """
-        return f"HK object"
+        return "HK object"
 
     def __repr__(self) -> str:
         """
@@ -405,8 +404,8 @@ class SimbioObject:
         self,
         img_type: str = "png",
         quality: int = 100,
-        outFolder: Path = None,
-        tree: Document = None,
+        outFolder: Path | None = None,
+        tree: Document | None = None,
     ) -> str | None:
         new_filename = gen_filename(self.file_name)
         if img_type in ["png", "tif"]:

@@ -23,18 +23,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.14"
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
     - name: Install dependencies
       run: |
         sudo apt install -y gcc cmake libboost-all-dev
-        python -m pip install --upgrade pip
-        pip install ruff pytest pytest-cov
-        pip install -e .
+        uv sync --locked --group test --group devel
     - name: Lint with ruff
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        ruff check src test --select=E9,F63,F7,F82 --output-format=full
+        uv run --locked ruff check src test --select=E9,F63,F7,F82 --output-format=full
         # exit-zero treats all other findings as warnings
-        ruff check src test --exit-zero
+        uv run --locked ruff check src test --exit-zero
     - name: Test with pytest
       run: |
-        pytest
+        uv run --locked pytest

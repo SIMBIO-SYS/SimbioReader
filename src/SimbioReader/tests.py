@@ -659,4 +659,10 @@ tests = {
         "end": "2026-09-16T09:47:00",
         "subphase": "ico17",
     },
+    "first_images": {
+        "name": "Mercury first images",
+        "start": "2026-10-18T07:00:00",
+        "end": "2026-10-18T21:00:00",
+        "subphase": "fimgs",
+    },
 }
