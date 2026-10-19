@@ -139,10 +139,10 @@ subphases = {
         "phase": "cruise",
         "LPName": "Instrument Check-Out #17",
     },
-    "fimgs": {
+    "first_images": {
         "start": "2026-10-18 07:00:00",
         "end": "2026-10-18 21:00:00",
-        "name": "fimgs",
+        "name": "first_images",
         "phase": "cruise",
         "LPName": "Mercury First Images",
     },

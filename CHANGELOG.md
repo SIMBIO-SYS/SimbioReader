@@ -2,6 +2,18 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## 0.9.1 - 2026-10-19
+
+### Changed
+
+- Rename the Mercury First Images subphase from `fimgs` to `first_images`
+  and update the associated test reference. Use `first_images` for subphase
+  lookups and CLI filters.
+
+### Documentation
+
+- Update the CLI examples and README version for the 0.9.1 release.
+
 ## 0.9.0
 
 ### Added

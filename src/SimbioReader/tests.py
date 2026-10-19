@@ -663,6 +663,6 @@ tests = {
         "name": "Mercury first images",
         "start": "2026-10-18T07:00:00",
         "end": "2026-10-18T21:00:00",
-        "subphase": "fimgs",
+        "subphase": "first_images",
     },
 }
