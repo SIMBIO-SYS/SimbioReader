@@ -176,10 +176,10 @@ Mission database updates
 ************************
 
 Phases can contain multiple non-contiguous intervals; ``phases --all`` lists
-these intervals chronologically. The bundled ``fimgs`` subphase and
+these intervals chronologically. The bundled ``first_images`` subphase and
 ``first_images`` test cover 2026-10-18 from 07:00:00 to 21:00:00.
 
 .. code-block:: console
 
-    simbioInfo subphases --name fimgs
-    simbioInfo tests --subphase fimgs
+    simbioInfo subphases --name first_images
+    simbioInfo tests --subphase first_images
