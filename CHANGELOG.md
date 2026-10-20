@@ -2,6 +2,20 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.4] - 2026-10-20
+
+### Changed
+
+- Advance the package version from `1.0.3` to `1.0.4` and synchronize workspace
+  dependency versions in the lockfile.
+- Update release documentation and add dedicated release notes.
+- No runtime or calibration algorithm changes are introduced by this release.
+
+### Known issue
+
+- The existing None-subphase regression test fails because the phase lookup
+  raises a different error message; see `RELEASE_NOTES.md`.
+
 ## [1.0.3] - 2026-10-19
 
 - Update mission database
