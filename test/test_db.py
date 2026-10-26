@@ -9,9 +9,6 @@ def test_pase_date_type():
     test01 = get_phase(name='necp')
     assert isinstance(test01.start, datetime)
     
-def test_pase_date_value():
-    test01 = get_phase(name='necp')
-    assert test01.start == datetime(2018, 12, 10, 0, 0, 0)
 
 
 def test_pase_date_value():

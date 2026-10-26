@@ -2,6 +2,27 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## 0.9.2 - 2026-10-26
+
+### Fixed
+
+- Decode UnsignedLSB2 pixels as unsigned little-endian values.
+- Honor array offsets, axis sequence and index order, and reject truncated arrays regardless of verbosity.
+- Read the spacecraft clock stop count from its own label field.
+- Render VIHI summaries and detector/data-structure details without requiring filter metadata.
+- Declare python-dateutil explicitly and align the lockfile and Python classifiers.
+- Resolve Ruff findings and remove a duplicate test definition.
+
+### Changed
+
+- Include the Mercury Orbit Commissioning and Mercury Science mission phases.
+- Normalize the fallback mission phase and subphase names to `none`.
+
+### Validation
+
+- 61 tests pass, including eight new reader regression cases; Ruff and lockfile checks pass.
+- Pyright typing findings and PDS4 preview-label validation remain outside this release's fixes.
+
 ## 0.9.1 - 2026-10-19
 
 ### Changed

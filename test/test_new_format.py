@@ -15,7 +15,7 @@ def test_simbio_reader_init_file_lblx():
 def test_simbio_reader_init_file_lblx_notexist():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_002/sim_cal_sc_stc_cruise_ico11_2024-04-08_003__0_1.lblx")
     with pytest.raises(FileNotFoundError,match="does not exist"):
-        reader = SimbioReader(file_path=file_path)
+        SimbioReader(file_path=file_path)
     
 
 def test_simbio_reader_init_folder():
@@ -26,7 +26,7 @@ def test_simbio_reader_init_folder():
 def test_simbio_reader_init_folder_multi_lblx():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_002")
     with pytest.raises(FileExistsError,match="Multiple .lblx files found in directory"):
-        reader = SimbioReader(file_path=file_path)
+        SimbioReader(file_path=file_path)
 
 def test_simbio_reader_init_channel():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_001/sim_cal_sc_stc_cruise_ico11_2024-04-08_001__0_1.lblx")
@@ -36,7 +36,7 @@ def test_simbio_reader_init_channel():
 def test_simbio_reader_init_unknown_channel():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_002/sim_cal_sc_stc_cruise_ico11_2024-04-08_001__0_1.lblx")
     with pytest.raises(ValueError,match="Unknown channel 'unknown' found in label."):
-        reader = SimbioReader(file_path=file_path)
+        SimbioReader(file_path=file_path)
 
 def test_simbio_reader_init_level():
     file_path = Path("test/data/sim_cal_stc_cruise_ico11_2024-04-08_001/sim_cal_sc_stc_cruise_ico11_2024-04-08_001__0_1.lblx")

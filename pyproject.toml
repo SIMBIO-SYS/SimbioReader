@@ -1,11 +1,12 @@
 [project]
 name = "SimbioReader"
-version = "0.9.1"
+version = "0.9.2"
 description="Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
 
     "numpy (>=2.3.3,<3.0.0)",
     "pandas (>=3.0.1,<4.0.0)",
+    "python-dateutil>=2.9,<3",
     "rich-click (>=1.8.9,<2.0.0)",
     "update-checker (>=0.18.0,<0.19.0)",
     "importlib-metadata (>=8.7.0,<9.0.0)",
@@ -21,9 +22,6 @@ readme = "README.md"
 
 keywords = ["data reader", "Space Mission", "BepiColombo", "SIMBIO-SYS"]
 classifiers = [
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Development Status :: 4 - Beta",
     

@@ -18,7 +18,7 @@ from rich.table import Table
 from semantic_version_tools import Vers
 from update_checker import UpdateChecker
 
-from SimbioReader.constants import MSG, data_types
+from SimbioReader.constants import MSG
 from SimbioReader.exceptions import SizeError
 from SimbioReader.filters_tools import Filter
 from SimbioReader.tools import (
@@ -68,7 +68,7 @@ class Detector:
         Returns:
             str: A string representation of the Detector object.
         """
-        return f"Detector object"
+        return "Detector object"
 
     def __repr__(self) -> str:
         """
@@ -132,17 +132,22 @@ class DataStructure:
         self.band = None
         if self.axes == 3 and channel != "vihi":
             raise ValueError("The number of axes is wrong for the channel")
+        self.axis_order = []
+        self.axis_names = {}
         for i in range(self.axes):
             axis = getElement(dat, "Axis_Array", i)
-            setattr(
-                self,
-                getValue(axis, "axis_name").lower(),
-                int(getValue(axis, "elements")),
-            )
+            axis_name = getValue(axis, "axis_name").lower()
+            elements = int(getValue(axis, "elements"))
+            sequence = int(getValue(axis, "sequence_number"))
+            self.axis_order.append((sequence, elements))
+            self.axis_names[sequence] = axis_name
+            setattr(self, axis_name, elements)
         if self.axes == 3:
             dat = getElement(dat, "Array_3D_Spectrum")
         elif self.axes == 2:
             dat = getElement(dat, "Array_2D_Image")
+        self.offset = int(getValue(dat, "offset"))
+        self.axis_index_order = getValue(dat, "axis_index_order")
         self.data_type = getValue(dat, "data_type")
         if self.band is None:
             self.band = 1
@@ -314,53 +319,36 @@ class SimbioObject:
                 channel=self.channel, name=getValue(flt, "img:filter_name")
             )
         self.detector = Detector(imaging)
-        if self.data_structure.data_type == "UnsignedLSB2":
-            dtype = np.int16
-        elif self.data_structure.data_type == "IEEE754LSBSingle":
-            dtype = np.float32
-
+        dtypes = {"UnsignedLSB2": np.dtype("<u2"), "IEEE754LSBSingle": np.dtype("<f4")}
+        try:
+            dtype = dtypes[self.data_structure.data_type]
+        except KeyError as exc:
+            raise ValueError(f"Unsupported data type: {self.data_structure.data_type}") from exc
+        shape = tuple(size for _, size in sorted(self.data_structure.axis_order))
+        count = int(np.prod(shape))
+        offset = self.data_structure.offset
+        expected = offset + count * dtype.itemsize
+        actual = self.file_name.stat().st_size
+        if offset < 0:
+            raise ValueError("Array offset cannot be negative")
+        if actual < expected:
+            raise SizeError(actual * 8, expected * 8)
         if verbose:
             console.print(f"{MSG.INFO}Loading: {self.file_name}")
-            if self.data_structure.axes == 3:
-                console.print(
-                    f"{MSG.INFO}Image size: {self.samples}x{self.lines}x{self.bands}"
-                )
-                imgSize = (
-                    self.samples
-                    * self.lines
-                    * self.bands
-                    * data_types[self.data_structure.data_type]["bits"]
-                )
-            else:
-                console.print(f"{MSG.INFO}Image size: {self.samples}x{self.lines}")
-                imgSize = (
-                    self.samples
-                    * self.lines
-                    * data_types[self.data_structure.data_type]["bits"]
-                )
-
-            console.print(f"{MSG.INFO}File size: {self.file_name.stat().st_size * 8}")
-            console.print(f"{MSG.INFO}Computed File Size: {imgSize}")
-            if self.file_name.stat().st_size * 8 != imgSize:
-                raise SizeError(self.file_name.stat().st_size * 8, imgSize)
-        # print(img_data['samples'],img_data['lines'],img_data['bands'])
-        if self.data_structure.axes == 3:
-            self.img = np.fromfile(
-                self.file_name,
-                dtype=dtype,
-                count=self.samples * self.lines * self.bands,
+            console.print(f"{MSG.INFO}Image size: {shape}")
+        orders = {"Last Index Fastest": "C", "First Index Fastest": "F"}
+        try:
+            order = orders[self.data_structure.axis_index_order]
+        except KeyError as exc:
+            raise ValueError("Unsupported axis index order") from exc
+        self.img = np.fromfile(self.file_name, dtype=dtype, count=count, offset=offset)
+        self.img = self.img.reshape(shape, order=order)
+        if self.data_structure.axes == 3 and self.lines == 1:
+            line_axis = next(
+                index for index, (sequence, _) in enumerate(sorted(self.data_structure.axis_order))
+                if self.data_structure.axis_names[sequence] == "line"
             )
-        else:
-            self.img = np.fromfile(
-                self.file_name, dtype=dtype, count=self.samples * self.lines
-            )
-        if self.data_structure.axes == 3:
-            if self.lines == 1:
-                self.img.shape = (self.samples, self.bands)
-            else:
-                self.img.shape = (self.lines, self.samples, self.bands)
-        else:
-            self.img.shape = (self.samples, self.lines)
+            self.img = self.img.squeeze(axis=line_axis)
         if verbose:
             self.console.print(
                 f"{MSG.INFO}Dimension of the old image array: {self.img.ndim}"
@@ -656,7 +644,7 @@ class SimbioReader:
         )
 
         self.start_scet = getValue(label, "psa:spacecraft_clock_start_count")
-        self.stop_scet = getValue(label, "psa:spacecraft_clock_start_count")
+        self.stop_scet = getValue(label, "psa:spacecraft_clock_stop_count")
         if debug:
             self.console.print(
                 f"{MSG.DEBUG}Observation start time: {self.startTime}, stop time: {self.stopTime}"
@@ -738,16 +726,14 @@ class SimbioReader:
     
     def show(self, hk:bool=False, detector:bool=False, data_structure:bool=False, filters:bool=False, all_info:bool=False) -> Panel:
         columns=[self.info(), self.target.show()]
-        if hk or all_info:
+        if (hk or all_info) and hasattr(self.data, "hk"):
             columns.append(self.data.hk.show())
         if detector or all_info:
-            for item in self.data.filters:
-                disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(disp.detector.show(title=f"Detector Info - Filter {item.upper()}"))
+            for name, disp in self._data_items():
+                columns.append(disp.detector.show(title=f"Detector Info - {name.upper()}"))
         if data_structure or all_info:
-             for item in self.data.filters:
-                disp = getattr(self.data, f"filter_{item.lower()}")
-                columns.append(disp.data_structure.show(title=f"Data Structure Info - Filter {item.upper()}"))
+            for name, disp in self._data_items():
+                columns.append(disp.data_structure.show(title=f"Data Structure Info - {name.upper()}"))
 
         if filters and hasattr(self.data, "filters"):
             for item in self.data.filters:
@@ -786,11 +772,16 @@ class SimbioReader:
 
         return Panel(dt, title="SimbioReader Info", border_style="green", expand=False)
     
+    def _data_items(self):
+        if self.channel == "vihi":
+            return [(name, getattr(self.data, name)) for name in self.data.segments]
+        return [(name, getattr(self.data, f"filter_{name.lower()}")) for name in self.data.filters]
+
     def filters_summary(self) -> Panel:
         tb= Table()
         tb.add_column("",style="yellow", justify="right")
         tb.add_column("Filter Names",style="yellow", justify="center")
-        for item in self.data.filters:
+        for item in getattr(self.data, "filters", []):
             tb.add_row(':green_circle:',item.upper())
             # disp = getattr(self.data, f"filter_{item.lower()}")
             
@@ -803,10 +794,6 @@ class SimbioReader:
         )
 
     def summary(self) -> Panel:
-        filters = []
-        for item in self.data.filters:
-            disp = getattr(self.data, f"filter_{item.lower()}")
-            filters.append(disp.show())
         col = Columns(
             [self.info(), self.target.show(), self.filters_summary()],#, self.data.hk.show(), *filters],
             expand=True,

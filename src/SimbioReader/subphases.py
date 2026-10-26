@@ -146,11 +146,11 @@ subphases = {
         "phase": "cruise",
         "LPName": "Mercury First Images",
     },
-    "None": {
+    "none": {
         "start": "2026-09-16 09:00:01",
         "end": "2028-12-31 23:59:59",
-        "name": "None",
-        "phase": "None",
-        "LPName": "None",
+        "name": "none",
+        "phase": "none",
+        "LPName": "none",
     },
 }

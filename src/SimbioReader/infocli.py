@@ -2,7 +2,7 @@
 import rich_click as click
 from rich.console import Console
 from functools import wraps
-from SimbioReader.constants import FMODE, MSG, CONTEXT_SETTINGS, progEpilog, data_types, datamodel
+from SimbioReader.constants import MSG, CONTEXT_SETTINGS, progEpilog
 
 click.rich_click.USE_RICH_MARKUP = True
 click.rich_click.FOOTER_TEXT = progEpilog
@@ -51,7 +51,7 @@ def phases(ctx,all: bool, date: str, name: str):
 
     if date:
         try:
-            ndt = parse(date, ignoretz=True)
+            parse(date, ignoretz=True)
         except Exception as e:
             console.print(f"{MSG.ERROR}Cant convert to date the string: {str(e)}")
             all = True
@@ -80,7 +80,7 @@ def subphases(all: bool, date: str, name: str):
         all = True
     if date:
         try:
-            ndt = parse(date, ignoretz=True)
+            parse(date, ignoretz=True)
         except Exception as e:
             console.print(
                 f"{MSG.ERROR}Cant convert to date the string: {str(e)}")
@@ -117,7 +117,7 @@ def tests(ctx,all: bool = None, date: str = None, name: str = None, phase: str =
         # console.print(Test.show(key=name))
         try:
             console.print(Test(name, subphase=subphase).show())
-        except:
+        except ValueError:
             if not subphase:
                 console.print(f"{MSG.WARNING}Test {name.title()} not found. Please try to specific a subphase.")
                 ctx.exit()

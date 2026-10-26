@@ -379,7 +379,7 @@ class Test:
             test_data = tests.get(name)
             if not test_data:
                 if not subphase:
-                    raise ValueError(f"To search a Test by name a subphase name is required.")
+                    raise ValueError("To search a Test by name a subphase name is required.")
                 sub_list = get_test_by_subphase(subphase)
                 if not sub_list:
                     raise ValueError(f"Test {name} not found.")
@@ -494,7 +494,7 @@ class Test:
                 if not start <=date <=end:
                     continue
             if phase:
-                if not test_data['subphase'].lower() in get_subphases_by_phase(phase):
+                if test_data['subphase'].lower() not in get_subphases_by_phase(phase):
                     continue
             tb.add_row(test_data['name'],
                        test_data['subphase'],

@@ -1,5 +1,4 @@
 import xml.dom.minidom as md
-from re import sub
 from pathlib import Path
 import copy
 

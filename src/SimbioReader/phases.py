@@ -25,7 +25,21 @@ phases = {
             "LPName": "Mercury Gravity Assist 6",
         }
     ],
-    "None": [
-        {"start": "2030-04-08 04:00:01", "end": "2030-12-31 23:59:59", "LPName": "None"}
+    "mocp": [
+        {
+            "start": "2027-03-13 00:00:00",
+            "end": "2027-04-05 23:59:59",
+            "LPName": "Mercury Orbit Commissioning Phase",
+        }
+    ],
+    "msp": [
+        {
+            "start": "2027-04-06 00:00:00",
+            "end": "2030-04-08 04:00:00",
+            "LPName": "Mercury Science Phase",
+        }
+    ],
+    "none": [
+        {"start": "2030-04-08 04:00:01", "end": "2030-12-31 23:59:59", "LPName": "none"}
     ],
 }
