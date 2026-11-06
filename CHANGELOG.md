@@ -2,6 +2,27 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## 0.9.3 - 2026-11-06
+
+### Fixed
+
+- Return PIL images from explicitly selected filters or VIHI segments.
+- Raise AttributeError for missing reader attributes, including partially initialized readers.
+- Always return a list from get_test_by_subphase, fixing single-test name searches.
+- Render VIHI segment details without filter metadata.
+- Normalize timezone-aware date queries to UTC; naive dates retain UTC semantics.
+- Run tests against local sources and include test/development groups by default.
+
+### Documentation
+
+- Document image selection, UTC queries and macOS hidden editable-install files.
+- Correct first_images examples and update development/CI test commands.
+
+### Validation
+
+- 74 tests pass; Ruff checks for syntax errors and undefined names pass.
+- Existing broader lint/type findings remain outside this release.
+
 ## 0.9.2 - 2026-10-26
 
 ### Fixed

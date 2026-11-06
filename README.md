@@ -1,4 +1,4 @@
-![Version 0.9.2](https://img.shields.io/badge/version-0.9.2-blue?style=plastic)
+![Version 0.9.3](https://img.shields.io/badge/version-0.9.3-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
@@ -31,13 +31,25 @@ Install the project and its development dependencies with uv:
 
 ```console
 uv sync --locked --group test --group devel
-uv run pytest
+uv run --locked python -m pytest
 uv run ruff check src test
 uv build
 uv run --no-project --with-requirements docs/requirements.txt --with . python -m sphinx -b html docs/source docs/build/html
 ```
 
 ## Usage
+
+`reader.image(filter_name="pan-l")` returns a PIL image for an STC/HRIC filter;
+`reader.image(segment=1)` selects a VIHI segment (also accepted: `"segment_001"`).
+With a single item, `reader.image()` selects it automatically; otherwise an
+explicit selector is required. Array shapes must be supported by Pillow.
+Missing reader attributes raise `AttributeError`.
+
+On macOS, Python ignores editable-install `.pth` files marked `hidden`. If
+`uv run simbioReader` reports `ModuleNotFoundError`, a non-editable invocation
+avoids that dependency: `uv run --no-editable simbioReader FILE`.
+Removing the flag with `chflags nohidden` only helps if another process does
+not reapply it. Local `.venv` workarounds are not distributed with this package.
 
 The package provides a class to read PDS4 labels and decode SIMBIO-SYS products. Python 3.14 or later is required.
 
@@ -210,14 +222,17 @@ will show the test with the name that contain the string *hric functional* perfo
 
 ## Mission database
 
+Date queries interpret naive dates as UTC. Timezone-aware datetime objects and
+strings with UTC offsets are converted to UTC before querying the database.
+
 Mission phases may contain multiple non-contiguous intervals. `simbioInfo phases --all`
-lists intervals chronologically. The bundled database includes the `fimgs`
+lists intervals chronologically. The bundled database includes the `first_images`
 subphase (Mercury First Images) and the `first_images` test, both covering
 2026-10-18 from 07:00:00 to 21:00:00.
 
 ```console
-simbioInfo subphases --name fimgs
-simbioInfo tests --subphase fimgs
+simbioInfo subphases --name first_images
+simbioInfo tests --subphase first_images
 ```
 
 ## Class Description

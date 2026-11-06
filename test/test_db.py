@@ -55,3 +55,29 @@ def test_subpase_get_by_date():
 def test_get_test_by_name():
     test01 = Test('Hric performance',subphase='ico9')
     assert test01.name == 'HRIC Performance Test'
+
+
+def test_search_by_name_in_subphase_with_one_test():
+    result = Test('images', subphase='first_images')
+    assert result.name == 'Mercury first images'
+    assert result.subphase == 'first_images'
+
+
+def test_get_tests_by_subphase_always_returns_list():
+    from SimbioReader.simbioInfo import get_test_by_subphase
+
+    assert get_test_by_subphase('FIRST_IMAGES') == ['first_images']
+    assert get_test_by_subphase('unknown_subphase') == []
+
+
+def test_timezone_queries_use_utc():
+    from dateutil.parser import parse
+    from SimbioReader.simbioInfo import Test, get_phase, get_subphase
+
+    # Local date is the previous day; UTC falls within first_images.
+    text = '2026-10-17T23:30:00-08:00'
+    for value in (text, parse(text)):
+        assert get_phase(dt=value).name == 'cruise'
+        assert get_subphase(dt=value).name == 'first_images'
+        assert Test(dt=value).subphase == 'first_images'
+        assert Test.show_all(date=value).row_count == 1

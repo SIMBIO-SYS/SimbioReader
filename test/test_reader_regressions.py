@@ -4,6 +4,7 @@ from xml.dom.minidom import parse
 
 import numpy as np
 import pytest
+from PIL.Image import Image
 from rich.console import Console
 from rich.panel import Panel
 
@@ -14,6 +15,37 @@ from SimbioReader.tools import getElement, updateXML
 
 PRODUCT = Path('test/data/sim_cal_stc_cruise_ico11_2024-04-08_001')
 LABEL = next(PRODUCT.glob('*.lblx'))
+
+
+def test_vihi_segment_show_without_filter():
+    segment = object.__new__(SimbioObject)
+    segment.channel = 'vihi'
+    segment.file_name = Path('segment.dat')
+    segment.exposure_time = '1'
+    segment.data_structure = SimpleNamespace(show=lambda: Panel('Structure'))
+    segment.detector = SimpleNamespace(show=lambda: Panel('Detector'))
+    panel = segment.show()
+    console = Console(record=True)
+    console.print(panel)
+    assert 'segment.dat' in console.export_text()
+
+
+@pytest.mark.parametrize('channel, name', [
+    ('stc', 'chanel'),
+    ('stc', 'segment_001'),
+    ('vihi', 'filter_panl'),
+    ('vihi', 'segment_999'),
+    (None, 'channel'),
+])
+def test_missing_reader_attributes_raise_attribute_error(channel, name):
+    reader = object.__new__(SimbioReader)
+    if channel is not None:
+        reader.channel = channel
+
+    with pytest.raises(AttributeError, match=name):
+        getattr(reader, name)
+    assert not hasattr(reader, name)
+    assert getattr(reader, name, 'fallback') == 'fallback'
 
 
 def make_object(tmp_path, *, offset=0, truncated=False, verbose=False, order='Last Index Fastest'):
@@ -74,3 +106,60 @@ def test_vihi_summary_and_details_without_filters():
     reader.data = SimpleNamespace(segments=['segment_001'], segment_001=segment)
     assert isinstance(reader.summary(), Panel)
     assert isinstance(reader.show(all_info=True), Panel)
+
+
+def test_image_returns_selected_filter_image():
+    reader = object.__new__(SimbioReader)
+    reader.channel = 'stc'
+    reader.data = SimpleNamespace(
+        filters=['panl', 'panh'],
+        filter_panl=SimpleNamespace(img=np.zeros((2, 3), dtype=np.uint16)),
+        filter_panh=SimpleNamespace(img=np.ones((4, 5), dtype=np.uint16)),
+    )
+
+    image = reader.image(filter_name='PANH')
+
+    assert isinstance(image, Image)
+    assert image.size == (5, 4)
+
+
+def test_image_returns_selected_vihi_segment():
+    reader = object.__new__(SimbioReader)
+    reader.channel = 'vihi'
+    reader.data = SimpleNamespace(
+        segments=['segment_001', 'segment_002'],
+        segment_001=SimpleNamespace(img=np.zeros((2, 3), dtype=np.float32)),
+        segment_002=SimpleNamespace(img=np.ones((4, 5), dtype=np.float32)),
+    )
+
+    image = reader.image(segment=2)
+
+    assert isinstance(image, Image)
+    assert image.size == (5, 4)
+
+
+@pytest.mark.parametrize('channel, data', [
+    (
+        'stc',
+        SimpleNamespace(
+            filters=['panl', 'panh'],
+            filter_panl=SimpleNamespace(img=np.zeros((2, 3))),
+            filter_panh=SimpleNamespace(img=np.zeros((2, 3))),
+        ),
+    ),
+    (
+        'vihi',
+        SimpleNamespace(
+            segments=['segment_001', 'segment_002'],
+            segment_001=SimpleNamespace(img=np.zeros((2, 3))),
+            segment_002=SimpleNamespace(img=np.zeros((2, 3))),
+        ),
+    ),
+])
+def test_image_requires_selector_for_multiple_items(channel, data):
+    reader = object.__new__(SimbioReader)
+    reader.channel = channel
+    reader.data = data
+
+    with pytest.raises(ValueError, match='multiple'):
+        reader.image()

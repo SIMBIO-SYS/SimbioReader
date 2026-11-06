@@ -37,4 +37,4 @@ jobs:
         uv run --locked ruff check src test --exit-zero
     - name: Test with pytest
       run: |
-        uv run --locked pytest
+        uv run --locked python -m pytest

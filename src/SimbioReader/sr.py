@@ -362,22 +362,20 @@ class SimbioObject:
         tb.add_column()
         tb.add_column()
         tb.add_row("File Name", sep, str(self.file_name))
-        tb.add_row("Filter Name", sep, self.filter_name)
+        if self.channel != "vihi":
+            tb.add_row("Filter Name", sep, self.filter_name)
         tb.add_row("Channel", sep, self.channel.upper())
         tb.add_row("Exposure Time (s)", sep, str(self.exposure_time))
         pl = Panel(
             tb, title="Simbio Filter General Info", border_style="cyan", expand=False
         )
+        columns = [pl, self.data_structure.show(), self.detector.show()]
+        if self.channel != "vihi":
+            columns.insert(1, self.filter.show())
         return Panel(
-            Columns(
-                [
-                    pl,
-                    self.filter.show(),
-                    self.data_structure.show(),
-                    self.detector.show(),
-                ]
-            ),
-            title=f"Filter {self.filter_name.upper()} Info",
+            Columns(columns),
+            title=(f"Segment {self.file_name.name} Info" if self.channel == "vihi"
+                   else f"Filter {self.filter_name.upper()} Info"),
             border_style="magenta",
             expand=False,
         )
@@ -807,18 +805,20 @@ class SimbioReader:
         )
 
     def __getattr__(self, name: str):
-        if name.startswith("segment") and self.channel in ["stc", "hric"]:
-            self.console.print(
-                f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
+        # Avoid recursive attribute lookup on partially initialized readers.
+        channel = self.__dict__.get("channel")
+        if (name.startswith("segment") and channel in ["stc", "hric"]) or (
+            name.startswith("filter") and channel == "vihi"
+        ):
+            raise AttributeError(
+                f"Attribute '{name}' not available for channel {channel.upper()}."
             )
-        elif name.startswith("segment") and self.channel == "vihi":
-            self.console.print(f"{MSG.ERROR}Segment {name} not available.")
-        elif name.startswith("filter") and self.channel == "vihi":
-            self.console.print(
-                f"{MSG.ERROR}Attribute [blue]{name}[/blue] not available. The current Channel id is {self.channel.upper()}."
-            )
+        if name.startswith("segment") and channel == "vihi":
+            raise AttributeError(f"Segment '{name}' not available.")
 
-        return None
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
 
     def get_filter_by_file(self, file_name: Path) -> SimbioObject | None:
         if isinstance(file_name, str):
@@ -925,22 +925,82 @@ class SimbioReader:
                 img_type=img_type, quality=quality, outFolder=dest
             )
 
-    def image(self) -> im:
-        """Returns a PIL Image object representing the loaded image data.
+    def image(
+        self,
+        filter_name: str | None = None,
+        segment: str | int | None = None,
+    ) -> im.Image:
+        """Return the image decoded from a filter or VIHI segment.
 
-        This method returns a Pillow (PIL Fork) Image object containing the image data
-        loaded from the Simbio file. The image data is assumed to be a single-band
-        or multi-band array, depending on the channel type.
+        A selector is optional when the product contains exactly one filter or
+        segment. Products containing more than one item require an explicit
+        selector so that the returned image is unambiguous.
 
-        Returns:
-            A PIL Image object representing the loaded image data.
+        Args:
+            filter_name: Filter name for an STC or HRIC product.
+            segment: Segment name or one-based segment number for a VIHI product.
 
         Raises:
-            ValueError: If the loaded image data cannot be converted to a PIL Image
-            object due to unsupported data type or shape.
+            ValueError: If the selector is missing, invalid, or incompatible with
+                the product channel.
         """
-        data = im.fromarray(self.img)
-        return data
+        if filter_name is not None and segment is not None:
+            raise ValueError("Specify either a filter or a segment, not both.")
+
+        if self.channel == "vihi":
+            if filter_name is not None:
+                raise ValueError("VIHI products must be selected by segment.")
+            items = self.data.segments
+            if segment is None:
+                if len(items) != 1:
+                    raise ValueError(
+                        "The product contains multiple segments; specify one with "
+                        "the segment argument."
+                    )
+                item_name = items[0]
+            elif isinstance(segment, int):
+                if segment < 1:
+                    raise ValueError("The segment number must be greater than zero.")
+                item_name = f"segment_{segment:03}"
+            else:
+                item_name = segment.lower()
+                if item_name.isdigit():
+                    item_name = f"segment_{int(item_name):03}"
+                elif not item_name.startswith("segment_"):
+                    item_name = f"segment_{item_name}"
+
+            if item_name not in items:
+                raise ValueError(
+                    f"Segment '{segment}' not found. Available segments: "
+                    f"{', '.join(items)}"
+                )
+            data_item = getattr(self.data, item_name)
+        else:
+            if segment is not None:
+                raise ValueError(
+                    f"{self.channel.upper()} products must be selected by filter."
+                )
+            items = self.data.filters
+            if filter_name is None:
+                if len(items) != 1:
+                    raise ValueError(
+                        "The product contains multiple filters; specify one with "
+                        "the filter_name argument."
+                    )
+                item_name = items[0]
+            else:
+                item_name = filter_name.lower()
+                if item_name.startswith("filter_"):
+                    item_name = item_name.removeprefix("filter_")
+
+            if item_name not in items:
+                raise ValueError(
+                    f"Filter '{filter_name}' not found. Available filters: "
+                    f"{', '.join(items)}"
+                )
+            data_item = getattr(self.data, f"filter_{item_name}")
+
+        return im.fromarray(data_item.img)
 
     def __str__(self) -> str:
         return f"SimbioReader(channel={self.channel}, level={self.level}, lid={self.lid}, version={self.version})"

@@ -733,12 +733,14 @@ reader.savePreview(
 ### 8.5 Estrazione Immagine PIL
 
 ```python
-# Ottiene oggetto PIL Image
-pil_image = reader.get_filter_by_file("filename.dat").img
-# o
+# Ottiene una PIL Image dal filtro selezionato
 from SimbioReader import SimbioReader as SR
 sr = SR("file.dat")
-pil_img = sr.data.filter_pan_l.image()
+pil_img = sr.image(filter_name="pan-l")
+
+# Per VIHI è possibile indicare il nome o il numero del segmento
+vihi = SR("vihi_file.dat")
+pil_img = vihi.image(segment=1)
 ```
 
 ---

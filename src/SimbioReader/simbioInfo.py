@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dateutil.parser import parse
 from rich.console import Console
@@ -12,6 +12,14 @@ from SimbioReader.tests import tests
 
 dateFormat = "%Y-%m-%d %H:%M:%S"
 console = Console()
+
+
+def _utc_naive(value: datetime | str) -> datetime:
+    """Normalize dates to naive UTC, the convention used by the database."""
+    result = parse(value) if isinstance(value, str) else value
+    if result.tzinfo is not None:
+        result = result.astimezone(timezone.utc).replace(tzinfo=None)
+    return result
 
 
 class Phase:
@@ -41,8 +49,7 @@ class Phase:
                 raise ValueError(f"Phase '{name}' not found.")
             phase_data = self._merge_intervals(name, intervals)
         elif dt:
-            if isinstance(dt, str):
-                dt = parse(dt,ignoretz=True)
+            dt = _utc_naive(dt)
             phase_data = self._find_phase_by_date(dt)
             if not phase_data:
                 raise ValueError(f"No phase found for the given date. (dt: {dt})")
@@ -173,8 +180,6 @@ def get_phase(name:str=None, dt:datetime| str=None)->Phase:
     Returns:
         Phase: The corresponding Phase object.
     """
-    if isinstance(dt, str):
-        dt = parse(dt, ignoretz=True)
     return Phase(name=name, dt=dt)
 
 
@@ -207,8 +212,7 @@ class SubPhase:
             if not subphase_data:
                 raise ValueError(f"SubPhase {name} not found.")
         elif dt:
-            if isinstance(dt, str):
-                dt = parse(dt,ignoretz=True)
+            dt = _utc_naive(dt)
             subphase_data = self._find_subphase_by_date(dt)
             if not subphase_data:
                 raise ValueError("No subphase found for the given date.")
@@ -310,8 +314,6 @@ def get_subphase(name:str=None, dt:datetime|str =None)->SubPhase:
     Returns:
         SubPhase: The corresponding SubPhase object.
     """
-    if isinstance(dt, str):
-        dt = parse(dt, ignoretz=True)
     return SubPhase(name=name, dt=dt)
 
 def get_subphases_by_phase(phase_name:str)->list[str]|str:
@@ -394,8 +396,7 @@ class Test:
                         raise ValueError(f"Test {name} not found.")
 
         elif dt:
-            if isinstance(dt, str):
-                dt = parse(dt,ignoretz=True)
+            dt = _utc_naive(dt)
             test_data = self._find_test_by_date(dt)
             if not test_data:
                 raise ValueError("No test found for the given date.")
@@ -478,8 +479,7 @@ class Test:
         tb.add_column('End Time')
         console.print(f"Phase: {phase}, SubPhase: {subphase}, Key: {key}, Date: {date}")
         if date:
-            if isinstance(date, str):
-                date = parse(date, ignoretz=True)
+            date = _utc_naive(date)
         for test_name, test_data in tests.items():
             if subphase and not test_data['subphase'].lower() == subphase.lower():
                 continue
@@ -502,7 +502,7 @@ class Test:
                        parse(test_data['end']).strftime(dateFormat))
         return tb
 
-def get_test_by_subphase(subphase:str)->list[str] | None:
+def get_test_by_subphase(subphase: str) -> list[str]:
     """
     Returns a list of tests for a given subphase.
 
@@ -510,15 +510,13 @@ def get_test_by_subphase(subphase:str)->list[str] | None:
         subphase (str): The name of the subphase.
 
     Returns:
-        list[str] | None: A list of test names, or None if no tests are found.
+        list[str]: Test names, or an empty list if no tests are found.
     """
-    elem= [test_name for test_name, test_data in tests.items() if test_data['subphase'].lower() == subphase.lower()]
-    if len(elem)==0:
-        return None
-    elif len(elem)==1:
-        return elem[0]
-    else:
-        return elem
+    return [
+        test_name
+        for test_name, test_data in tests.items()
+        if test_data['subphase'].lower() == subphase.lower()
+    ]
         
 
 class Filter:

@@ -1,8 +1,8 @@
 # SimbioReader handoff
 
-Updated: 2026-10-26
+Updated: 2026-11-06
 
-Current development version: `0.9.2`.
+Current development version: `0.9.3`.
 
 ## Current role
 
@@ -13,7 +13,10 @@ tests, and filter definitions.
 
 ## Current changes
 
-- The package metadata now targets Python 3.14 and version `0.9.2`.
+- The package metadata targets Python 3.14 and version `0.9.3`.
+- Image selection supports filters and VIHI segments; missing attributes raise AttributeError.
+- Single-test subphase searches return lists, and date queries normalize aware inputs to UTC.
+- VIHI segment details render without filters. Tests use local src and default uv groups.
 - Filter output checks that the decoded product exposes a `filters` collection
   before iterating it. This keeps non-filter-bearing products readable.
 - `FLUSSO_DATI.md` documents parsing, decoded objects, and output paths.
@@ -23,7 +26,7 @@ tests, and filter definitions.
 Run the project checks from this repository:
 
 ```bash
-uv run --locked pytest
+uv run --locked python -m pytest
 uv run --locked ruff check src test
 ```
 
@@ -41,3 +44,10 @@ runtime artefacts.
 ## Remaining limitations
 
 XML parsing still requires the existing namespace prefixes. File areas, imaging and geometry are associated by position. Pyright reports existing typing issues that require a separate review. Preview labels have not been validated with a PDS4 validator in this change.
+
+Next work: replace ambiguous tag-name lookups with full namespace-aware XPath
+paths. Keep that parser change on the dedicated codex/full-label-xpath branch.
+
+On this Mac, hidden flags are reapplied to .venv .pth files. A local
+sitecustomize.py adds src to sys.path; it is not committed and disappears when
+the environment is recreated. Use uv run --no-editable for a portable workaround.
