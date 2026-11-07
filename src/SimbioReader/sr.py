@@ -920,6 +920,13 @@ class SimbioReader:
             f"{type(self).__name__!s} object has no attribute {name!r}"
         )
 
+    @property
+    def frame_binning(self) -> int | None:
+        """Return the VIHI frame summing factor from the product label."""
+        if self.channel != INSTRUMENT.VIHI:
+            return None
+        return self.simbio.vihi.frame_parameters.frame_summing
+
     def get_segment_by_file(
         self, file_name: str | Path
     ) -> ArrayStructure | None:

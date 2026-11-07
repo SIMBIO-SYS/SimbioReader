@@ -82,6 +82,7 @@ def test_reader_populates_simbio_vihi(monkeypatch):
 
     assert isinstance(reader.simbio.vihi, Vihi)
     assert reader.simbio.vihi.frame_parameters.frame_summing == 1
+    assert reader.frame_binning == 1
     assert reader.simbio.vihi.housekeeping.voltage_at_3_3v == 1
     vectors = reader.geometry.orbiter.vectors
     assert vectors.earth_to_spacecraft is not None

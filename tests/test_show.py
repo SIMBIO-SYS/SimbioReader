@@ -25,6 +25,8 @@ def _render(renderable) -> str:
 def test_show_uses_current_models_and_requested_sections():
     reader = _stc_reader()
 
+    assert reader.frame_binning is None
+
     panel = reader.show(
         hk=True,
         detector=True,
