@@ -1,10 +1,10 @@
-# SimbioReader 1.0.5.dev1
+# SimbioReader 1.0.5.dev2
 
 Development release prepared on 7 November 2026.
 
-- Select metadata panels with `info --imaging`, `--display`, `--geometry`, and `--references`.
-- Browse internal and external references in separate tables and query internal references with `reader.reference.by_type()`.
-- Identify associated housekeeping and geometry products by LID and show the active channel in the SIMBIO panel.
-- Exclude the `None` subphase sentinel from lookups.
+- Group Geometry by section, footprint corner and vector.
+- Group optional Downsampling fields and sensor temperatures in Imaging.
+- Read both numeric and textual HRIC detector types and filter metadata.
+- Report each CSV once with verbose or debug logging.
 
-The test suite passes with 78 tests.
+The test suite passes with 84 tests.

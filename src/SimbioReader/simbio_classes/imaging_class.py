@@ -47,6 +47,15 @@ class DeviceTemperature:
 
 
 @dataclass(slots=True, frozen=True)
+class Downsampling:
+    processing_venue: str
+    height_pixels: int
+    height_pixels_unit: str
+    width_pixels: int
+    width_pixels_unit: str
+
+
+@dataclass(slots=True, frozen=True)
 class Imaging:
     local_identifier_reference: str
     local_reference_type: str
@@ -56,6 +65,7 @@ class Imaging:
     optical_filter: OpticalFilter | None
     subframe: Subframe
     device_temperatures: tuple[DeviceTemperature, ...]
+    downsampling: Downsampling | None = None
 
     @classmethod
     def from_xml(
@@ -109,7 +119,22 @@ class Imaging:
                 comment=text(f"{filter_path}/img:comment[1]"),
             )
 
+        downsampling = None
+        downsampling_path = "img:Downsampling[1]"
+        if element.xpath(downsampling_path, namespaces=namespaces):
+            dimensions = f"{downsampling_path}/img:Pixel_Averaging_Dimensions[1]"
+            height = f"{dimensions}/img:height_pixels[1]"
+            width = f"{dimensions}/img:width_pixels[1]"
+            downsampling = Downsampling(
+                processing_venue=text(f"{downsampling_path}/img:processing_venue[1]"),
+                height_pixels=int(text(height)),
+                height_pixels_unit=unit(height),
+                width_pixels=int(text(width)),
+                width_pixels_unit=unit(width),
+            )
+
         return cls(
+            downsampling=downsampling,
             local_identifier_reference=text(
                 f"{reference}/pds:local_identifier_reference[1]"
             ),

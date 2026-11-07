@@ -4,7 +4,7 @@ Updated: `2026-07-23`
 
 Branch: `Version_1.0`
 
-Current development version: `1.0.0-dev.2`
+Current development version: `1.0.5.dev2`
 
 ## Current role
 

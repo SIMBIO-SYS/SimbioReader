@@ -130,7 +130,8 @@ class SimbioReader:
         console: Console | None = None,
         updateCheck: bool = True,
     ):
-        logger.debug("Inizializing SimbioReader object")
+        if debug:
+            logger.debug("Initializing SimbioReader")
         # Initialize the console
         object.__setattr__(self, "console", console if console else Console())
 
@@ -141,7 +142,8 @@ class SimbioReader:
         # Initialize the SimbioReader with a file path and optional console for output
 
         if updateCheck:
-            logger.debug("Check for updates on PyPi")
+            if self.debug:
+                logger.debug("Checking for updates on PyPI")
             result = check_pypi_version("SimbioReader", installed_version)
             if result and result.update_available:
                 self.console.print(
@@ -204,47 +206,38 @@ class SimbioReader:
 
         # Load the data
         try:
-            data = pds4_tools.read(filename=str(self.lblx_file),no_scale=True)
+            data = pds4_tools.read(filename=str(self.lblx_file), no_scale=True, quiet=True)
         except Exception as exc:
             message = f"Unable to read the PDS4 product: {exc}"
             raise LoadingError(self.lblx_file.name, message) from exc
 
         # Data summary
-        message = f"Identified {len(data.structures)} in the product."
-        logger.info(message)
-        if self.verbosity > 0:
-            self.console.print(f"{MSG.INFO}{message}")
-        if self.verbosity > 1:
-            for idx, item in enumerate(data.structures):
-                self.console.print(f"\t{idx + 1}. {item.type}")
+        if self.verbosity or self.debug:
+            logger.info("Loaded {} PDS4 structures from {}", len(data.structures), self.lblx_file.name)
 
         # Initialize the dat/qub file and csv file
         data_arrays = []
+        logged_csv_files = set()
         for item in data.structures:
             if item.type.startswith("Array_"):
                 data_arrays.append(item)
             match item.type:
                 case "Table_Delimited":
                     object.__setattr__(self, "csv_file", Path(item.parent_filename))
-                    message = f"Identified a CSV File ({self.csv_file.name})"
-                    logger.info(message)
-                    if self.verbosity > 1:
-                        self.console.print(f"{MSG.INFO}{message}")
+                    if (self.verbosity or self.debug) and self.csv_file not in logged_csv_files:
+                        logger.info("Identified a CSV file ({})", self.csv_file.name)
+                        logged_csv_files.add(self.csv_file)
                     object.__setattr__(self, "csv_data", item)
                     pass
                 case "Array_2D_Image":
                     object.__setattr__(self, "image_file", Path(item.parent_filename))
-                    message = f"Identified a 2D Image File ({self.image_file.name})"
-                    logger.info(message)
-                    if self.verbosity > 1:
-                        self.console.print(f"{MSG.INFO}{message}")
+                    if self.verbosity or self.debug:
+                        logger.info("Identified a 2D image file ({})", self.image_file.name)
                     object.__setattr__(self, "image_data", item)
                 case "Array_3D_Spectrum":
                     object.__setattr__(self, "cube_file", Path(item.parent_filename))
-                    message = f"Identified a 3D Image File ({self.cube_file.name}) - VIHI Cube"
-                    logger.info(message)
-                    if self.verbosity > 1:
-                        self.console.print(f"{MSG.INFO}{message}")
+                    if self.verbosity or self.debug:
+                        logger.info("Identified a VIHI cube ({})", self.cube_file.name)
                     object.__setattr__(self, "cube_data", item)
                     pass
                 case _:
@@ -279,7 +272,8 @@ class SimbioReader:
             .upper()
             .strip()
         )
-        logger.debug(f"Identied the sub-instument name: {channel_name}")
+        if self.debug:
+            logger.debug("Identified instrument channel {}", channel_name)
         try:
             channel = INSTRUMENT(channel_name)
         except ValueError as exc:
@@ -312,9 +306,10 @@ class SimbioReader:
             "mission_phase",
         )
         if self.debug:
-            message = f"Initialized SimbioReader with channel: {self.title}, version: {self.processing_level}, Datamodel: {self.information_model_version}"
-            self.console.print(f"{MSG.DEBUG}{message}")
-        logger.debug(message)
+            logger.debug(
+                "Product metadata: channel={}, level={}, data model={}",
+                channel_name, self.processing_level, self.information_model_version,
+            )
 
         # Time coordinates
         dateformat = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -333,10 +328,8 @@ class SimbioReader:
         object.__setattr__(
             self, "time_coordinates", TimeCoordinates(start, end, start_scet, end_scet)
         )
-        if self.verbosity > 1:
-            message = f"Setted the time coordinates to {self.time_coordinates}"
-            self.console.print(f"{MSG.DEBUG}{message}")
-        logger.debug(message)
+        if self.debug:
+            logger.debug("Time coordinates: {}", self.time_coordinates)
 
         # Target Information
         object.__setattr__(
@@ -353,10 +346,8 @@ class SimbioReader:
                 ),
             ),
         )
-        if self.verbosity > 1:
-            message = f"Setted the target to {self.target}"
-            self.console.print(f"{MSG.DEBUG}{message}")
-        logger.debug(message)
+        if self.debug:
+            logger.debug("Target: {}", self.target)
 
         # Software Context
 
@@ -374,10 +365,8 @@ class SimbioReader:
                 ),
             ),
         )
-        if self.verbosity > 1:
-            message = f"Setted the Software Context to {self.software_context}"
-            self.console.print(f"{MSG.DEBUG}{message}")
-        logger.debug(message)
+        if self.debug:
+            logger.debug("Software context: {}", self.software_context)
 
         # Setup SIMBIO_SYS General Parameters
 
@@ -445,10 +434,8 @@ class SimbioReader:
                 )))
         )
 
-        if self.verbosity > 1:
-            message = f"Setted the Compression information to {simbio.compression}"
-            self.console.print(f"{MSG.DEBUG}{message}")
-        logger.debug(message)
+        if self.debug:
+            logger.debug("Compression: {}", simbio.compression)
         object.__setattr__(simbio,
                            'repetition_time',
                            float(root.xpath(
@@ -576,12 +563,7 @@ class SimbioReader:
                 self._model_panel("Imaging Subframe", self.imaging.subframe, use_symbols=not no_symbols)
             )
         if all_info or geometry or data_structure:
-            columns.append(
-                self._model_panel(
-                    "Geometry", self.geometry, use_symbols=not no_symbols,
-                    leaf_names=True, two_columns=True,
-                )
-            )
+            columns.append(self._geometry_panel(use_symbols=not no_symbols))
         if filters and not all_info:
             columns.append(
                 self._model_panel("Optical Filter", self.imaging.optical_filter, use_symbols=not no_symbols)
@@ -624,6 +606,8 @@ class SimbioReader:
             unit_field_names = set(unit_fields.values())
             for field in fields(value):
                 if field.name in unit_field_names:
+                    continue
+                if isinstance(value, Imaging) and field.name in {"device_temperatures", "downsampling"}:
                     continue
                 label = f"{prefix}.{field.name}" if prefix else field.name
                 field_value = getattr(value, field.name)
@@ -702,6 +686,47 @@ class SimbioReader:
             Group(internal, external), title="References", border_style="green", expand=False
         )
 
+    def _geometry_panel(self, use_symbols: bool = True) -> Panel:
+        rows = dict(self._flatten_model(self.geometry, use_symbols=use_symbols))
+        sections = (
+            ("Kernel", ""),
+            ("Orientation", "image_display"),
+            ("Orbiter", "orbiter"),
+            ("Identification", "orbiter.identification"),
+            ("Pixel Dimensions", "orbiter.pixel_dimensions"),
+            ("Distances", "orbiter.distances"),
+            ("Surface", "orbiter.surface"),
+            ("Illumination", "orbiter.illumination"),
+            ("Vectors", "orbiter.vectors"),
+        )
+        tables = []
+        for title, path in sections:
+            prefix = f"{path}." if path else ""
+            table = Table.grid(padding=(0, 1))
+            table.add_column(style="yellow")
+            table.add_column(style="cyan")
+            table.add_row(Text(title, style="bold green"))
+            previous_group = None
+            for name, value in rows.items():
+                if not name.startswith(prefix):
+                    continue
+                relative = name.removeprefix(prefix)
+                if "." in relative and path in {"", "orbiter"}:
+                    continue
+                group, _, label = relative.rpartition(".")
+                if group != previous_group:
+                    if group:
+                        heading = rows.get(
+                            f"{prefix}{group}.reference_pixel_location",
+                            group.replace("_", " ").replace(".", " / ").title(),
+                        )
+                        table.add_row(Text(heading, style="bold yellow"))
+                    previous_group = group
+                if label != "reference_pixel_location":
+                    table.add_row(label.replace("_", " ").title(), Text(value))
+            tables.append(table)
+        return Panel(Group(*tables), title="Geometry", border_style="green", expand=False)
+
     @classmethod
     def _model_panel(
         cls,
@@ -740,6 +765,19 @@ class SimbioReader:
         else:
             for row in formatted_rows:
                 table.add_row(*row)
+        if isinstance(model, Imaging) and model.downsampling is not None:
+            table.add_row(Text("Downsampling", style="bold yellow"), "", "")
+            for name, value in cls._flatten_model(model.downsampling, use_symbols=use_symbols):
+                table.add_row(name.replace("_", " ").title(), " = ", value)
+        if isinstance(model, Imaging) and model.device_temperatures:
+            table.add_row(Text("Device Temperatures", style="bold yellow"), "", "")
+            for sensor in model.device_temperatures:
+                unit = sensor.temperature_unit
+                if use_symbols:
+                    unit = cls._unit_symbol(unit)
+                table.add_row(
+                    Text(sensor.device_name), " = ", f"{sensor.temperature} {unit}"
+                )
         return Panel(table, title=title, border_style="green", expand=False)
 
     @classmethod

@@ -3,6 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from loguru import logger
 
 from rich.console import Console
 from rich.panel import Panel
@@ -11,12 +12,12 @@ from SimbioReader.sr import SimbioReader
 from SimbioReader.simbio_classes.reference_class import InternalReference
 
 
-def _stc_reader() -> SimbioReader:
+def _stc_reader(**kwargs) -> SimbioReader:
     label = Path(
         "tests/data/sim_raw_stc_cruise_ico4b_2021-04-24_001/"
         "sim_raw_sc_stc_winx_internal_cruise_ico4b_2021-04-24_001__0_1.lblx"
     )
-    return SimbioReader(label, updateCheck=False)
+    return SimbioReader(label, updateCheck=False, **kwargs)
 
 
 def _render(renderable) -> str:
@@ -127,19 +128,28 @@ def test_show_references_identifies_associated_products():
     assert "Associated product" in output
 
 
-def test_geometry_uses_leaf_names_in_two_columns():
-    reader = _stc_reader()
-    panel = reader._model_panel(
-        "Geometry",
-        reader.geometry,
-        leaf_names=True,
-        two_columns=True,
-    )
-    output = _render(panel)
-
-    assert len(panel.renderable.columns) == 6
+def test_geometry_groups_vertices_and_vectors():
+    output = _render(_stc_reader().show(geometry=True))
+    assert "Upper Left Corner" in output
+    assert "Earth To Spacecraft" in output
     assert "Latitude" in output
     assert "Orbiter.Surface.Footprint Vertices" not in output
+
+
+def test_imaging_groups_temperature_values_by_sensor():
+    output = _render(_stc_reader().show(imaging=True))
+    assert "Device Temperatures" in output
+    assert "TemperatureFPA1 = 268.032773 K" in output
+
+
+def test_verbose_reader_logs_csv_once():
+    messages = []
+    sink = logger.add(lambda message: messages.append(message.record["message"]))
+    try:
+        _stc_reader(verbose=1)
+    finally:
+        logger.remove(sink)
+    assert sum("Identified a CSV file" in message for message in messages) == 1
 
 
 def test_summary_uses_the_new_show_summary():

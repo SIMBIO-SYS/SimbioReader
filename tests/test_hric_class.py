@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from lxml import etree
 
 from SimbioReader.simbio_classes import Hric
@@ -9,7 +11,9 @@ NAMESPACE = "http://psa.esa.int/psa/bc/mpo/sim/v1"
 PREFIX = "bc_mpo_simbio-sys"
 
 
-def test_hric_maps_mission_xml_block():
+@pytest.mark.parametrize(("detector_type", "expected"), [("1", 1), ("Si-PiN-Hybrid", "Si-PiN-Hybrid")])
+@pytest.mark.parametrize(("filters", "expected_filters"), [("1", 1), ("FPAN, F550, F750, F880", "FPAN, F550, F750, F880")])
+def test_hric_maps_mission_xml_block(detector_type, expected, filters, expected_filters):
     element = etree.fromstring(
         f"""
         <{PREFIX}:HRIC xmlns:{PREFIX}="{NAMESPACE}">
@@ -37,9 +41,9 @@ def test_hric_maps_mission_xml_block():
               <{PREFIX}:Pixel_Width>
                 <{PREFIX}:hk_length_param unit="micrometer">11</{PREFIX}:hk_length_param>
               </{PREFIX}:Pixel_Width>
-              <{PREFIX}:detector_type>1</{PREFIX}:detector_type>
+              <{PREFIX}:detector_type>{detector_type}</{PREFIX}:detector_type>
             </{PREFIX}:Detector>
-            <{PREFIX}:filter_available>1</{PREFIX}:filter_available>
+            <{PREFIX}:filter_available>{filters}</{PREFIX}:filter_available>
           </{PREFIX}:HRIC_General_Parameters>
         </{PREFIX}:HRIC>
         """
@@ -63,8 +67,8 @@ def test_hric_maps_mission_xml_block():
     assert hric.general_parameters.detector.pixel_height == 10
     assert hric.general_parameters.detector.pixel_height_unit == "micrometer"
     assert hric.general_parameters.detector.pixel_width == 11
-    assert hric.general_parameters.detector.detector_type == 1
-    assert hric.general_parameters.filter_available == 1
+    assert hric.general_parameters.detector.detector_type == expected
+    assert hric.general_parameters.filter_available == expected_filters
 
 
 def test_reader_populates_simbio_hric():

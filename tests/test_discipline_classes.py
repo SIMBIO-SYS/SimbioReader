@@ -1,7 +1,32 @@
 from pathlib import Path
 
+from lxml import etree
+
 from SimbioReader.simbio_classes import Display, Geometry, Imaging, Reference
 from SimbioReader.sr import SimbioReader
+
+
+def test_imaging_reads_downsampling():
+    label = next(Path("tests/data").glob("*hric*/*.lblx"))
+    root = etree.parse(label).getroot()
+    namespaces = {"pds": root.nsmap[None], "img": root.nsmap["img"]}
+    (element,) = root.xpath(
+        "pds:Observation_Area/pds:Discipline_Area/img:Imaging", namespaces=namespaces
+    )
+    element.append(etree.fromstring(f"""
+        <img:Downsampling xmlns:img="{namespaces['img']}">
+            <img:processing_venue>Onboard</img:processing_venue>
+            <img:Pixel_Averaging_Dimensions>
+                <img:height_pixels unit="pixel">2</img:height_pixels>
+                <img:width_pixels unit="pixel">4</img:width_pixels>
+            </img:Pixel_Averaging_Dimensions>
+        </img:Downsampling>
+    """))
+    downsampling = Imaging.from_xml(element, namespaces).downsampling
+    assert downsampling is not None
+    assert downsampling.processing_venue == "Onboard"
+    assert (downsampling.height_pixels, downsampling.width_pixels) == (2, 4)
+    assert downsampling.height_pixels_unit == downsampling.width_pixels_unit == "pixel"
 
 
 def test_reader_populates_discipline_area_models():
@@ -17,6 +42,7 @@ def test_reader_populates_discipline_area_models():
     assert reader.display.vertical_display_direction == "Bottom to Top"
 
     assert isinstance(reader.imaging, Imaging)
+    assert reader.imaging.downsampling is None
     assert reader.imaging.detector.first_line == 1
     assert reader.imaging.exposure_duration == 0
     assert reader.imaging.exposure_duration_unit == "ms"

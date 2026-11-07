@@ -2,6 +2,13 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.5.dev2] - 2026-11-07
+
+- Group Geometry by section, footprint corner and vector.
+- Read optional imaging downsampling and group its fields and sensor temperatures in Imaging.
+- Accept HRIC detector and filter metadata as numeric codes or text.
+- Log each CSV once and show metadata diagnostics only in debug mode.
+
 ## [1.0.5.dev1] - 2026-11-07
 
 - Add `info --imaging`, `--display`, `--geometry`, and `--references`.

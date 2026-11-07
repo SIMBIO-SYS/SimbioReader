@@ -22,7 +22,7 @@ class HricDetector:
     pixel_height_unit: str
     pixel_width: float
     pixel_width_unit: str
-    detector_type: int
+    detector_type: int | str
 
 
 @dataclass(slots=True, frozen=True)
@@ -33,7 +33,7 @@ class HricGeneralParameters:
     focal_length_unit: str
     f_number: float
     detector: HricDetector
-    filter_available: int
+    filter_available: int | str
 
 
 @dataclass(slots=True, frozen=True)
@@ -71,6 +71,12 @@ class Hric:
         housekeeping_path = f"{prefix}:HRIC_HK[1]"
         general_path = f"{prefix}:HRIC_General_Parameters[1]"
         detector_path = f"{general_path}/{prefix}:Detector[1]"
+        def code_or_text(path: str) -> int | str:
+            value = text(path).strip()
+            try:
+                return int(value)
+            except ValueError:
+                return value
 
         housekeeping = HricHousekeeping(
             tec_current=float(
@@ -110,9 +116,7 @@ class Hric:
                 f"{detector_path}/{prefix}:Pixel_Width[1]/"
                 f"{prefix}:hk_length_param[1]"
             ),
-            detector_type=int(
-                text(f"{detector_path}/{prefix}:detector_type[1]")
-            ),
+            detector_type=code_or_text(f"{detector_path}/{prefix}:detector_type[1]"),
         )
         general_parameters = HricGeneralParameters(
             ifov=float(
@@ -137,9 +141,7 @@ class Hric:
             ),
             f_number=float(text(f"{general_path}/{prefix}:f_number[1]")),
             detector=detector,
-            filter_available=int(
-                text(f"{general_path}/{prefix}:filter_available[1]")
-            ),
+            filter_available=code_or_text(f"{general_path}/{prefix}:filter_available[1]"),
         )
         return cls(
             windows_read=int(child("windows_read")),

@@ -69,8 +69,10 @@ when their LID contains the corresponding ``hk`` or ``geometry`` token.
 
 When ``--hk`` is selected, the output includes both the typed instrument
 housekeeping values and the loaded CSV housekeeping table. Housekeeping and
-detector rows use the ``parameter = value unit`` convention. Geometry fields
-use their leaf names and are arranged in two value columns when possible.
+detector rows use the ``parameter = value unit`` convention. Geometry groups
+fields by section, with separate headings for footprint corners and vectors.
+Imaging groups optional Downsampling fields and lists temperatures by sensor.
+Use ``--verbose`` for file discovery and ``--debug`` for metadata diagnostics.
 
 .. code-block:: bash
 
