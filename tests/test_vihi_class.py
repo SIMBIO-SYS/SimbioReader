@@ -1,6 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from lxml import etree
 
 from SimbioReader.simbio_classes import Vihi
@@ -10,7 +11,8 @@ NAMESPACE = "http://psa.esa.int/psa/bc/mpo/sim/v1"
 PREFIX = "bc_mpo_simbio-sys"
 
 
-def test_vihi_maps_mission_xml_block():
+@pytest.mark.parametrize("coordinate_pixels", [False, True])
+def test_vihi_maps_mission_xml_block(coordinate_pixels):
     element = etree.fromstring(
         f"""
         <{PREFIX}:VIHI xmlns:{PREFIX}="{NAMESPACE}">
@@ -42,13 +44,27 @@ def test_vihi_maps_mission_xml_block():
         """
     )
 
+    if coordinate_pixels:
+        frame = element.find(f"{{{NAMESPACE}}}Frame_Parameters")
+        frame.remove(frame.find(f"{{{NAMESPACE}}}external_repetition_time"))
+        for name, line, column in (("Start", 8, 4), ("Stop", 263, 259)):
+            element.remove(element.find(f"{{{NAMESPACE}}}{name.lower()}_pixel"))
+            pixel = etree.SubElement(element, f"{{{NAMESPACE}}}{name}_Pixel")
+            etree.SubElement(pixel, f"{{{NAMESPACE}}}line").text = str(line)
+            etree.SubElement(pixel, f"{{{NAMESPACE}}}column").text = str(column)
+
     vihi = Vihi.from_xml(element, {PREFIX: NAMESPACE})
 
     assert vihi.frame_parameters.frame_summing == 2
-    assert vihi.frame_parameters.external_repetition_time == 0.5
     assert vihi.frame_parameters.dark_acquisition_rate == 0.25
-    assert vihi.start_pixel == 3
-    assert vihi.stop_pixel == 4
+    if coordinate_pixels:
+        assert vihi.frame_parameters.external_repetition_time is None
+        assert (vihi.start_pixel.line, vihi.start_pixel.column) == (8, 4)
+        assert (vihi.stop_pixel.line, vihi.stop_pixel.column) == (263, 259)
+    else:
+        assert vihi.frame_parameters.external_repetition_time == 0.5
+        assert vihi.start_pixel == 3
+        assert vihi.stop_pixel == 4
     assert vihi.frame_elaboration.dark_subtraction == 1
     assert vihi.frame_elaboration.spatial_binning == 2
     assert vihi.frame_elaboration.spectral_binning == 3

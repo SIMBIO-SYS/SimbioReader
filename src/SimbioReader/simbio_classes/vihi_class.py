@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 @dataclass(slots=True, frozen=True)
 class VihiFrameParameters:
     frame_summing: int
-    external_repetition_time: float
+    external_repetition_time: float | None
     dark_acquisition_rate: float
 
 
@@ -44,10 +44,16 @@ class VihiHousekeeping:
 
 
 @dataclass(slots=True, frozen=True)
+class VihiPixel:
+    line: int
+    column: int
+
+
+@dataclass(slots=True, frozen=True)
 class Vihi:
     frame_parameters: VihiFrameParameters
-    start_pixel: int
-    stop_pixel: int
+    start_pixel: int | VihiPixel
+    stop_pixel: int | VihiPixel
     frame_elaboration: VihiFrameElaboration
     housekeeping: VihiHousekeeping
 
@@ -67,8 +73,14 @@ class Vihi:
                 raise ValueError(f"Missing VIHI XML value at {path}")
             return str(value)
 
-        def child(name: str) -> str:
-            return text(f"{prefix}:{name}[1]")
+        def pixel(scalar_name: str, block_name: str) -> int | VihiPixel:
+            block = f"{prefix}:{block_name}[1]"
+            if element.xpath(block, namespaces=namespaces):
+                return VihiPixel(
+                    line=int(text(f"{block}/{prefix}:line[1]")),
+                    column=int(text(f"{block}/{prefix}:column[1]")),
+                )
+            return int(text(f"{prefix}:{scalar_name}[1]"))
 
         def unit(path: str) -> str:
             return text(f"{path}/@unit")
@@ -77,15 +89,18 @@ class Vihi:
         frame_elaboration_path = f"{prefix}:Frame_Elaboration[1]"
         housekeeping_path = f"{prefix}:VIHI_HK[1]"
 
+        external_repetition_time = element.xpath(
+            f"string({frame_parameters_path}/{prefix}:external_repetition_time[1])",
+            namespaces=namespaces,
+        )
         frame_parameters = VihiFrameParameters(
             frame_summing=int(
                 text(f"{frame_parameters_path}/{prefix}:frame_summing[1]")
             ),
-            external_repetition_time=float(
-                text(
-                    f"{frame_parameters_path}/"
-                    f"{prefix}:external_repetition_time[1]"
-                )
+            external_repetition_time=(
+                float(external_repetition_time)
+                if external_repetition_time.strip()
+                else None
             ),
             dark_acquisition_rate=float(
                 text(
@@ -186,8 +201,8 @@ class Vihi:
         )
         return cls(
             frame_parameters=frame_parameters,
-            start_pixel=int(child("start_pixel")),
-            stop_pixel=int(child("stop_pixel")),
+            start_pixel=pixel("start_pixel", "Start_Pixel"),
+            stop_pixel=pixel("stop_pixel", "Stop_Pixel"),
             frame_elaboration=frame_elaboration,
             housekeeping=housekeeping,
         )
