@@ -200,7 +200,7 @@ class SubPhase:
         """
         if name:
             subphase_data = subphases.get(name)
-            if not subphase_data:
+            if name == "None" or not subphase_data:
                 raise ValueError(f"SubPhase {name} not found.")
         elif dt:
             if isinstance(dt, str):
@@ -226,7 +226,9 @@ class SubPhase:
         Returns:
             dict | None: The subphase data if found, otherwise None.
         """
-        for subphase_data in subphases.values():
+        for subphase_name, subphase_data in subphases.items():
+            if subphase_name == "None":
+                continue
             start = parse(subphase_data["start"], ignoretz=True)
             end = parse(subphase_data["end"], ignoretz=True)
             if start <= dt <= end:

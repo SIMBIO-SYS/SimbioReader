@@ -4,6 +4,7 @@ from datetime import datetime
 # from SimbioReader.version import version
 from importlib.metadata import version as get_version
 from pathlib import Path
+import re
 
 import lxml.etree as etree
 import pds4_tools
@@ -11,9 +12,10 @@ from loguru import logger
 from pds4_tools.reader.array_objects import ArrayStructure
 from pds4_tools.reader.table_objects import TableStructure
 from rich.columns import Columns
-from rich.console import Console
+from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 from semantic_version_tools import Vers
 
 from SimbioReader.constants import MSG
@@ -514,6 +516,10 @@ class SimbioReader:
         filters: bool = False,
         all_info: bool = False,
         no_symbols: bool = False,
+        references: bool = False,
+        imaging: bool = False,
+        display: bool = False,
+        geometry: bool = False,
     ) -> Panel:
         """Return a Rich summary built from the current metadata models."""
         columns = [self.info(), self.target.show()]
@@ -559,70 +565,29 @@ class SimbioReader:
                 )
                 for title, model in detector_models
             )
-
         if all_info:
-            columns.extend(
-                [
-                    self._model_panel(
-                        "SIMBIO",
-                        self.simbio,
-                        use_symbols=not no_symbols,
-                    ),
-                    self._model_panel(
-                        "Display",
-                        self.display,
-                        use_symbols=not no_symbols,
-                    ),
-                    self._model_panel(
-                        "Imaging",
-                        self.imaging,
-                        use_symbols=not no_symbols,
-                    ),
-                    self._model_panel(
-                        "Geometry",
-                        self.geometry,
-                        use_symbols=not no_symbols,
-                        leaf_names=True,
-                        two_columns=True,
-                    ),
-                    self._model_panel(
-                        "References",
-                        self.reference,
-                        use_symbols=not no_symbols,
-                    ),
-                ]
+            columns.append(self._model_panel("SIMBIO", self.simbio, use_symbols=not no_symbols))
+        if all_info or display or data_structure:
+            columns.append(self._model_panel("Display", self.display, use_symbols=not no_symbols))
+        if all_info or imaging:
+            columns.append(self._model_panel("Imaging", self.imaging, use_symbols=not no_symbols))
+        elif data_structure:
+            columns.append(
+                self._model_panel("Imaging Subframe", self.imaging.subframe, use_symbols=not no_symbols)
             )
-        else:
-            if data_structure:
-                columns.extend(
-                    [
-                        self._model_panel(
-                            "Display",
-                            self.display,
-                            use_symbols=not no_symbols,
-                        ),
-                        self._model_panel(
-                            "Imaging Subframe",
-                            self.imaging.subframe,
-                            use_symbols=not no_symbols,
-                        ),
-                        self._model_panel(
-                            "Geometry",
-                            self.geometry,
-                            use_symbols=not no_symbols,
-                            leaf_names=True,
-                            two_columns=True,
-                        ),
-                    ]
+        if all_info or geometry or data_structure:
+            columns.append(
+                self._model_panel(
+                    "Geometry", self.geometry, use_symbols=not no_symbols,
+                    leaf_names=True, two_columns=True,
                 )
-            if filters:
-                columns.append(
-                    self._model_panel(
-                        "Optical Filter",
-                        self.imaging.optical_filter,
-                        use_symbols=not no_symbols,
-                    )
-                )
+            )
+        if filters and not all_info:
+            columns.append(
+                self._model_panel("Optical Filter", self.imaging.optical_filter, use_symbols=not no_symbols)
+            )
+        if references or all_info:
+            columns.append(self._references_panel())
         col = Columns(
             columns,
             expand=True,
@@ -662,6 +627,9 @@ class SimbioReader:
                     continue
                 label = f"{prefix}.{field.name}" if prefix else field.name
                 field_value = getattr(value, field.name)
+                if isinstance(value, Simbio) and field.name in {"_stc", "_hric", "_vihi"}:
+                    if field.name != f"_{value.channel.value.lower()}":
+                        continue
                 unit_field = unit_fields.get(field.name)
                 if unit_field:
                     unit = getattr(value, unit_field)
@@ -696,6 +664,43 @@ class SimbioReader:
                 )
             return rows
         return [(prefix or "Value", str(value))]
+
+    def _references_panel(self) -> Panel:
+        labels = {
+            "data_to_document": "Document",
+            "data_to_browse": "Preview",
+            "data_to_associate": "Associated product",
+        }
+        internal = Table(title="Internal references", header_style="bold yellow")
+        internal.add_column("Relation", style="yellow")
+        internal.add_column("Reference type", style="cyan")
+        internal.add_column("Identifier", style="cyan", overflow="fold")
+        for item in self.reference.internal_references:
+            relation = labels.get(item.reference_type, "")
+            if item.reference_type == "data_to_associate":
+                lid = item.identifier.split("::", 1)[0]
+                tokens = re.split(r"[^a-z0-9]+", lid.lower().rsplit(":", 1)[-1])
+                if "geometry" in tokens:
+                    relation = "Geometry"
+                elif "hk" in tokens:
+                    relation = "Housekeeping"
+            internal.add_row(
+                relation,
+                Text(item.reference_type),
+                Text(item.identifier),
+            )
+
+        external = Table(title="External references", header_style="bold yellow")
+        external.add_column("DOI", style="cyan", overflow="fold")
+        external.add_column("Citation", style="cyan", ratio=1)
+        for item in self.reference.external_references:
+            external.add_row(
+                Text(item.doi), Text(" ".join(item.reference_text.split()))
+            )
+
+        return Panel(
+            Group(internal, external), title="References", border_style="green", expand=False
+        )
 
     @classmethod
     def _model_panel(

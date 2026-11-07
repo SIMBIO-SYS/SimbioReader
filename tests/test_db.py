@@ -73,6 +73,8 @@ def test_subphase_outside_known_intervals_is_not_available():
 def test_none_subphase_sentinel_is_not_available():
     with pytest.raises(ValueError, match="SubPhase None not found"):
         get_subphase(name="None")
+    with pytest.raises(ValueError, match="No subphase found"):
+        get_subphase(dt="2027-01-01")
 
 
 def test_get_test_by_name():

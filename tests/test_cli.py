@@ -98,6 +98,10 @@ def test_cli_info_show_mode_with_flags(monkeypatch, tmp_path: Path):
             "--debug",
             "--verbose",
             "--no-symbols",
+            "--references",
+            "--imaging",
+            "--display",
+            "--geometry",
         ],
     )
 
@@ -111,6 +115,10 @@ def test_cli_info_show_mode_with_flags(monkeypatch, tmp_path: Path):
         "filters": True,
         "all_info": True,
         "no_symbols": True,
+        "references": True,
+        "imaging": True,
+        "display": True,
+        "geometry": True,
     }
     assert "SHOW OUTPUT" in FakeConsole.all_messages
 

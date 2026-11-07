@@ -209,6 +209,10 @@ def filters(channel: str | None, name: str | None) -> None:
     help="Show product filter information.",
 )
 @click.option("-d", "--debug", is_flag=True, help="Enable debug mode.")
+@click.option("--references", is_flag=True, help="Show product references.")
+@click.option("--imaging", is_flag=True, help="Show imaging metadata.")
+@click.option("--display", is_flag=True, help="Show display metadata.")
+@click.option("--geometry", is_flag=True, help="Show geometry metadata.")
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose mode.")
 @click.option(
     "-s",
@@ -232,6 +236,10 @@ def info(
     verbose: bool,
     summarize: bool,
     no_symbols: bool,
+    references: bool,
+    imaging: bool,
+    display: bool,
+    geometry: bool,
 ) -> None:
     """Display information from a PDS4 product."""
     console = Console()
@@ -253,5 +261,9 @@ def info(
             filters=filter_flag,
             all_info=all_info,
             no_symbols=no_symbols,
+            references=references,
+            imaging=imaging,
+            display=display,
+            geometry=geometry,
         )
     )

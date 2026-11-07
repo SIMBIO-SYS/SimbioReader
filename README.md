@@ -1,4 +1,4 @@
-![Version 1.0.4](https://img.shields.io/badge/version-1.0.4-blue?style=plastic)
+![Version 1.0.5.dev1](https://img.shields.io/badge/version-1.0.5.dev1-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
@@ -99,6 +99,10 @@ structures, `--filters` for the optical filter, and `--all` for every modeled
 section. Units are rendered as symbols by default; `--no-symbols` preserves
 the XML unit names.
 
+Use `--imaging`, `--display`, `--geometry`, or `--references` to add the
+selected sections to the general product and target information. These flags
+can be combined, for example `simbioReader info product.lblx --imaging --references`.
+
 Run `simbioReader --help` or `simbioReader COMMAND --help` for all options.
 
 ## Development
@@ -128,8 +132,6 @@ The Sphinx sources are under `docs/source`. Additional maintenance documents:
 Use Python 3.14 (`uv sync --locked`) with the refreshed dependency lockfile.
 PDS4 generated product versions remain `0.1`; software versions are independent.
 
-## Release preparation 1.0.4
+## Release 1.0.5.dev1
 
-Prepared on 20 October 2026. See [release notes](RELEASE_NOTES.md) for the
-release scope and validation results. This update changes release metadata and
-documentation; it introduces no calibration algorithm changes.
+See the [release notes](RELEASE_NOTES.md) for the changes and validation.

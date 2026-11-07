@@ -1,10 +1,14 @@
 import io
+from dataclasses import replace
 from pathlib import Path
+
+import pytest
 
 from rich.console import Console
 from rich.panel import Panel
 
 from SimbioReader.sr import SimbioReader
+from SimbioReader.simbio_classes.reference_class import InternalReference
 
 
 def _stc_reader() -> SimbioReader:
@@ -77,6 +81,14 @@ def test_show_no_symbols_preserves_unit_names():
     assert "2.31 °" not in output
 
 
+@pytest.mark.parametrize("section", ["imaging", "display", "geometry"])
+def test_show_individual_metadata_section(section):
+    panel = _stc_reader().show(**{section: True})
+    assert [child.title for child in panel.renderable.renderables] == [
+        "SimbioReader Info", "Target Info", section.title(),
+    ]
+
+
 def test_show_all_includes_every_new_top_level_model():
     output = _render(_stc_reader().show(all_info=True))
 
@@ -85,6 +97,34 @@ def test_show_all_includes_every_new_top_level_model():
     assert "Imaging" in output
     assert "Geometry" in output
     assert "References" in output
+    assert "Internal references" in output
+    assert "External references" in output
+    assert "data_to_browse" in output
+    assert "10.1007/s11214-020-00704-8" in output
+
+
+def test_references_by_type_returns_matching_items():
+    refs = _stc_reader().reference
+    (browse,) = refs.by_type("data_to_browse")
+    (document,) = refs.by_type("data_to_document")
+    assert browse.identifier.endswith("::0.1")
+    assert document.identifier.endswith(":document:eaicd")
+    assert refs.by_type("unknown") == ()
+
+
+def test_show_references_identifies_associated_products():
+    reader = _stc_reader()
+    associated = tuple(
+        InternalReference("data_to_associate", lidvid_reference=f"urn:example:sim_raw_{kind}_vihi::0.1")
+        for kind in ("hk", "geometry", "other")
+    )
+    object.__setattr__(reader, "reference", replace(reader.reference, internal_references=associated))
+    output = _render(reader.show(references=True))
+    assert "Internal references" in output
+    assert "External references" in output
+    assert "Housekeeping" in output
+    assert "Geometry" in output
+    assert "Associated product" in output
 
 
 def test_geometry_uses_leaf_names_in_two_columns():

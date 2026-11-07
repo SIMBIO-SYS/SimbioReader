@@ -2,6 +2,14 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.5.dev1] - 2026-11-07
+
+- Add `info --imaging`, `--display`, `--geometry`, and `--references`.
+- Show internal and external references in separate tables and identify associated housekeeping and geometry products.
+- Add `reader.reference.by_type()` to select internal references by type.
+- Show only the current channel in the SIMBIO panel.
+- Exclude the `None` subphase sentinel from name and date lookups.
+
 ## [1.0.4] - 2026-10-20
 
 ### Changed

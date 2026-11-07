@@ -32,6 +32,13 @@ class Reference:
     internal_references: tuple[InternalReference, ...]
     external_references: tuple[ExternalReference, ...]
 
+    def by_type(self, reference_type: str) -> tuple[InternalReference, ...]:
+        """Return matching internal references in label order."""
+        return tuple(
+            item for item in self.internal_references
+            if item.reference_type == reference_type
+        )
+
     @classmethod
     def from_xml(
         cls,

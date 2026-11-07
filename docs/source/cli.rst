@@ -61,6 +61,12 @@ Read a specific PDS4 product. The command supports ``--all``, ``--hk``,
 symbols by default; ``--no-symbols`` preserves the names found in the XML
 label.
 
+Use ``--imaging``, ``--display``, ``--geometry``, and ``--references`` to
+select individual panels alongside general product and target information.
+The flags can be combined. References are shown in separate internal and
+external tables. Associated products are labeled as housekeeping or geometry
+when their LID contains the corresponding ``hk`` or ``geometry`` token.
+
 When ``--hk`` is selected, the output includes both the typed instrument
 housekeeping values and the loaded CSV housekeeping table. Housekeeping and
 detector rows use the ``parameter = value unit`` convention. Geometry fields
@@ -69,4 +75,6 @@ use their leaf names and are arranged in two value columns when possible.
 .. code-block:: bash
 
     simbioReader info product.lblx --all
+    simbioReader info product.lblx --display --geometry
+    simbioReader info product.lblx --references
     simbioReader info product.dat --summarize
