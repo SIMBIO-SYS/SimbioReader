@@ -2,6 +2,12 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.5.dev3] - 2026-11-07
+
+- Show the first, middle and last CSV housekeeping sample for each parameter
+  when `info --hk` reads a table with multiple rows.
+- Add a regression test for the sampled values and their column order.
+
 ## [1.0.5.dev2] - 2026-11-07
 
 - Group Geometry by section, footprint corner and vector.

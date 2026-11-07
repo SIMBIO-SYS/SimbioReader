@@ -1,7 +1,9 @@
 import io
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from loguru import logger
 
@@ -159,3 +161,24 @@ def test_summary_uses_the_new_show_summary():
     assert isinstance(panel, Panel)
     assert "SimbioReader Info" in output
     assert "Target Info" in output
+
+
+def test_show_hk_samples_first_middle_and_last_csv_rows():
+    reader = _stc_reader()
+    data = np.array(
+        [(b"first", 10), (b"skipped", 20), (b"middle", 30), (b"last", 40)],
+        dtype=[("sample_name", "S8"), ("sample_count", "i4")],
+    )
+    object.__setattr__(reader, "csv_data", SimpleNamespace(data=data))
+
+    output = _render(reader.show(hk=True))
+
+    assert "Parameter" in output
+    assert "First Row" in output
+    assert "Middle Row" in output
+    assert "Last Row" in output
+    name_row = next(line for line in output.splitlines() if "Sample Name" in line)
+    assert name_row.index("first") < name_row.index("middle") < name_row.index("last")
+    count_row = next(line for line in output.splitlines() if "Sample Count" in line)
+    assert count_row.index("10") < count_row.index("30") < count_row.index("40")
+    assert "skipped" not in output

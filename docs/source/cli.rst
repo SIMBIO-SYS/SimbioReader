@@ -68,7 +68,10 @@ external tables. Associated products are labeled as housekeeping or geometry
 when their LID contains the corresponding ``hk`` or ``geometry`` token.
 
 When ``--hk`` is selected, the output includes both the typed instrument
-housekeeping values and the loaded CSV housekeeping table. Housekeeping and
+housekeeping values and the loaded CSV housekeeping table. For CSVs with
+multiple rows, the table shows the first, middle and last sample for each
+parameter. With an even row count, the middle column uses the later of the two
+central rows. Housekeeping and
 detector rows use the ``parameter = value unit`` convention. Geometry groups
 fields by section, with separate headings for footprint corners and vectors.
 Imaging groups optional Downsampling fields and lists temperatures by sensor.

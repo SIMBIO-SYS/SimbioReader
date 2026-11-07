@@ -868,7 +868,24 @@ class SimbioReader:
 
         csv_data = csv_structure.data
         column_names = csv_data.dtype.names or ()
-        if not column_names:
+        if len(csv_data) > 1:
+            table.add_column("Parameter", style="yellow")
+            for header in ("First Row", "Middle Row", "Last Row"):
+                table.add_column(header, style="cyan")
+            first = csv_data[0]
+            middle = csv_data[len(csv_data) // 2]
+            last = csv_data[-1]
+            if column_names:
+                for name in column_names:
+                    table.add_row(
+                        name.replace("_", " ").title(),
+                        self._format_csv_value(first[name]),
+                        self._format_csv_value(middle[name]),
+                        self._format_csv_value(last[name]),
+                    )
+            else:
+                table.add_row("Value", str(first), str(middle), str(last))
+        elif not column_names:
             table.add_column("Row", justify="right")
             table.add_column("Value")
             for row_number, row in enumerate(csv_data, start=1):

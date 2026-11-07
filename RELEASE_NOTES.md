@@ -1,10 +1,9 @@
-# SimbioReader 1.0.5.dev2
+# SimbioReader 1.0.5.dev3
 
 Development release prepared on 7 November 2026.
 
-- Group Geometry by section, footprint corner and vector.
-- Group optional Downsampling fields and sensor temperatures in Imaging.
-- Read both numeric and textual HRIC detector types and filter metadata.
-- Report each CSV once with verbose or debug logging.
+- Summarize CSV housekeeping with the first, middle and last sample for each
+  parameter when the table contains multiple rows.
+- Verify the sampled values and their column order with a regression test.
 
-The test suite passes with 84 tests.
+The test suite passes with 85 tests.
