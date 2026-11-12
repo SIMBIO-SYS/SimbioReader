@@ -26,7 +26,12 @@ instruments: list[INSTRUMENT] = [
 class Compression:
     box: str
     rate: float
-    ratio: int
+    ibr: int
+
+    @property
+    def ratio(self) -> int:
+        """Return the IBR value under its legacy attribute name."""
+        return self.ibr
 
 
 @dataclass(slots=True, frozen=True)

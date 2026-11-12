@@ -1,4 +1,4 @@
-![Version 1.0.5.dev3](https://img.shields.io/badge/version-1.0.5.dev3-blue?style=plastic)
+![Version 1.0.5.dev4](https://img.shields.io/badge/version-1.0.5.dev4-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
@@ -132,7 +132,7 @@ The Sphinx sources are under `docs/source`. Additional maintenance documents:
 Use Python 3.14 (`uv sync --locked`) with the refreshed dependency lockfile.
 PDS4 generated product versions remain `0.1`; software versions are independent.
 
-## Release 1.0.5.dev3
+## Release 1.0.5.dev4
 
-For CSV housekeeping with multiple rows, `info --hk` displays the first,
-middle and last sample for each parameter. See the [release notes](RELEASE_NOTES.md).
+The SIMBIO compression model exposes the PDS4 initial bit rate as
+`compression.ibr` and retains `compression.ratio` as a read alias. See the [release notes](RELEASE_NOTES.md).

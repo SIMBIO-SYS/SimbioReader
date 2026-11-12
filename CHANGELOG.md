@@ -2,6 +2,11 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.5.dev4] - 2026-11-12
+
+- Expose the PDS4 compression value as `compression.ibr` and retain
+  `compression.ratio` as a read alias.
+
 ## [1.0.5.dev3] - 2026-11-07
 
 - Show the first, middle and last CSV housekeeping sample for each parameter

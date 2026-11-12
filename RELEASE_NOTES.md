@@ -1,9 +1,4 @@
-# SimbioReader 1.0.5.dev3
+# SimbioReader 1.0.5.dev4
 
-Development release prepared on 7 November 2026.
-
-- Summarize CSV housekeeping with the first, middle and last sample for each
-  parameter when the table contains multiple rows.
-- Verify the sampled values and their column order with a regression test.
-
-The test suite passes with 85 tests.
+- Expose the PDS4 initial bit rate as `compression.ibr`. Existing readers can
+  continue using `compression.ratio` as a read alias.

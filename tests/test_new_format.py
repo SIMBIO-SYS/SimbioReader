@@ -98,4 +98,5 @@ def test_simbio_reader_preserves_compression_box(tmp_path, box):
     compression = _reader(label).simbio.compression
     assert compression.box == box
     assert isinstance(compression.rate, float)
-    assert isinstance(compression.ratio, int)
+    assert compression.ibr == int(tree.xpath("//*[local-name()='ibr']")[0].text)
+    assert compression.ratio == compression.ibr
