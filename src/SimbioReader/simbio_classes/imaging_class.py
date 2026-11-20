@@ -75,11 +75,13 @@ class Imaging:
     ) -> Imaging:
         """Build imaging metadata from the PDS discipline-area XML."""
 
-        def text(path: str, context: _Element = element) -> str:
+        def text(
+            path: str, context: _Element = element, *, required: bool = True
+        ) -> str:
             value = str(
                 context.xpath(f"string({path})", namespaces=namespaces)
             ).strip()
-            if not value:
+            if required and not value:
                 raise ValueError(f"Missing imaging XML value at {path}")
             return value
 
@@ -176,7 +178,7 @@ class Imaging:
                 sample_fov_unit=unit(
                     f"{subframe_path}/img:sample_fov[1]"
                 ),
-                name=text(f"{subframe_path}/img:name[1]"),
+                name=text(f"{subframe_path}/img:name[1]", required=False),
                 description=text(
                     f"{subframe_path}/img:description[1]"
                 ),

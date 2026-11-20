@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from lxml import etree
 
 from SimbioReader.simbio_classes import Display, Geometry, Imaging, Reference
@@ -27,6 +28,23 @@ def test_imaging_reads_downsampling():
     assert downsampling.processing_venue == "Onboard"
     assert (downsampling.height_pixels, downsampling.width_pixels) == (2, 4)
     assert downsampling.height_pixels_unit == downsampling.width_pixels_unit == "pixel"
+
+
+@pytest.mark.parametrize("omit_name", [False, True])
+def test_imaging_accepts_unnamed_subframe(omit_name):
+    label = next(Path("tests/data").glob("*stc*/*.lblx"))
+    root = etree.parse(label).getroot()
+    namespaces = {"pds": root.nsmap[None], "img": root.nsmap["img"]}
+    (imaging,) = root.xpath(
+        "pds:Observation_Area/pds:Discipline_Area/img:Imaging", namespaces=namespaces
+    )
+    (name,) = imaging.xpath("img:Subframe/img:name", namespaces=namespaces)
+    if omit_name:
+        name.getparent().remove(name)
+    else:
+        name.text = " "
+
+    assert Imaging.from_xml(imaging, namespaces).subframe.name == ""
 
 
 def test_reader_populates_discipline_area_models():

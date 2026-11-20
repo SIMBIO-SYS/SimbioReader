@@ -771,7 +771,7 @@ wheels = [
 
 [[package]]
 name = "simbioreader"
-version = "1.0.5.dev5"
+version = "1.0.5"
 source = { editable = "." }
 dependencies = [
     { name = "importlib-metadata" },

@@ -1,4 +1,4 @@
-![Version 1.0.5.dev5](https://img.shields.io/badge/version-1.0.5.dev5-blue?style=plastic)
+![Version 1.0.5](https://img.shields.io/badge/version-1.0.5-blue?style=plastic)
 ![Language Python 3.14](https://img.shields.io/badge/python-3.14-orange?style=plastic&logo=python)
 ![BepiColombo SIMBIO-SYS](https://img.shields.io/badge/BepiColombo-SIMBIO--SYS-blue?style=plastic)
 [![SimbioReader Test](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml/badge.svg)](https://github.com/SIMBIO-SYS/SimbioReader/actions/workflows/test.yml)
@@ -132,9 +132,12 @@ The Sphinx sources are under `docs/source`. Additional maintenance documents:
 Use Python 3.14 (`uv sync --locked`) with the refreshed dependency lockfile.
 PDS4 generated product versions remain `0.1`; software versions are independent.
 
-## Release 1.0.5.dev5
+## Release 1.0.5
 
-The SIMBIO compression model exposes the PDS4 initial bit rate as
-`compression.ibr` and retains `compression.ratio` as a read alias. See the [release notes](RELEASE_NOTES.md).
+This release adds imaging, display, geometry and reference panels to
+`simbioReader info` and summarizes multi-row housekeeping tables with the
+first, middle and last samples. The reader accepts unnamed imaging subframes
+and exposes the compression initial bit rate as `compression.ibr`, with
+`compression.ratio` retained as an alias.
 
-The reader now groups the standard-library imports in their conventional order.
+See the [release notes](RELEASE_NOTES.md) for the full list of changes.

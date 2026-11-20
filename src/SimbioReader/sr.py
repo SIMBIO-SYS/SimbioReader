@@ -611,9 +611,12 @@ class SimbioReader:
                     continue
                 label = f"{prefix}.{field.name}" if prefix else field.name
                 field_value = getattr(value, field.name)
-                if isinstance(value, Simbio) and field.name in {"_stc", "_hric", "_vihi"}:
-                    if field.name != f"_{value.channel.value.lower()}":
-                        continue
+                if (
+                    isinstance(value, Simbio)
+                    and field.name in {"_stc", "_hric", "_vihi"}
+                    and field.name != f"_{value.channel.value.lower()}"
+                ):
+                    continue
                 unit_field = unit_fields.get(field.name)
                 if unit_field:
                     unit = getattr(value, unit_field)

@@ -1,8 +1,15 @@
-# SimbioReader 1.0.5.dev5
+# SimbioReader 1.0.5
 
-- Group the standard-library imports in the reader module.
+Requires Python 3.14 or later, below Python 4.
 
-# SimbioReader 1.0.5.dev4
-
-- Expose the PDS4 initial bit rate as `compression.ibr`. Existing readers can
-  continue using `compression.ratio` as a read alias.
+- Add selectable imaging, display, geometry and reference panels and internal
+  reference filtering through `reader.reference.by_type()`.
+- Group geometry and imaging metadata, accept optional downsampling and
+  unnamed imaging subframes, and read HRIC detector and filter codes as
+  numbers or text.
+- Summarize CSV housekeeping tables with the first, middle and last samples.
+- Expose the initial bit rate as `compression.ibr`, retaining
+  `compression.ratio` as an alias.
+- Read VIHI frame binning and support labels with optional repetition time
+  and pixel coordinates.
+- Exclude the `None` subphase sentinel from name and date lookups.

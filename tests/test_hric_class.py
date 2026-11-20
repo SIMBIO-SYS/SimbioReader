@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-
 from lxml import etree
 
 from SimbioReader.simbio_classes import Hric

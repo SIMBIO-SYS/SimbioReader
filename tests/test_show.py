@@ -6,12 +6,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 from loguru import logger
-
 from rich.console import Console
 from rich.panel import Panel
 
-from SimbioReader.sr import SimbioReader
 from SimbioReader.simbio_classes.reference_class import InternalReference
+from SimbioReader.sr import SimbioReader
 
 
 def _stc_reader(**kwargs) -> SimbioReader:

@@ -1,6 +1,6 @@
 [project]
 name = "SimbioReader"
-version = "1.0.5.dev5"
+version = "1.0.5"
 description = "Python Reader for the data from SIMBIO-SYS instrument suite on-board the ESA mission BepiColombo"
 dependencies = [
     "numpy>=2.3.3,<3.0.0",
@@ -21,11 +21,8 @@ readme = "README.md"
 license-files = ["LICENSE"]
 keywords = ["data reader", "Space Mission", "BepiColombo", "SIMBIO-SYS"]
 classifiers = [
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
 ]
 
 [project.urls]
