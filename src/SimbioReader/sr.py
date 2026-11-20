@@ -1,10 +1,10 @@
+import re
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
 
 # from SimbioReader.version import version
 from importlib.metadata import version as get_version
 from pathlib import Path
-import re
 
 import lxml.etree as etree
 import pds4_tools

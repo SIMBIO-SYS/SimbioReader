@@ -1,3 +1,7 @@
+# SimbioReader 1.0.5.dev5
+
+- Group the standard-library imports in the reader module.
+
 # SimbioReader 1.0.5.dev4
 
 - Expose the PDS4 initial bit rate as `compression.ibr`. Existing readers can

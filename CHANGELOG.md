@@ -2,6 +2,10 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.5.dev5] - 2026-11-20
+
+- Group the standard-library imports in the reader module.
+
 ## [1.0.5.dev4] - 2026-11-12
 
 - Expose the PDS4 compression value as `compression.ibr` and retain
