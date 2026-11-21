@@ -1,3 +1,10 @@
+# SimbioReader 1.0.6.dev1
+
+Release date: 21 November 2026.
+
+- Remove `name` and `description` from the Subframe model and its XML parser.
+- Cover STC-style labels with absent fields and labels that still carry them.
+
 # SimbioReader 1.0.5
 
 Requires Python 3.14 or later, below Python 4.

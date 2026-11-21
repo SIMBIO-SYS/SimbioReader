@@ -2,6 +2,11 @@
 
 All notable changes to SimbioReader are documented in this file.
 
+## [1.0.6.dev1] - 2026-11-21
+
+- Remove `name` and `description` from the Subframe model and its XML parser.
+- Cover STC-style labels with absent fields and labels that still carry them.
+
 ## [1.0.5] - 2026-11-20
 
 - Add selectable imaging, display, geometry and reference panels and internal

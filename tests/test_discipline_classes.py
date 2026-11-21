@@ -30,21 +30,23 @@ def test_imaging_reads_downsampling():
     assert downsampling.height_pixels_unit == downsampling.width_pixels_unit == "pixel"
 
 
-@pytest.mark.parametrize("omit_name", [False, True])
-def test_imaging_accepts_unnamed_subframe(omit_name):
+@pytest.mark.parametrize("omit_fields", [False, True])
+def test_imaging_ignores_subframe_name_and_description(omit_fields):
     label = next(Path("tests/data").glob("*stc*/*.lblx"))
     root = etree.parse(label).getroot()
     namespaces = {"pds": root.nsmap[None], "img": root.nsmap["img"]}
     (imaging,) = root.xpath(
         "pds:Observation_Area/pds:Discipline_Area/img:Imaging", namespaces=namespaces
     )
-    (name,) = imaging.xpath("img:Subframe/img:name", namespaces=namespaces)
-    if omit_name:
-        name.getparent().remove(name)
-    else:
-        name.text = " "
+    for field in ("name", "description"):
+        (element,) = imaging.xpath(f"img:Subframe/img:{field}", namespaces=namespaces)
+        if omit_fields:
+            element.getparent().remove(element)
 
-    assert Imaging.from_xml(imaging, namespaces).subframe.name == ""
+    subframe = Imaging.from_xml(imaging, namespaces).subframe
+    assert subframe.lines > 0 and subframe.samples > 0
+    assert not hasattr(subframe, "name")
+    assert not hasattr(subframe, "description")
 
 
 def test_reader_populates_discipline_area_models():
